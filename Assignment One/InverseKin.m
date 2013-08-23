@@ -1,14 +1,18 @@
-function theta = Inv( x_0, y_0, z_0 )
-based = 230;
+% METR4202 Team Project One
+% Team: Delta (Group One)
+% The University of Queensland
+
+function theta = InverseKin( x_0, y_0, z_0 )
+base = 230;
 edge = 70;
-lengthTop = 135;
-lengthBot = 265;
-startHeight = 75;
+lengthTop = 133;
+lengthBot = 273;
+startHeight = 50;
 
 
 z_0 = (z_0 + startHeight); %Re calibrate based on the starting height
 
-y_1 = -0.5 * 0.57735 * based;
+y_1 = -0.5 * 0.57735 * base;
 y_0 = (y_0 - 0.5 * 0.57735 * edge);
 
 a = (x_0^2 + y_0^2 + z_0^2 + lengthTop^2 - lengthBot^2 - y_1^2)/(2*z_0);
