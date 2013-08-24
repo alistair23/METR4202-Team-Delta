@@ -83,8 +83,8 @@ for i=1:2
     % Check to see if the block has been hit
     while GetSwitch(button) ~= true
         % Move the pen down 1 vertical block to hit the tower
-        MoveMotors(0, 0, -(VLU/2));
-        tempOffset = tempOffset - (VLU/2);
+        MoveMotors(0, 0, -(VLU/3));
+        tempOffset = tempOffset - (VLU/3);
     end
     
     %Update the current Position
