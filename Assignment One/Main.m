@@ -45,6 +45,9 @@ mDownTwo  = NXTMotor(port(2), 'Power', -power, 'ActionAtTachoLimit', 'Brake', 'S
 mUpThree    = NXTMotor(port(3), 'Power',  power, 'ActionAtTachoLimit', 'Brake', 'SmoothStart', true);
 mDownThree  = NXTMotor(port(3), 'Power', -power, 'ActionAtTachoLimit', 'Brake', 'SmoothStart', true);
 
+%% Create the button object
+button = SENSOR_1();
+
 %% Main Program
 
 %Get the data points in terms of lego
@@ -56,6 +59,8 @@ location(1, :) = input('\nOne: ');
 % location(4, :) = input('\nFour: ');
 % location(5, :) = input('\nFive: ');
 % location(6, :) = input('\nSix: ');
+
+OpenSwitch(button);
 
 for i=1:2
     
@@ -70,13 +75,23 @@ for i=1:2
         location(i, 3) = (location(i, 3) - 1)*VLU + (VLU/2);
     end
     
-    % Move the Motors
-    MoveMotors(location(i, 1) - currentPosition(1), location(i, 2) - currentPosition(2), location(i, 3) - currentPosition(3));
+    % Move the Motors to 2 above the location
+    MoveMotors(location(i, 1) - currentPosition(1), location(i, 2) - currentPosition(2), (location(i, 3) - currentPosition(3) + 2*VLU));
+    
+    tempOffset = 2*VLU;
+
+    % Check to see if the block has been hit
+    while GetSwitch(button) ~= true
+        % Move the pen down 1 vertical block to hit the tower
+        MoveMotors(0, 0, -(VLU/2));
+        tempOffset = tempOffset - (VLU/2);
+    end
     
     %Update the current Position
     currentPosition(1) = location(i, 1) - currentPosition(1);
     currentPosition(2) = location(i, 2) - currentPosition(2);
-    currentPosition(3) = location(i, 3) - currentPosition(3);
+    currentPosition(3) = location(i, 3) - currentPosition(3) + tempOffset;
+    
 end
 
 
