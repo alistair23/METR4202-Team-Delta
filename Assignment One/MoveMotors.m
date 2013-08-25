@@ -24,7 +24,7 @@ theta1 = InverseKin(x_s, y_s, z_s);
 theta2 = InverseKin(x_s*cos((120/180)*pi()) + y_s*sin((120/180)*pi()), y_s*cos((120/180)*pi()) - x_s*sin((120/180)*pi()), z_s);
 theta3 = InverseKin(x_s*cos((120/180)*pi()) - y_s*sin((120/180)*pi()), y_s*cos((120/180)*pi()) + x_s*sin((120/180)*pi()), z_s);
 
-% Tell Motor One where to go[
+% Tell Motor One where to go
 % Find current position - account for errors, i.e. if pos is not 0
 data = mUpOne.ReadFromNXT();
 pos  = data.Position;

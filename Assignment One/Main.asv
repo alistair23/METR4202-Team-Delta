@@ -53,29 +53,26 @@ button = SENSOR_1();
 %% Get the data points in terms of lego
 Message = 'Enter the six points as arrays';
 disp(Message);
-inputCords(1, :) = input('\nOne: ');
-inputCords(2, :) = input('\nTwo: ');
-% inputCords(3, :) = input('\nThree: ');
-% inputCords(4, :) = input('\nFour: ');
-% inputCords(5, :) = input('\nFive: ');
-% inputCords(6, :) = input('\nSix: ');
+location(1, :) = input('\nOne: ');
+location(2, :) = input('\nTwo: ');
+% location(3, :) = input('\nThree: ');
+% location(4, :) = input('\nFour: ');
+% location(5, :) = input('\nFive: ');
+% location(6, :) = input('\nSix: ');
 
 %% Calculate the distance
-magnitude(1) = norm(inputCords(1));
-magnitude(2) = norm(inputCords(2));
-% magnitude(3) = norm(inputCords(3));
-% magnitude(4) = norm(inputCords(4));
-% magnitude(5) = norm(inputCords(5));
-% magnitude(6) = norm(inputCords(6));
+magnitude(1) = norm(location(1));
+magnitude(2) = norm(location(2));
+% magnitude(3) = norm(location(3));
+% magnitude(4) = norm(location(4));
+% magnitude(5) = norm(location(5));
+% magnitude(6) = norm(location(6));
 
 SortedMag = sort(magnitude);
 
 for i=1:2
-    for j=1:2
-        if magnitude(j) == SortedMag(i)
-            location(i, :) = inputCords(j, :);
-        end
-    end
+    for j=1:
+    if magnitude
 end
 
 OpenSwitch(button);
