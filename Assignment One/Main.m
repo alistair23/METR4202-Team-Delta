@@ -49,9 +49,9 @@ mDownThree  = NXTMotor(port(3), 'Power', -power, 'ActionAtTachoLimit', 'Brake', 
 mUpOne.Stop('off');
 mUpTwo.Stop('off');
 mUpThree.Stop('off');
-% mUpOne.ResetPosition();
-% mUpTwo.ResetPosition();
-% mUpThree.ResetPosition();
+mUpOne.ResetPosition();
+mUpTwo.ResetPosition();
+mUpThree.ResetPosition();
 
 %% Create the button object
 button = SENSOR_1();
@@ -92,41 +92,42 @@ for i=1:2
     
     %Calculate the points in mm
     if location(i, 1) ~= 0
-        location(i, 1) = ((location(i, 1) - 1)*HLU + (HLU/2) - 170);
+        location(i, 1) = ((location(i, 1) - 1)*HLU + (HLU/2) - 167);
     end
     if location(i, 2) ~= 0 
-        location(i, 2) = ((location(i, 2) - 1)*HLU + (HLU/2) - 100);
+        location(i, 2) = ((location(i, 2) - 1)*HLU + (HLU/2) - 98);
     end
     if location(i, 3) ~= 0
-        location(i, 3) = ((location(i, 3) - 1)*VLU + (VLU/2) + 52);
+        location(i, 3) = ((location(i, 3) - 1)*VLU + (VLU/2) - 52);
     end
     
     % Move the motors to positive 6 VLU
-    MoveMotors(0, 0, 2*VLU - currentPosition(3));
-    MoveMotors(0, 0, 2*VLU - currentPosition(3));
-    MoveMotors(0, 0, 2*VLU - currentPosition(3));
+    MoveMotors(currentPosition(1), currentPosition(2), 5*VLU);
     
-    currentPosition(3) = 6*VLU - currentPosition(3);
+    currentPosition(3) = 5*VLU;
     
     % Move the Motors to above the location
-    MoveMotors(location(i, 1) - currentPosition(1), location(i, 2) - currentPosition(2), 0);
+    MoveMotors(location(i, 1), location(i, 2), currentPosition(3));
+    
+    currentPosition(1) = location(i, 1);
+    currentPosition(2) = location(i, 2);
     
     % Move the motors to one above the location
-    MoveMotors(0, 0, (location(i, 3) - currentPosition(3) + VLU));
+    MoveMotors(currentPosition(1), currentPosition(2), (location(i, 3) + VLU));
     
     tempOffset = VLU;
-
+    k = 1;
+    
     % Check to see if the block has been hit
     while GetSwitch(button) ~= true
         % Move the pen down 1/3 vertical block to hit the tower
-        MoveMotors(0, 0, -(VLU/3));
+        MoveMotors(currentPosition(1), currentPosition(2), (location(i, 3) + VLU - k*(VLU/3)));
         tempOffset = tempOffset - (VLU/3);
+        k = k + 1;
     end
     
     %Update the current Position
-    currentPosition(1) = location(i, 1) - currentPosition(1);
-    currentPosition(2) = location(i, 2) - currentPosition(2);
-    currentPosition(3) = location(i, 3) - currentPosition(3) + tempOffset;
+    currentPosition(3) = currentPosition(3) + tempOffset;
     
 end
 

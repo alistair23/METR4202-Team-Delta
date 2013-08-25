@@ -12,9 +12,9 @@ global mUpThree;
 global mDownThree;
 
 %% Scale Inputs
-x_s = y_i;
-y_s = x_i;
-z_s = z_i;
+x_s = 1.08*y_i;
+y_s = 1.08*x_i;
+z_s = -z_i;
 
 %% Main movement
 theta1 = InverseKin(x_s, y_s, z_s);
@@ -26,17 +26,21 @@ theta3 = InverseKin(x_s*cos((120/180)*pi()) - y_s*sin((120/180)*pi()), y_s*cos((
 data = mUpOne.ReadFromNXT();
 pos  = data.Position;
 
+%Checking Data
+data = mUpTwo.ReadFromNXT();
+data = mUpThree.ReadFromNXT();
+
 % Check for less then zero
 if abs(int16(theta1) + pos) == 0
     % Do nothing
 % Decide to move up or down
 elseif (theta1 + pos) < 0
     mUpOne.ActionAtTachoLimit = 'Brake';
-    mUpOne.TachoLimit = abs(int16(theta1) + pos);
+    mUpOne.TachoLimit = abs(int16(theta1 + pos));
     mUpOne.SendToNXT();
 else
     mDownOne.ActionAtTachoLimit = 'Brake';
-    mDownOne.TachoLimit = abs(int16(theta1) + pos);
+    mDownOne.TachoLimit = abs(int16(theta1 + pos));
     mDownOne.SendToNXT();
 end
 
@@ -51,11 +55,11 @@ if abs(int16(theta2) + pos) == 0
 % Decide to move up or down
 elseif (theta2 + pos) < 0
     mUpTwo.ActionAtTachoLimit = 'Brake';
-    mUpTwo.TachoLimit = abs(int16(theta2) + pos);
+    mUpTwo.TachoLimit = abs(int16(theta2 + pos));
     mUpTwo.SendToNXT();
 else
     mDownTwo.ActionAtTachoLimit = 'Brake';
-    mDownTwo.TachoLimit = abs(int16(theta2) + pos);
+    mDownTwo.TachoLimit = abs(int16(theta2 + pos));
     mDownTwo.SendToNXT();
 end
 
@@ -70,11 +74,11 @@ if abs(int16(theta3) + pos) == 0
 % Decide to move up or down
 elseif (theta3 + pos) < 0
     mUpThree.ActionAtTachoLimit = 'Brake';
-    mUpThree.TachoLimit = abs(int16(theta3) + pos);
+    mUpThree.TachoLimit = abs(int16(theta3 + pos));
     mUpThree.SendToNXT();
 else
     mDownThree.ActionAtTachoLimit = 'Brake';
-    mDownThree.TachoLimit = abs(int16(theta3) + pos);
+    mDownThree.TachoLimit = abs(int16(theta3 + pos));
     mDownThree.SendToNXT();
 end
 
