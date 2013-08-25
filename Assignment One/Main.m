@@ -45,10 +45,16 @@ mDownTwo  = NXTMotor(port(2), 'Power', -power, 'ActionAtTachoLimit', 'Brake', 'S
 mUpThree    = NXTMotor(port(3), 'Power',  power, 'ActionAtTachoLimit', 'Brake', 'SmoothStart', true);
 mDownThree  = NXTMotor(port(3), 'Power', -power, 'ActionAtTachoLimit', 'Brake', 'SmoothStart', true);
 
+%% Prepare motor
+mUpOne.Stop('off');
+mUpTwo.Stop('off');
+mUpThree.Stop('off');
+% mUpOne.ResetPosition();
+% mUpTwo.ResetPosition();
+% mUpThree.ResetPosition();
+
 %% Create the button object
 button = SENSOR_1();
-
-%% Main Program
 
 %% Get the data points in terms of lego
 Message = 'Enter the six points as arrays';
@@ -86,20 +92,21 @@ for i=1:2
     
     %Calculate the points in mm
     if location(i, 1) ~= 0
-        location(i, 1) = (location(i, 1) - 1)*HLU + (HLU/2);
+        location(i, 1) = ((location(i, 1) - 1)*HLU + (HLU/2) - 170);
     end
     if location(i, 2) ~= 0 
-        location(i, 2) = (location(i, 2) - 1)*HLU + (HLU/2);
+        location(i, 2) = ((location(i, 2) - 1)*HLU + (HLU/2) - 100);
     end
     if location(i, 3) ~= 0
-        location(i, 3) = (location(i, 3) - 1)*VLU + (VLU/2);
+        location(i, 3) = ((location(i, 3) - 1)*VLU + (VLU/2) + 52);
     end
     
     % Move the motors to positive 6 VLU
-    %MoveMotors(0, 0, 3*VLU - currentPosition(3));
-    %MoveMotors(0, 0, 3*VLU - currentPosition(3));
+    MoveMotors(0, 0, 2*VLU - currentPosition(3));
+    MoveMotors(0, 0, 2*VLU - currentPosition(3));
+    MoveMotors(0, 0, 2*VLU - currentPosition(3));
     
-    %currentPosition(3) = 6*VLU - currentPosition(3);
+    currentPosition(3) = 6*VLU - currentPosition(3);
     
     % Move the Motors to above the location
     MoveMotors(location(i, 1) - currentPosition(1), location(i, 2) - currentPosition(2), 0);

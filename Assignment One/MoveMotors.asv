@@ -2,7 +2,7 @@
 % Team: Delta (Group One)
 % The University of Queensland
 
-function MoveMotors( y_s, x_s, z_s )
+function MoveMotors( x_i, y_i, z_i )
 %% Define Variables
 global mUpOne;
 global mDownOne;
@@ -11,35 +11,34 @@ global mDownTwo;
 global mUpThree;
 global mDownThree;
 
-%% Prepare motor
-mUpOne.Stop('off');
-mUpTwo.Stop('off');
-mUpThree.Stop('off');
-mUpOne.ResetPosition();
-mUpTwo.ResetPosition();
-mUpThree.ResetPosition();
+%% Scale Inputs
+x_s = y_i/2.1;
+y_s = x_i/2.1;
+z_s = z_i/1.3;
+
+
 
 %% Main movement
 theta1 = InverseKin(x_s, y_s, z_s);
 theta2 = InverseKin(x_s*cos((120/180)*pi()) + y_s*sin((120/180)*pi()), y_s*cos((120/180)*pi()) - x_s*sin((120/180)*pi()), z_s);
 theta3 = InverseKin(x_s*cos((120/180)*pi()) - y_s*sin((120/180)*pi()), y_s*cos((120/180)*pi()) + x_s*sin((120/180)*pi()), z_s);
 
-% Check for less then zero
-if 
-
 % Tell Motor One where to go
 % Find current position - account for errors, i.e. if pos is not 0
 data = mUpOne.ReadFromNXT();
 pos  = data.Position;
 
+% Check for less then zero
+if abs(int16(theta1) + pos) == 0
+    % Do nothing
 % Decide to move up or down
-if theta1 < 0
+elseif (theta1 + pos) < 0
     mUpOne.ActionAtTachoLimit = 'Brake';
-    mUpOne.TachoLimit = int16(abs(theta1)) + pos;
+    mUpOne.TachoLimit = abs(int16(theta1) + pos);
     mUpOne.SendToNXT();
 else
     mDownOne.ActionAtTachoLimit = 'Brake';
-    mDownOne.TachoLimit = int16(abs(theta1)) + pos;
+    mDownOne.TachoLimit = abs(int16(theta1) + pos);
     mDownOne.SendToNXT();
 end
 
@@ -48,14 +47,17 @@ end
 data = mUpTwo.ReadFromNXT();
 pos  = data.Position;
     
+% Check for less then zero
+if abs(int16(theta2) + pos) == 0
+    % Do nothing
 % Decide to move up or down
-if theta2 < 0
+elseif (theta2 + pos) < 0
     mUpTwo.ActionAtTachoLimit = 'Brake';
-    mUpTwo.TachoLimit = int16(abs(theta2)) + pos;
+    mUpTwo.TachoLimit = abs(int16(theta2) + pos);
     mUpTwo.SendToNXT();
 else
     mDownTwo.ActionAtTachoLimit = 'Brake';
-    mDownTwo.TachoLimit = int16(abs(theta2)) + pos;
+    mDownTwo.TachoLimit = abs(int16(theta2) + pos);
     mDownTwo.SendToNXT();
 end
 
@@ -64,14 +66,17 @@ end
 data = mUpThree.ReadFromNXT();
 pos  = data.Position;
     
+% Check for less then zero
+if abs(int16(theta3) + pos) == 0
+    % Do nothing
 % Decide to move up or down
-if theta3 < 0
+elseif (theta3 + pos) < 0
     mUpThree.ActionAtTachoLimit = 'Brake';
-    mUpThree.TachoLimit = int16(abs(theta3)) + pos;
+    mUpThree.TachoLimit = abs(int16(theta3) + pos);
     mUpThree.SendToNXT();
 else
     mDownThree.ActionAtTachoLimit = 'Brake';
-    mDownThree.TachoLimit = int16(abs(theta3)) + pos;
+    mDownThree.TachoLimit = abs(int16(theta3) + pos);
     mDownThree.SendToNXT();
 end
 

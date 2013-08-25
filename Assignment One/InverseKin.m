@@ -7,7 +7,7 @@ base = 270;
 edge = 145;
 lengthTop = 143;
 lengthBot = 276;
-startHeight = 38;
+startHeight = 209.25;
 
 
 z_0 = (z_0 + startHeight); %Recalibrate based on the starting height
