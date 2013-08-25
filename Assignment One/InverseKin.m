@@ -3,11 +3,11 @@
 % The University of Queensland
 
 function theta = InverseKin( x_0, y_0, z_0 )
-base = 230;
-edge = 70;
-lengthTop = 133;
+base = 270;
+edge = 145;
+lengthTop = 143;
 lengthBot = 273;
-startHeight = 50;
+startHeight = 38;
 
 
 z_0 = (z_0 + startHeight); %Re calibrate based on the starting height
