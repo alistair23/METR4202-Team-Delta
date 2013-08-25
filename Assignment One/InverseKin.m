@@ -6,7 +6,7 @@ function theta = InverseKin( x_0, y_0, z_0 )
 base = 270;
 edge = 145;
 lengthTop = 143;
-lengthBot = 273;
+lengthBot = 276;
 startHeight = 38;
 
 

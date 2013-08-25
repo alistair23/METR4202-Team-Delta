@@ -70,6 +70,8 @@ magnitude(2) = norm(inputCords(2));
 
 SortedMag = sort(magnitude);
 
+location = ones(6, 3);
+
 for i=1:2
     for j=1:2
         if magnitude(j) == SortedMag(i)

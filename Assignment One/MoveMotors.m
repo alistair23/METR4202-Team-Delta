@@ -32,11 +32,11 @@ pos  = data.Position;
 % Decide to move up or down
 if theta1 < 0
     mUpOne.ActionAtTachoLimit = 'Brake';
-    mUpOne.TachoLimit = int8(abs(theta1)) + pos;
+    mUpOne.TachoLimit = int16(abs(theta1)) + pos;
     mUpOne.SendToNXT();
 else
     mDownOne.ActionAtTachoLimit = 'Brake';
-    mDownOne.TachoLimit = int8(abs(theta1)) + pos;
+    mDownOne.TachoLimit = int16(abs(theta1)) + pos;
     mDownOne.SendToNXT();
 end
 
@@ -48,11 +48,11 @@ pos  = data.Position;
 % Decide to move up or down
 if theta2 < 0
     mUpTwo.ActionAtTachoLimit = 'Brake';
-    mUpTwo.TachoLimit = int8(abs(theta2)) + pos;
+    mUpTwo.TachoLimit = int16(abs(theta2)) + pos;
     mUpTwo.SendToNXT();
 else
     mDownTwo.ActionAtTachoLimit = 'Brake';
-    mDownTwo.TachoLimit = int8(abs(theta2)) + pos;
+    mDownTwo.TachoLimit = int16(abs(theta2)) + pos;
     mDownTwo.SendToNXT();
 end
 
@@ -64,11 +64,11 @@ pos  = data.Position;
 % Decide to move up or down
 if theta3 < 0
     mUpThree.ActionAtTachoLimit = 'Brake';
-    mUpThree.TachoLimit = int8(abs(theta3)) + pos;
+    mUpThree.TachoLimit = int16(abs(theta3)) + pos;
     mUpThree.SendToNXT();
 else
     mDownThree.ActionAtTachoLimit = 'Brake';
-    mDownThree.TachoLimit = int8(abs(theta3)) + pos;
+    mDownThree.TachoLimit = int16(abs(theta3)) + pos;
     mDownThree.SendToNXT();
 end
 
