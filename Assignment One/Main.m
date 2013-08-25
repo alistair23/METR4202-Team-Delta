@@ -96,10 +96,10 @@ for i=1:2
     end
     
     % Move the motors to positive 6 VLU
-    MoveMotors(0, 0, 3*VLU - currentPosition(3));
-    MoveMotors(0, 0, 3*VLU - currentPosition(3));
+    %MoveMotors(0, 0, 3*VLU - currentPosition(3));
+    %MoveMotors(0, 0, 3*VLU - currentPosition(3));
     
-    currentPosition(3) = 6*VLU - currentPosition(3);
+    %currentPosition(3) = 6*VLU - currentPosition(3);
     
     % Move the Motors to above the location
     MoveMotors(location(i, 1) - currentPosition(1), location(i, 2) - currentPosition(2), 0);

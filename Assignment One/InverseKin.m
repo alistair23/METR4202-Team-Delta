@@ -10,7 +10,7 @@ lengthBot = 276;
 startHeight = 38;
 
 
-z_0 = (z_0 + startHeight); %Re calibrate based on the starting height
+z_0 = (z_0 + startHeight); %Recalibrate based on the starting height
 
 y_1 = -0.5 * 0.57735 * base;
 y_0 = (y_0 - 0.5 * 0.57735 * edge);

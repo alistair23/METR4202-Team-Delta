@@ -25,15 +25,7 @@ theta2 = InverseKin(x_s*cos((120/180)*pi()) + y_s*sin((120/180)*pi()), y_s*cos((
 theta3 = InverseKin(x_s*cos((120/180)*pi()) - y_s*sin((120/180)*pi()), y_s*cos((120/180)*pi()) + x_s*sin((120/180)*pi()), z_s);
 
 % Check for less then zero
-if int16(abs(theta1)) == 0
-    theta1 = 1;
-end
-if int16(abs(theta2)) == 0
-    theta1 = 2;
-end
-if int16(abs(theta3)) == 0
-    theta1 = 3;
-end
+if 
 
 % Tell Motor One where to go
 % Find current position - account for errors, i.e. if pos is not 0
