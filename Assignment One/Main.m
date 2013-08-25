@@ -32,7 +32,7 @@ h = COM_OpenNXT('USB.ini');
 COM_SetDefaultNXT(h);
 
 %% Set params
-power = 75;
+power = 85;
 port = [MOTOR_A; MOTOR_B; MOTOR_C];  % motorports to control the delta robot
 
 %% Create motor objects
@@ -61,7 +61,7 @@ Message = 'Enter the six points as arrays';
 disp(Message);
 inputCords(1, :) = input('\nOne: ');
 inputCords(2, :) = input('\nTwo: ');
-% inputCords(3, :) = input('\nThree: ');
+inputCords(3, :) = input('\nThree: ');
 % inputCords(4, :) = input('\nFour: ');
 % inputCords(5, :) = input('\nFive: ');
 % inputCords(6, :) = input('\nSix: ');
@@ -69,7 +69,7 @@ inputCords(2, :) = input('\nTwo: ');
 %% Calculate the distance
 magnitude(1) = norm(inputCords(1));
 magnitude(2) = norm(inputCords(2));
-% magnitude(3) = norm(inputCords(3));
+magnitude(3) = norm(inputCords(3));
 % magnitude(4) = norm(inputCords(4));
 % magnitude(5) = norm(inputCords(5));
 % magnitude(6) = norm(inputCords(6));
@@ -78,8 +78,8 @@ SortedMag = sort(magnitude);
 
 location = ones(6, 3);
 
-for i=1:2
-    for j=1:2
+for i=1:3
+    for j=1:3
         if magnitude(j) == SortedMag(i)
             location(i, :) = inputCords(j, :);
         end
@@ -88,17 +88,23 @@ end
 
 OpenSwitch(button);
 
-for i=1:2
+% t = timer();
+% t.Period = 60;
+% t.TimerFunction = 'return';
+% start(t);
+
+%% Move forwards
+for i=1:3
     
     %Calculate the points in mm
     if location(i, 1) ~= 0
-        location(i, 1) = ((location(i, 1) - 1)*HLU + (HLU/2) - 167);
+        location(i, 1) = ((location(i, 1) - 1)*HLU + (HLU/2) - 177);
     end
     if location(i, 2) ~= 0 
-        location(i, 2) = ((location(i, 2) - 1)*HLU + (HLU/2) - 98);
+        location(i, 2) = ((location(i, 2) - 1)*HLU + (HLU/2) - 95);
     end
     if location(i, 3) ~= 0
-        location(i, 3) = ((location(i, 3) - 1)*VLU + (VLU/2) - 52);
+        location(i, 3) = ((location(i, 3) - 1)*VLU + (VLU/2) - 80);
     end
     
     % Move the motors to positive 6 VLU
@@ -113,24 +119,56 @@ for i=1:2
     currentPosition(2) = location(i, 2);
     
     % Move the motors to one above the location
-    MoveMotors(currentPosition(1), currentPosition(2), (location(i, 3) + VLU));
+    MoveMotors(currentPosition(1), currentPosition(2), (location(i, 3) + (VLU/3)));
     
-    tempOffset = VLU;
+    tempOffset = (VLU/3);
     k = 1;
     
     % Check to see if the block has been hit
-    while GetSwitch(button) ~= true
+    while (GetSwitch(button) ~= true) && (k < 3)
         % Move the pen down 1/3 vertical block to hit the tower
-        MoveMotors(currentPosition(1), currentPosition(2), (location(i, 3) + VLU - k*(VLU/3)));
-        tempOffset = tempOffset - (VLU/3);
+        MoveMotors(currentPosition(1), currentPosition(2), (location(i, 3) + (VLU/3) - k*(VLU/2)));
+        tempOffset = tempOffset - (VLU/2);
         k = k + 1;
     end
     
     %Update the current Position
     currentPosition(3) = currentPosition(3) + tempOffset;
-    
 end
 
+%% Move Backwards
+for i=2:3
+
+    % Move the motors to positive 6 VLU
+    MoveMotors(currentPosition(1), currentPosition(2), 5*VLU);
+    
+    currentPosition(3) = 5*VLU;
+    
+    % Move the Motors to above the location
+    MoveMotors(location(4 - i, 1), location(4 - i, 2), currentPosition(3));
+    
+    currentPosition(1) = location(4 - i, 1);
+    currentPosition(2) = location(4 - i, 2);
+    
+    % Move the motors to one above the location
+    MoveMotors(currentPosition(1), currentPosition(2), (location(4 - i, 3) + (VLU/3)));
+    
+    tempOffset = (VLU/3);
+    k = 1;
+    
+    % Check to see if the block has been hit
+    while (GetSwitch(button) ~= true) && (k < 3)
+        % Move the pen down 1/3 vertical block to hit the tower
+        MoveMotors(currentPosition(1), currentPosition(2), (location(4 - i, 3) + (VLU/3) - k*(VLU/2)));
+        tempOffset = tempOffset - (VLU/2);
+        k = k + 1;
+    end
+    
+    %Update the current Position
+    currentPosition(3) = currentPosition(3) + tempOffset;
+end
+
+MoveMotors(0, 0, 0);
 
 %% Clean up
 mUpOne.Stop('off');

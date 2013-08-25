@@ -13,7 +13,7 @@ global mDownThree;
 
 %% Scale Inputs
 x_s = 1.08*y_i;
-y_s = 1.08*x_i;
+y_s = 1.2*x_i;
 z_s = -z_i;
 
 %% Main movement
@@ -25,10 +25,6 @@ theta3 = InverseKin(x_s*cos((120/180)*pi()) - y_s*sin((120/180)*pi()), y_s*cos((
 % Find current position - account for errors, i.e. if pos is not 0
 data = mUpOne.ReadFromNXT();
 pos  = data.Position;
-
-%Checking Data
-data = mUpTwo.ReadFromNXT();
-data = mUpThree.ReadFromNXT();
 
 % Check for less then zero
 if abs(int16(theta1) + pos) == 0
@@ -83,6 +79,8 @@ else
 end
 
 % Wait for the last motor to finish
+mDownOne.WaitFor();
+mDownTwo.WaitFor();
 mDownThree.WaitFor();
 mDownOne.ActionAtTachoLimit = 'HoldBrake';
 mDownTwo.ActionAtTachoLimit = 'HoldBrake';
