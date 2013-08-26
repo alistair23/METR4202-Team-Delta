@@ -32,7 +32,7 @@ h = COM_OpenNXT('USB.ini');
 COM_SetDefaultNXT(h);
 
 %% Set params
-power = 85;
+power = 80;
 port = [MOTOR_A; MOTOR_B; MOTOR_C];  % motorports to control the delta robot
 
 %% Create motor objects
@@ -98,7 +98,7 @@ for i=1:3
     
     %Calculate the points in mm
     if location(i, 1) ~= 0
-        location(i, 1) = ((location(i, 1) - 1)*HLU + (HLU/2) - 177);
+        location(i, 1) = ((location(i, 1) - 1)*HLU + (HLU/2) - 185);
     end
     if location(i, 2) ~= 0 
         location(i, 2) = ((location(i, 2) - 1)*HLU + (HLU/2) - 95);
@@ -107,13 +107,7 @@ for i=1:3
         location(i, 3) = ((location(i, 3) - 1)*VLU + (VLU/2) - 80);
     end
     
-    % Move the motors to positive 6 VLU
-    MoveMotors(currentPosition(1), currentPosition(2), 5*VLU);
-    
     currentPosition(3) = 5*VLU;
-    
-    % Move the Motors to above the location
-    MoveMotors(location(i, 1), location(i, 2), currentPosition(3));
     
     currentPosition(1) = location(i, 1);
     currentPosition(2) = location(i, 2);
@@ -140,12 +134,12 @@ end
 for i=2:3
 
     % Move the motors to positive 6 VLU
-    MoveMotors(currentPosition(1), currentPosition(2), 5*VLU);
+    %MoveMotors(currentPosition(1), currentPosition(2), 5*VLU);
     
     currentPosition(3) = 5*VLU;
     
     % Move the Motors to above the location
-    MoveMotors(location(4 - i, 1), location(4 - i, 2), currentPosition(3));
+    %MoveMotors(location(4 - i, 1), location(4 - i, 2), currentPosition(3));
     
     currentPosition(1) = location(4 - i, 1);
     currentPosition(2) = location(4 - i, 2);
