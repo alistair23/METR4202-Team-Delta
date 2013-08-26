@@ -107,22 +107,23 @@ for i=1:3
         location(i, 3) = ((location(i, 3) - 1)*VLU + (VLU/2) - 80);
     end
     
-    currentPosition(3) = 5*VLU;
-    
-    currentPosition(1) = location(i, 1);
-    currentPosition(2) = location(i, 2);
-    
+   
     % Move the motors to one above the location
-    MoveMotors(currentPosition(1), currentPosition(2), (location(i, 3) + (VLU/3)));
+    MoveMotors(location(i, 1), location(i, 2), (location(i, 3) + VLU));
+	
+	%Update the current Position
+	currentPosition(1) = location(i, 1);
+    currentPosition(2) = location(i, 2);
+	currentPosition(3) = (location(i, 3) + VLU);
     
-    tempOffset = (VLU/3);
+    tempOffset = VLU;
     k = 1;
     
     % Check to see if the block has been hit
-    while (GetSwitch(button) ~= true) && (k < 3)
-        % Move the pen down 1/3 vertical block to hit the tower
-        MoveMotors(currentPosition(1), currentPosition(2), (location(i, 3) + (VLU/3) - k*(VLU/2)));
-        tempOffset = tempOffset - (VLU/2);
+    while (GetSwitch(button) ~= true) && (k < 4)
+        % Move the pen down 2/3 vertical block to hit the tower
+        MoveMotors(currentPosition(1), currentPosition(2), (currentPosition(3) - k*(2*VLU/3)));
+        tempOffset = tempOffset - (2*VLU/3);
         k = k + 1;
     end
     
@@ -133,30 +134,24 @@ end
 %% Move Backwards
 for i=2:3
 
-    % Move the motors to positive 6 VLU
-    %MoveMotors(currentPosition(1), currentPosition(2), 5*VLU);
-    
-    currentPosition(3) = 5*VLU;
-    
-    % Move the Motors to above the location
-    %MoveMotors(location(4 - i, 1), location(4 - i, 2), currentPosition(3));
-    
-    currentPosition(1) = location(4 - i, 1);
-    currentPosition(2) = location(4 - i, 2);
-    
     % Move the motors to one above the location
-    MoveMotors(currentPosition(1), currentPosition(2), (location(4 - i, 3) + (VLU/3)));
+    MoveMotors(location(4 - i, 1), location(4 - i, 2), (location(4 - i, 3) + VLU));
+	
+	%Update the current Position
+	currentPosition(1) = location(4 - i, 1);
+    currentPosition(2) = location(4 - i, 2);
+	currentPosition(3) = (location(4 - i, 3) + VLU);
     
-    tempOffset = (VLU/3);
+    tempOffset = VLU;
     k = 1;
     
     % Check to see if the block has been hit
-    while (GetSwitch(button) ~= true) && (k < 3)
-        % Move the pen down 1/3 vertical block to hit the tower
-        MoveMotors(currentPosition(1), currentPosition(2), (location(4 - i, 3) + (VLU/3) - k*(VLU/2)));
-        tempOffset = tempOffset - (VLU/2);
+    while (GetSwitch(button) ~= true) && (k < 4)
+        % Move the pen down 2/3 vertical block to hit the tower
+        MoveMotors(currentPosition(1), currentPosition(2), (currentPosition(3) - k*(2*VLU/3)));
+        tempOffset = tempOffset - (2*VLU/3);
         k = k + 1;
-    end
+    end    
     
     %Update the current Position
     currentPosition(3) = currentPosition(3) + tempOffset;

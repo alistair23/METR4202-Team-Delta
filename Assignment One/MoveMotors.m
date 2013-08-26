@@ -16,12 +16,11 @@ x_s = 1.06*y_i;
 y_s = 1.3*x_i;
 z_s = -z_i;
 
-%% Main movement
+%% Main calcs
 theta1 = InverseKin(x_s, y_s, z_s);
 theta2 = InverseKin(x_s*cos((120/180)*pi()) + y_s*sin((120/180)*pi()), y_s*cos((120/180)*pi()) - x_s*sin((120/180)*pi()), z_s);
 theta3 = InverseKin(x_s*cos((120/180)*pi()) - y_s*sin((120/180)*pi()), y_s*cos((120/180)*pi()) + x_s*sin((120/180)*pi()), z_s);
 
-% Tell Motor One where to go
 % Find current position - account for errors, i.e. if pos is not 0
 data = mUpOne.ReadFromNXT();
 mUpOnepos  = data.Position;
@@ -29,6 +28,8 @@ data = mUpTwo.ReadFromNXT();
 mUpTwopos  = data.Position;
 data = mUpThree.ReadFromNXT();
 mUpThreepos  = data.Position;
+
+%% Tell Motor One where to go
 
 % Check for less then zero
 if abs(int16(theta1) + mUpOnepos) == 0
@@ -42,8 +43,8 @@ else
     mDownOne.SendToNXT();
 end
 
-% Tell Motor Two where to go
-% Find current position - account for errors, i.e. if pos is not 0    
+%% Tell Motor Two where to go
+
 % Check for less then zero
 if abs(int16(theta2) + mUpTwopos) == 0
     % Do nothing
@@ -56,8 +57,8 @@ else
     mDownTwo.SendToNXT();
 end
 
-% Tell Motor Three where to go
-% Find current position - account for errors, i.e. if pos is not 0    
+%% Tell Motor Three where to go
+
 % Check for less then zero
 if abs(int16(theta3) + mUpThreepos) == 0
     % Do nothing
@@ -70,11 +71,8 @@ else
     mDownThree.SendToNXT();
 end
 
-% Wait for the last motor to finish
+%% Wait for the last motor to finish
 mDownOne.WaitFor();
 mDownTwo.WaitFor();
 mDownThree.WaitFor();
-% mDownOne.ActionAtTachoLimit = 'HoldBrake';
-% mDownTwo.ActionAtTachoLimit = 'HoldBrake';
-% mDownThree.ActionAtTachoLimit = 'HoldBrake';
 end
