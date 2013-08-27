@@ -61,6 +61,7 @@ data = mUpThree.ReadFromNXT();
 theta3  = data.Position;
 
 %% BREAKPOINT! - Write down the values above
+
 %% Return the motors to zero
 MoveMotors(0, 0, 40);
 MoveMotors(0, 0, 0);

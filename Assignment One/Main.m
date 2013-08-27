@@ -14,6 +14,7 @@ global mDownThree;
 HLU = 32;
 VLU = 20;
 currentPosition = [0, 0, 0];
+initialOffset = [157, 98, (248 - 209.25)];
 
 %% verify that the RWTH - Mindstorms NXT toolbox is installed.
 if verLessThan('RWTHMindstormsNXT', '4.01');
@@ -90,21 +91,16 @@ end
 
 OpenSwitch(button);
 
-% t = timer();
-% t.Period = 60;
-% t.TimerFunction = 'return';
-% start(t);
-
 for i=1:6
     %Calculate the points in mm
     if location(i, 1) ~= 0
-        location(i, 1) = ((location(i, 1) - 1)*HLU + (HLU/2) - 163);
+        location(i, 1) = ((location(i, 1) - 1)*HLU + (HLU/2) - initialOffset(1));
     end
     if location(i, 2) ~= 0 
-        location(i, 2) = ((location(i, 2) - 1)*HLU + (HLU/2) - 95);
+        location(i, 2) = ((location(i, 2) - 1)*HLU + (HLU/2) - initialOffset(2));
     end
     if location(i, 3) ~= 0
-        location(i, 3) = ((location(i, 3) - 1)*VLU + (VLU/2) - (250 - 209.25));
+        location(i, 3) = ((location(i, 3) - 1)*VLU + (VLU/2) - initialOffset(3));
     end
 end
 
@@ -122,11 +118,17 @@ for l=1:2
 
         tempOffset = 0;
         k = 1;
+        
+        if location(i, 1) >= (7*HLU + (HLU/2) - initialOffset(1))
+            increaseDrop = 1.4;
+        else
+            increaseDrop = 1;
+        end
 
         % Check to see if the block has been hit
         while (GetSwitch(button) ~= true) && (k < 3)
             % Move the pen down 2/3 vertical block to hit the tower
-            MoveMotors(currentPosition(1), currentPosition(2), (currentPosition(3) - k*(2*VLU/3)));
+            MoveMotors(currentPosition(1), currentPosition(2), (currentPosition(3) - increaseDrop*k*(2*VLU/3)));
             tempOffset = tempOffset - (2*VLU/3);
             k = k + 1;
         end
@@ -149,13 +151,19 @@ for l=1:2
         currentPosition(2) = location(7 - i, 2);
         currentPosition(3) = (location(7 - i, 3) + (1.25*VLU));
 
-        tempOffset = (1.25*VLU);
+        tempOffset = 0;
         k = 1;
+        
+        if location(7 - i, 1) >= (7*HLU + (HLU/2) - initialOffset(1))
+            increaseDrop = 1.4;
+        else
+            increaseDrop = 1;
+        end
 
         % Check to see if the block has been hit
         while (GetSwitch(button) ~= true) && (k < 3)
             % Move the pen down 2/3 vertical block to hit the tower
-            MoveMotors(currentPosition(1), currentPosition(2), (currentPosition(3) - k*(2*VLU/3)));
+            MoveMotors(currentPosition(1), currentPosition(2), (currentPosition(3) - increaseDrop*k*(2*VLU/3)));
             tempOffset = tempOffset - (2*VLU/3);
             k = k + 1;
         end    
