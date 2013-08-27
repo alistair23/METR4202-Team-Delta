@@ -13,7 +13,7 @@ global mDownThree;
 
 %% Scale Inputs
 x_s = y_i;
-y_s = 1.32*x_i;
+y_s = x_i;
 z_s = -z_i;
 
 %% Main calcs

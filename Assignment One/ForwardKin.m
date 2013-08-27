@@ -6,15 +6,14 @@ function [ x_0, y_0, z_0 ] = ForwardKin( theta1, theta2, theta3 )
     base = 270;
     edge = 145;
     lengthTop = 143;
-    lengthBot = 276;
-    startHeight = 209.25;    
+    lengthBot = 276;    
 
-    t = (base-edge) * (1/sqrt(3));
+    t = (base - edge) * (0.5/sqrt(3));
  
     % Convert to radians
-    theta1 = theta1 * (pi/180.0);
-    theta2 = theta2 * (pi/180.0);
-    theta3 = theta3 * (pi/180.0);
+    theta1 = (theta1/5) * (pi/180);
+    theta2 = (theta2/5) * (pi/180);
+    theta3 = (theta3/5) * (pi/180);
  
      y1 = -(t + lengthTop * cos(theta1));
      z1 = -lengthTop * sin(theta1);
@@ -55,7 +54,7 @@ function [ x_0, y_0, z_0 ] = ForwardKin( theta1, theta2, theta3 )
      end
  
      z_0 = -0.5*(b+sqrt(d))/a;
-     x_0 = (a1*z0 + b1)/dnm;
-     y_0 = (a2*z0 + b2)/dnm;
+     x_0 = (a1*z_0 + b1)/dnm;
+     y_0 = (a2*z_0 + b2)/dnm;
 end
 
