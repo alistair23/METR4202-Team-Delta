@@ -12,8 +12,8 @@ global mUpThree;
 global mDownThree;
 
 %% Scale Inputs
-x_s = 1.06*y_i;
-y_s = 1.3*x_i;
+x_s = y_i;
+y_s = 1.32*x_i;
 z_s = -z_i;
 
 %% Main calcs
@@ -75,4 +75,13 @@ end
 mDownOne.WaitFor();
 mDownTwo.WaitFor();
 mDownThree.WaitFor();
+
+mDownOne.ActionAtTachoLimit = 'HoldBrake';
+mUpOne.ActionAtTachoLimit = 'HoldBrake';
+
+mDownTwo.ActionAtTachoLimit = 'HoldBrake';
+mUpTwo.ActionAtTachoLimit = 'HoldBrake';
+
+mDownThree.ActionAtTachoLimit = 'HoldBrake';
+mUpThree.ActionAtTachoLimit = 'HoldBrake';
 end

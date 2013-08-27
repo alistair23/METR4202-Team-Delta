@@ -98,13 +98,13 @@ for i=1:3
     
     %Calculate the points in mm
     if location(i, 1) ~= 0
-        location(i, 1) = ((location(i, 1) - 1)*HLU + (HLU/2) - 185);
+        location(i, 1) = ((location(i, 1) - 1)*HLU + (HLU/2) - 145);
     end
     if location(i, 2) ~= 0 
-        location(i, 2) = ((location(i, 2) - 1)*HLU + (HLU/2) - 95);
+        location(i, 2) = ((location(i, 2) - 1)*HLU + (HLU/2) - 88);
     end
     if location(i, 3) ~= 0
-        location(i, 3) = ((location(i, 3) - 1)*VLU + (VLU/2) - 80);
+        location(i, 3) = ((location(i, 3) - 1)*VLU + (VLU/2) - 135);
     end
     
    
