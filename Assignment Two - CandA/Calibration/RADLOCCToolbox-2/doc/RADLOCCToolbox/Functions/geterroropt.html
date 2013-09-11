@@ -1,0 +1,87 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of geterroropt</title>
+  <meta name="keywords" content="geterroropt">
+  <meta name="description" content="GETERROROPT is the optimisation objective function.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+  <script type="text/javascript">
+    if (top.frames.length == 0) { top.location = "../../index.html"; };
+  </script>
+</head>
+<body>
+<a name="_top"></a>
+<!-- ../menu.html RADLOCCToolbox --><!-- menu.html Functions -->
+<h1>geterroropt
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>GETERROROPT is the optimisation objective function.</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function errorvec=geterroropt(deltaphi,Lpts,Nc) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> GETERROROPT is the optimisation objective function.
+
+ GETERROROPT simply finds the error vector for a certain transformation.
+ The function differs from geterrorvec in that it takes the transformation
+ as a 1x6 vector with the rotation vector in rodrigues notation (Not Euler
+ angles).
+ 
+ INPUTS:
+     deltaphi: 1x6 vector. First 3 are the translation offset. Last 3 are
+     the rodrigues vector.
+
+     Lpts: 3xN vector containing all the laser board points.
+ 
+     Nc: 3xN vector containing the corresponding normal vector.
+ 
+ OUTPUTS:
+     errorvec: 1xN vector representing the errors for each point.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="geterrorvec.html" class="code" title="function errorvec=geterrorvec(Lpts,Nc,delta,phi)">geterrorvec</a>	GETERRORVEC returns the error for each point.</li><li><a href="rodrigues.html" class="code" title="function	[out,dout]=rodrigues(in)">rodrigues</a>	RODRIGUES	Transform rotation matrix into rotation vector and viceversa.</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="camlasercalib.html" class="code" title="function [delta,phi]=camlasercalib(Lpts,Nc,deltaest,phiest)">camlasercalib</a>	CAMLASERCALIB performs the final laser-camera calibration step.</li></ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function errorvec=geterroropt(deltaphi,Lpts,Nc)</a>
+0002 <span class="comment">% GETERROROPT is the optimisation objective function.</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% GETERROROPT simply finds the error vector for a certain transformation.</span>
+0005 <span class="comment">% The function differs from geterrorvec in that it takes the transformation</span>
+0006 <span class="comment">% as a 1x6 vector with the rotation vector in rodrigues notation (Not Euler</span>
+0007 <span class="comment">% angles).</span>
+0008 <span class="comment">%</span>
+0009 <span class="comment">% INPUTS:</span>
+0010 <span class="comment">%     deltaphi: 1x6 vector. First 3 are the translation offset. Last 3 are</span>
+0011 <span class="comment">%     the rodrigues vector.</span>
+0012 <span class="comment">%</span>
+0013 <span class="comment">%     Lpts: 3xN vector containing all the laser board points.</span>
+0014 <span class="comment">%</span>
+0015 <span class="comment">%     Nc: 3xN vector containing the corresponding normal vector.</span>
+0016 <span class="comment">%</span>
+0017 <span class="comment">% OUTPUTS:</span>
+0018 <span class="comment">%     errorvec: 1xN vector representing the errors for each point.</span>
+0019 
+0020 delta=deltaphi(:,1);
+0021 
+0022 phi=<a href="rodrigues.html" class="code" title="function    [out,dout]=rodrigues(in)">rodrigues</a>(deltaphi(:,2));
+0023 
+0024 errorvec=<a href="geterrorvec.html" class="code" title="function errorvec=geterrorvec(Lpts,Nc,delta,phi)">geterrorvec</a>(Lpts,Nc,delta,phi);
+0025</pre></div>
+<hr><address>Generated on Thu 08-Apr-2010 14:35:09 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" target="_parent">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

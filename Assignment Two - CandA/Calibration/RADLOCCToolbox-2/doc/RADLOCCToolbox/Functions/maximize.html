@@ -1,0 +1,296 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of maximize</title>
+  <meta name="keywords" content="maximize">
+  <meta name="description" content="MAXIMIZE   maximize figure windows">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+  <script type="text/javascript">
+    if (top.frames.length == 0) { top.location = "../../index.html"; };
+  </script>
+</head>
+<body>
+<a name="_top"></a>
+<!-- ../menu.html RADLOCCToolbox --><!-- menu.html Functions -->
+<h1>maximize
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>MAXIMIZE   maximize figure windows</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function maximize(h) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> MAXIMIZE   maximize figure windows
+ ====================================================================
+
+        Berne University of Applied Sciences
+
+        School of Engineering and Information Technology
+        Division of Electrical- and Communication Engineering
+
+ ====================================================================
+                       maximize figure windows
+ ====================================================================
+
+ Author:    Alain Trostel
+ e-mail:    alain.trostel@bfh.ch
+ Date:      June 2007
+ Version:   4.1
+
+ ====================================================================
+
+ function maximize(h)
+
+ Input parameters
+ -----------------
+   h             handle(s) of the figure window
+
+
+ Output parameters
+ ------------------
+   The function has no output parameters.
+
+
+ Used files
+ -----------
+   - windowMaximize.dll
+
+
+ Examples
+ ---------
+   % maximize the current figure
+   ------------------------------
+   maximize;
+
+
+   % maximize the current figure
+   ------------------------------
+   maximize(gcf);
+
+
+   % maximize the specified figure
+   --------------------------------
+   h = figure;
+   maximize(h);
+
+
+   % maximize the application window
+   ----------------------------------
+   maximize(0);
+
+
+   % maximize more than one figure
+   --------------------------------
+   h(1) = figure;
+   h(2) = figure;
+   maximize(h);
+
+
+   % maximize all figures
+   -----------------------
+   maximize('all');
+
+
+   % maximize a GUI in the OpeningFcn
+   -----------------------------------
+
+   % --- Executes just before untitled is made visible.
+   function untitled_OpeningFcn(hObject, eventdata, handles, varargin)
+   % This function has no output args, see OutputFcn.
+   % hObject    handle to figure
+   % eventdata  reserved - to be defined in a future version of MATLAB
+   % handles    structure with handles and user data (see GUIDATA)
+   % varargin   command line arguments to untitled (see VARARGIN)
+
+   % Choose default command line output for untitled
+   handles.output = hObject;
+
+   % Update handles structure
+   guidata(hObject, handles);
+
+   % UIWAIT makes untitled wait for user response (see UIRESUME)
+   % uiwait(handles.figure1);
+
+   % maximize the GUI
+   set(hObject,'Visible','on');
+   maximize(hObject);</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="findlaserboardpoints.html" class="code" title="function [selclstrs,clstrs]=findlaserboardpoints(angleVector,rangeMatrix,laserDivisor,clstrs,tiest,riest,Nci,BoardCorners,thresholds,manselen,debug,manclstrs)">findlaserboardpoints</a>	FINDLASERBOARDPOINTS is the main automatic boar detection function.</li></ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function maximize(h)</a>
+0002 
+0003 <span class="comment">% MAXIMIZE   maximize figure windows</span>
+0004 <span class="comment">% ====================================================================</span>
+0005 <span class="comment">%</span>
+0006 <span class="comment">%        Berne University of Applied Sciences</span>
+0007 <span class="comment">%</span>
+0008 <span class="comment">%        School of Engineering and Information Technology</span>
+0009 <span class="comment">%        Division of Electrical- and Communication Engineering</span>
+0010 <span class="comment">%</span>
+0011 <span class="comment">% ====================================================================</span>
+0012 <span class="comment">%                       maximize figure windows</span>
+0013 <span class="comment">% ====================================================================</span>
+0014 <span class="comment">%</span>
+0015 <span class="comment">% Author:    Alain Trostel</span>
+0016 <span class="comment">% e-mail:    alain.trostel@bfh.ch</span>
+0017 <span class="comment">% Date:      June 2007</span>
+0018 <span class="comment">% Version:   4.1</span>
+0019 <span class="comment">%</span>
+0020 <span class="comment">% ====================================================================</span>
+0021 <span class="comment">%</span>
+0022 <span class="comment">% function maximize(h)</span>
+0023 <span class="comment">%</span>
+0024 <span class="comment">% Input parameters</span>
+0025 <span class="comment">% -----------------</span>
+0026 <span class="comment">%   h             handle(s) of the figure window</span>
+0027 <span class="comment">%</span>
+0028 <span class="comment">%</span>
+0029 <span class="comment">% Output parameters</span>
+0030 <span class="comment">% ------------------</span>
+0031 <span class="comment">%   The function has no output parameters.</span>
+0032 <span class="comment">%</span>
+0033 <span class="comment">%</span>
+0034 <span class="comment">% Used files</span>
+0035 <span class="comment">% -----------</span>
+0036 <span class="comment">%   - windowMaximize.dll</span>
+0037 <span class="comment">%</span>
+0038 <span class="comment">%</span>
+0039 <span class="comment">% Examples</span>
+0040 <span class="comment">% ---------</span>
+0041 <span class="comment">%   % maximize the current figure</span>
+0042 <span class="comment">%   ------------------------------</span>
+0043 <span class="comment">%   maximize;</span>
+0044 <span class="comment">%</span>
+0045 <span class="comment">%</span>
+0046 <span class="comment">%   % maximize the current figure</span>
+0047 <span class="comment">%   ------------------------------</span>
+0048 <span class="comment">%   maximize(gcf);</span>
+0049 <span class="comment">%</span>
+0050 <span class="comment">%</span>
+0051 <span class="comment">%   % maximize the specified figure</span>
+0052 <span class="comment">%   --------------------------------</span>
+0053 <span class="comment">%   h = figure;</span>
+0054 <span class="comment">%   maximize(h);</span>
+0055 <span class="comment">%</span>
+0056 <span class="comment">%</span>
+0057 <span class="comment">%   % maximize the application window</span>
+0058 <span class="comment">%   ----------------------------------</span>
+0059 <span class="comment">%   maximize(0);</span>
+0060 <span class="comment">%</span>
+0061 <span class="comment">%</span>
+0062 <span class="comment">%   % maximize more than one figure</span>
+0063 <span class="comment">%   --------------------------------</span>
+0064 <span class="comment">%   h(1) = figure;</span>
+0065 <span class="comment">%   h(2) = figure;</span>
+0066 <span class="comment">%   maximize(h);</span>
+0067 <span class="comment">%</span>
+0068 <span class="comment">%</span>
+0069 <span class="comment">%   % maximize all figures</span>
+0070 <span class="comment">%   -----------------------</span>
+0071 <span class="comment">%   maximize('all');</span>
+0072 <span class="comment">%</span>
+0073 <span class="comment">%</span>
+0074 <span class="comment">%   % maximize a GUI in the OpeningFcn</span>
+0075 <span class="comment">%   -----------------------------------</span>
+0076 <span class="comment">%</span>
+0077 <span class="comment">%   % --- Executes just before untitled is made visible.</span>
+0078 <span class="comment">%   function untitled_OpeningFcn(hObject, eventdata, handles, varargin)</span>
+0079 <span class="comment">%   % This function has no output args, see OutputFcn.</span>
+0080 <span class="comment">%   % hObject    handle to figure</span>
+0081 <span class="comment">%   % eventdata  reserved - to be defined in a future version of MATLAB</span>
+0082 <span class="comment">%   % handles    structure with handles and user data (see GUIDATA)</span>
+0083 <span class="comment">%   % varargin   command line arguments to untitled (see VARARGIN)</span>
+0084 <span class="comment">%</span>
+0085 <span class="comment">%   % Choose default command line output for untitled</span>
+0086 <span class="comment">%   handles.output = hObject;</span>
+0087 <span class="comment">%</span>
+0088 <span class="comment">%   % Update handles structure</span>
+0089 <span class="comment">%   guidata(hObject, handles);</span>
+0090 <span class="comment">%</span>
+0091 <span class="comment">%   % UIWAIT makes untitled wait for user response (see UIRESUME)</span>
+0092 <span class="comment">%   % uiwait(handles.figure1);</span>
+0093 <span class="comment">%</span>
+0094 <span class="comment">%   % maximize the GUI</span>
+0095 <span class="comment">%   set(hObject,'Visible','on');</span>
+0096 <span class="comment">%   maximize(hObject);</span>
+0097 
+0098 
+0099 
+0100 <span class="comment">% check if dll-file exists</span>
+0101 <span class="keyword">if</span> ~exist(<span class="string">'windowMaximize.dll'</span>,<span class="string">'file'</span>)
+0102     error(<span class="string">'windowMaximize.dll not found.'</span>);
+0103 <span class="keyword">end</span>
+0104 
+0105 <span class="comment">% if no input parameters, get handle of the current figure</span>
+0106 <span class="keyword">if</span> nargin == 0
+0107     h = gcf;
+0108 <span class="keyword">end</span>
+0109 
+0110 <span class="comment">% if one input parameter, check the input parameter</span>
+0111 <span class="keyword">if</span> ischar(h)
+0112     <span class="comment">% check the string</span>
+0113     <span class="keyword">if</span> strcmpi(h,<span class="string">'all'</span>)
+0114         <span class="comment">% get all figure handles</span>
+0115         h = findobj(<span class="string">'Type'</span>,<span class="string">'figure'</span>);            
+0116     <span class="keyword">else</span>
+0117         <span class="comment">% incorrect string argument</span>
+0118         error(<span class="string">'Argument must be the correct string.'</span>);
+0119     <span class="keyword">end</span>
+0120 <span class="keyword">else</span>
+0121     <span class="comment">% check each handle</span>
+0122     <span class="keyword">for</span> n=1:length(h)
+0123         <span class="comment">% it must be a handle and of type 'root' or 'figure'</span>
+0124         <span class="keyword">if</span> ~ishandle(h(n)) || (~strcmp(get(h(n),<span class="string">'Type'</span>),<span class="string">'root'</span>) &amp;&amp; <span class="keyword">...</span>
+0125                                ~strcmp(get(h(n),<span class="string">'Type'</span>),<span class="string">'figure'</span>))
+0126             <span class="comment">% incorrect handle</span>
+0127             error(<span class="string">'Argument(s) must be a correct handle(s).'</span>);
+0128         <span class="keyword">end</span>
+0129     <span class="keyword">end</span>
+0130 <span class="keyword">end</span>
+0131 
+0132 <span class="comment">% if handle is not the root</span>
+0133 <span class="keyword">if</span> h ~= 0
+0134     <span class="comment">% for each handle</span>
+0135     <span class="keyword">for</span> n=length(h):-1:1
+0136         <span class="comment">% create the temporary window name</span>
+0137         windowname = [<span class="string">'maximize_'</span>,num2str(h(n))];
+0138 
+0139         <span class="comment">% save current window name</span>
+0140         numTitle = get(h(n),<span class="string">'NumberTitle'</span>);
+0141         figName = get(h(n),<span class="string">'Name'</span>);
+0142 
+0143         <span class="comment">% set the temporary window name</span>
+0144         set(h(n),<span class="string">'Name'</span>,windowname,<span class="string">'NumberTitle'</span>,<span class="string">'off'</span>);
+0145 
+0146         <span class="comment">% draw figure now</span>
+0147         drawnow;
+0148         <span class="comment">% maximize the window with the C function</span>
+0149         windowMaximize(windowname,get(h(n),<span class="string">'Resize'</span>));
+0150 
+0151         <span class="comment">% reset the window name</span>
+0152         set(h(n),<span class="string">'Name'</span>,figName,<span class="string">'NumberTitle'</span>,numTitle);
+0153     <span class="keyword">end</span>
+0154 <span class="keyword">else</span>
+0155     <span class="comment">% maximize the application window &quot;MATLAB&quot;</span>
+0156     windowMaximize(<span class="string">'MATLAB'</span>);
+0157 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 08-Apr-2010 14:35:09 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" target="_parent">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

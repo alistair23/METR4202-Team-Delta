@@ -1,0 +1,233 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of getinitestscore</title>
+  <meta name="keywords" content="getinitestscore">
+  <meta name="description" content="GETINIESTSCORE gets the score based on the tranformation estimate.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+  <script type="text/javascript">
+    if (top.frames.length == 0) { top.location = "../../index.html"; };
+  </script>
+</head>
+<body>
+<a name="_top"></a>
+<!-- ../menu.html RADLOCCToolbox --><!-- menu.html Functions -->
+<h1>getinitestscore
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>GETINIESTSCORE gets the score based on the tranformation estimate.</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function scores=getinitestscore(delta,phi,Nci,BoardCorners,angleVector,rangeMatrix,debug) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> GETINIESTSCORE gets the score based on the tranformation estimate.
+
+ GETINIESTSCORE uses the transformation estimate to score the match of the
+ points with the initial estimate. The better the estimate the more
+ accurate the score will be.
+ 
+ USAGE:
+     scores=getinitestscore(delta,phi,Nci,BoardCorners,angleVector,rangeMatrix);
+ 
+ INPUTS:
+     delta: 3x1 translation offset vector.
+ 
+     phi: 3x3 rotation matrix.
+ 
+     angleVector: 1xN vector; angleVector lists the angles for the ranges
+     in rangeMatrix.
+ 
+     rangeMatrix: MxN array; Each row in rangeMatrix contains a laser scan
+     with ranges at the angles specified in angleVector.
+ 
+     Nci: 3xM vector containing the normal vector of the
+     calibration plane of the corresponding laser scan.
+ 
+     BoardCorners: is a 1xnoscans array of structures. Each structure has
+     the following elements:
+ 
+         n_sq_x: number of squares of the calibration chessboard along the
+         x direction.
+ 
+         n_sq_y: number of squares of the calibration chessboard along the
+         y direction.
+ 
+         corners: 3x((n_sq_x+1)*(n_sq_y+1)) array with the coordinates of
+         the chessboard corners in the camera frame.
+ 
+ OUTPUTS:
+     scores: MxN array with the score for each laser point.
+ 
+ Abdallah Kassir 1/3/2010</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="findlaserboardpoints.html" class="code" title="function [selclstrs,clstrs]=findlaserboardpoints(angleVector,rangeMatrix,laserDivisor,clstrs,tiest,riest,Nci,BoardCorners,thresholds,manselen,debug,manclstrs)">findlaserboardpoints</a>	FINDLASERBOARDPOINTS is the main automatic boar detection function.</li></ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function scores=getinitestscore(delta,phi,Nci,BoardCorners,angleVector,rangeMatrix,debug)</a>
+0002 <span class="comment">% GETINIESTSCORE gets the score based on the tranformation estimate.</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% GETINIESTSCORE uses the transformation estimate to score the match of the</span>
+0005 <span class="comment">% points with the initial estimate. The better the estimate the more</span>
+0006 <span class="comment">% accurate the score will be.</span>
+0007 <span class="comment">%</span>
+0008 <span class="comment">% USAGE:</span>
+0009 <span class="comment">%     scores=getinitestscore(delta,phi,Nci,BoardCorners,angleVector,rangeMatrix);</span>
+0010 <span class="comment">%</span>
+0011 <span class="comment">% INPUTS:</span>
+0012 <span class="comment">%     delta: 3x1 translation offset vector.</span>
+0013 <span class="comment">%</span>
+0014 <span class="comment">%     phi: 3x3 rotation matrix.</span>
+0015 <span class="comment">%</span>
+0016 <span class="comment">%     angleVector: 1xN vector; angleVector lists the angles for the ranges</span>
+0017 <span class="comment">%     in rangeMatrix.</span>
+0018 <span class="comment">%</span>
+0019 <span class="comment">%     rangeMatrix: MxN array; Each row in rangeMatrix contains a laser scan</span>
+0020 <span class="comment">%     with ranges at the angles specified in angleVector.</span>
+0021 <span class="comment">%</span>
+0022 <span class="comment">%     Nci: 3xM vector containing the normal vector of the</span>
+0023 <span class="comment">%     calibration plane of the corresponding laser scan.</span>
+0024 <span class="comment">%</span>
+0025 <span class="comment">%     BoardCorners: is a 1xnoscans array of structures. Each structure has</span>
+0026 <span class="comment">%     the following elements:</span>
+0027 <span class="comment">%</span>
+0028 <span class="comment">%         n_sq_x: number of squares of the calibration chessboard along the</span>
+0029 <span class="comment">%         x direction.</span>
+0030 <span class="comment">%</span>
+0031 <span class="comment">%         n_sq_y: number of squares of the calibration chessboard along the</span>
+0032 <span class="comment">%         y direction.</span>
+0033 <span class="comment">%</span>
+0034 <span class="comment">%         corners: 3x((n_sq_x+1)*(n_sq_y+1)) array with the coordinates of</span>
+0035 <span class="comment">%         the chessboard corners in the camera frame.</span>
+0036 <span class="comment">%</span>
+0037 <span class="comment">% OUTPUTS:</span>
+0038 <span class="comment">%     scores: MxN array with the score for each laser point.</span>
+0039 <span class="comment">%</span>
+0040 <span class="comment">% Abdallah Kassir 1/3/2010</span>
+0041 
+0042 
+0043 
+0044 noscans=size(rangeMatrix,1);
+0045 
+0046 <span class="comment">% intitial estimate score:</span>
+0047 <span class="comment">% Manhattan distance from centroid of board projected on to board</span>
+0048 [z,x]=pol2cart(repmat(angleVector,[noscans,1]),rangeMatrix);
+0049 
+0050 <span class="comment">% BoardCorners=GetBoardCorners();</span>
+0051 cameraPlanes = Nci;
+0052 
+0053 scores=zeros(size(rangeMatrix));
+0054 
+0055 
+0056 <span class="keyword">if</span> ~exist(<span class="string">'debug'</span>,<span class="string">'var'</span>) || isempty(debug)
+0057     debug=0;
+0058 <span class="keyword">end</span>
+0059 
+0060         
+0061 <span class="comment">% camera axis</span>
+0062 org=[0;0;0];
+0063 xax=[1;0;0];
+0064 yax=[0;1;0];
+0065 zax=[0;0;1];
+0066 org=phi*(org-delta);
+0067 xax=phi*(xax-delta);
+0068 yax=phi*(yax-delta);
+0069 zax=phi*(zax-delta);
+0070 
+0071 <span class="keyword">if</span> debug
+0072     figure;
+0073 <span class="keyword">end</span>
+0074 
+0075 <span class="keyword">for</span> cntr=1:noscans
+0076     
+0077     <span class="comment">% get norm</span>
+0078     <span class="keyword">if</span> cntr&lt;=size(BoardCorners,2) &amp;&amp;  ~isnan(BoardCorners(cntr).corners(1))
+0079         
+0080         lBoardCorners=BoardCorners(cntr).corners;
+0081         lBoardCorners=lBoardCorners-repmat(delta,1,size(lBoardCorners,2)); <span class="comment">% minus delta</span>
+0082         lBoardCorners=phi*lBoardCorners;
+0083         
+0084         <span class="comment">% get mean point</span>
+0085         meanpt=mean(lBoardCorners,2);
+0086 
+0087         lpts=[x(cntr,:);zeros(size(angleVector));z(cntr,:)];
+0088         lvecs=lpts-repmat(meanpt,[1,length(lpts)]);
+0089         
+0090         <span class="comment">% get norm vector</span>
+0091         N=cameraPlanes(:,cntr);
+0092     
+0093         N=phi*N; <span class="comment">% normal vector no need for delta because delta is the coordinates of the camera origin in the laser frame</span>
+0094 
+0095         <span class="comment">% change to unit vector</span>
+0096         N=N/norm(N);
+0097         
+0098         <span class="comment">% debugging</span>
+0099         <span class="keyword">if</span> debug
+0100             clf;
+0101             <span class="comment">% display board</span>
+0102             lBoardCornersx=zeros(BoardCorners(cntr).n_sq_x+1,BoardCorners(cntr).n_sq_y+1);
+0103             lBoardCornersy=zeros(BoardCorners(cntr).n_sq_x+1,BoardCorners(cntr).n_sq_y+1);
+0104             lBoardCornersz=zeros(BoardCorners(cntr).n_sq_x+1,BoardCorners(cntr).n_sq_y+1);
+0105 
+0106             lBoardCornersx(:)=lBoardCorners(1,:);
+0107             lBoardCornersy(:)=lBoardCorners(2,:);
+0108             lBoardCornersz(:)=lBoardCorners(3,:);
+0109             hold on;
+0110             h= mesh(lBoardCornersx,lBoardCornersy,lBoardCornersz);
+0111             set(h,<span class="string">'edgecolor'</span>,<span class="string">'red'</span>);        
+0112             plot3(x(cntr,:),zeros(size(x(cntr,:))),z(cntr,:),<span class="string">'.'</span>);
+0113             xlabel(<span class="string">'x'</span>);
+0114             ylabel(<span class="string">'y'</span>);
+0115             zlabel(<span class="string">'z'</span>);
+0116             axis equal;
+0117             title(num2str(cntr));
+0118 
+0119 
+0120             plot3([org(1),xax(1)],[org(2),xax(2)],[org(3),xax(3)]);text(xax(1),xax(2),xax(3),<span class="string">'x'</span>);
+0121             plot3([org(1),yax(1)],[org(2),yax(2)],[org(3),yax(3)]);text(yax(1),yax(2),yax(3),<span class="string">'y'</span>);
+0122             plot3([org(1),zax(1)],[org(2),zax(2)],[org(3),zax(3)]);text(zax(1),zax(2),zax(3),<span class="string">'z'</span>);
+0123             plot3([0,N(1)],[0,N(2)],[0,N(3)]);text(N(1),N(2),N(3),<span class="string">'N'</span>);
+0124             axis tight;
+0125             cameratoolbar(gcf);
+0126             cameratoolbar(gcf,<span class="string">'SetCoordSys'</span>,<span class="string">'y'</span>);
+0127             <span class="keyword">while</span> 1
+0128                 b=waitforbuttonpress;
+0129                 <span class="keyword">if</span> b~=0
+0130                     btnprsd=get(gcf,<span class="string">'CurrentCharacter'</span>);
+0131                     <span class="keyword">if</span> btnprsd==<span class="string">'e'</span>
+0132                         debug=0; <span class="comment">% stop debugging</span>
+0133                     <span class="keyword">end</span>
+0134                     <span class="keyword">break</span>;
+0135                 <span class="keyword">end</span>
+0136             <span class="keyword">end</span>
+0137         <span class="keyword">end</span>
+0138         
+0139         N=repmat(N,[1,length(angleVector)]);
+0140         dists=cross(lvecs,N);
+0141         dists=sqrt(sum(dists.^2));
+0142         dists=dists+abs(dot(lvecs,N));
+0143         <span class="comment">% normalise</span>
+0144         dists=dists./max(dists);
+0145         scores(cntr,:)=1-dists;
+0146     <span class="keyword">else</span>
+0147         scores(cntr,:)=0;
+0148     <span class="keyword">end</span>
+0149 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 08-Apr-2010 14:35:09 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" target="_parent">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

@@ -1,0 +1,28 @@
+function [matc,err]=matchpts(pts2,pts1,delta,phi)
+
+% find points in 2 closest to points in 1
+
+pts12=phi*pts1+repmat(delta,1,size(pts1,2));
+
+matc=zeros(1,size(pts1,2));
+err=zeros(1,size(pts1,2));
+for cntr=1:size(pts12,2)
+    dists=sqrt(sum((pts2-repmat(pts12(:,cntr),1,size(pts2,2))).^2));
+    [err(cntr),matc(cntr)]=min(dists);
+end
+
+% for points reoccurring in 2 choose the ones with the shortest distance
+
+for cntr=unique(matc)
+    ind=find(matc==cntr);
+    [m,mi]=min(matc(ind));
+    ind(mi)=[];
+    matc(ind)=0;
+    err(ind)=0;
+end
+
+Cr=lines(size(pts2,2));
+
+
+scatter3(pts2(1,:),pts2(2,:),pts2(3,:),[],C,'.');
+scatter3(pts12(1,:),pts12(2,:),pts12(3,:),[],C(matc),'.');

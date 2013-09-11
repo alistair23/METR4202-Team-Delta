@@ -1,0 +1,173 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of SelectLaserPoints</title>
+  <meta name="keywords" content="SelectLaserPoints">
+  <meta name="description" content="USAGE:">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+  <script type="text/javascript">
+    if (top.frames.length == 0) { top.location = "../../index.html"; };
+  </script>
+</head>
+<body>
+<a name="_top"></a>
+<!-- ../menu.html RADLOCCToolbox --><!-- menu.html Functions -->
+<h1>SelectLaserPoints
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>USAGE:</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function laserInd= SelectLaserPoints(angleVector,rangeVector) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> USAGE:
+   [laserRange,laserAngle] = SelectLaserPoints(laserRange,laserAngle)
+   Displays a plot of the range data and prompts user to select
+   a single region within.
+
+ INPUTS:
+     angleVector: 1xN vector; angleVector lists the angles for the ranges
+     in rangeMatrix.
+ 
+     rangeVector: 1xN vector; ranges of laser scan
+
+ OUPUTS:
+     laserInd: indices of the selected set.
+
+ Written by James Underwood 10/07/06
+
+ Modified by Abdallah Kassir 1/3/2010</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="dispclstrscore.html" class="code" title="function dispclstrscore(theta,ranges,clstrs,score,hflag)">dispclstrscore</a>	DISPCLSTRSCORE displays the line clustered scan with scores.</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="findlaserboardpoints.html" class="code" title="function [selclstrs,clstrs]=findlaserboardpoints(angleVector,rangeMatrix,laserDivisor,clstrs,tiest,riest,Nci,BoardCorners,thresholds,manselen,debug,manclstrs)">findlaserboardpoints</a>	FINDLASERBOARDPOINTS is the main automatic boar detection function.</li></ul>
+<!-- crossreference -->
+
+<h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="#_sub1" class="code">function linedispcallback(src,event,p)</a></li><li><a href="#_sub2" class="code">function getcoordscallback(src,event)</a></li></ul>
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function laserInd= SelectLaserPoints(angleVector,rangeVector)</a>
+0002 <span class="comment">% USAGE:</span>
+0003 <span class="comment">%   [laserRange,laserAngle] = SelectLaserPoints(laserRange,laserAngle)</span>
+0004 <span class="comment">%   Displays a plot of the range data and prompts user to select</span>
+0005 <span class="comment">%   a single region within.</span>
+0006 <span class="comment">%</span>
+0007 <span class="comment">% INPUTS:</span>
+0008 <span class="comment">%     angleVector: 1xN vector; angleVector lists the angles for the ranges</span>
+0009 <span class="comment">%     in rangeMatrix.</span>
+0010 <span class="comment">%</span>
+0011 <span class="comment">%     rangeVector: 1xN vector; ranges of laser scan</span>
+0012 <span class="comment">%</span>
+0013 <span class="comment">% OUPUTS:</span>
+0014 <span class="comment">%     laserInd: indices of the selected set.</span>
+0015 <span class="comment">%</span>
+0016 <span class="comment">% Written by James Underwood 10/07/06</span>
+0017 <span class="comment">%</span>
+0018 <span class="comment">% Modified by Abdallah Kassir 1/3/2010</span>
+0019 
+0020 <a href="dispclstrscore.html" class="code" title="function dispclstrscore(theta,ranges,clstrs,score,hflag)">dispclstrscore</a>(angleVector,rangeVector,ones(size(angleVector)));
+0021 title(<span class="string">'Select appropriate region in laser scan - bound 1'</span>);
+0022 hold on;
+0023 p=plot(0,0,<span class="string">'r'</span>);
+0024 hold off;
+0025 set(gcf, <span class="string">'WindowButtonMotionFcn'</span>, {@<a href="#_sub1" class="code" title="subfunction linedispcallback(src,event,p)">linedispcallback</a>,p});
+0026 set(gcf,<span class="string">'Pointer'</span>,<span class="string">'crosshair'</span>);
+0027 <span class="comment">% set(gcf, 'WindowButtonDownFcn', 'uiresume(gcbf)');</span>
+0028 <span class="comment">% uiwait;</span>
+0029 b=waitforbuttonpress;
+0030 <span class="keyword">if</span> b~=0
+0031     btnprsd=get(gcf,<span class="string">'CurrentCharacter'</span>);
+0032     <span class="keyword">if</span> btnprsd==<span class="string">'e'</span>
+0033         laserInd=0;
+0034     <span class="keyword">else</span>
+0035         laserInd=[];
+0036     <span class="keyword">end</span>
+0037     set(gcf, <span class="string">'WindowButtonMotionFcn'</span>, <span class="string">''</span>);
+0038     <span class="keyword">return</span>;
+0039 <span class="keyword">end</span>
+0040 pt = get(gca, <span class="string">'CurrentPoint'</span>);
+0041 px(1)=pt(1,1);
+0042 py(1)=pt(1,2);
+0043 
+0044 title(<span class="string">'Select appropriate region in laser scan - bound 2'</span>);
+0045 b=waitforbuttonpress;
+0046 <span class="keyword">if</span> b~=0
+0047     btnprsd=get(gcf,<span class="string">'CurrentCharacter'</span>);
+0048     <span class="keyword">if</span> btnprsd==<span class="string">'e'</span>
+0049         laserInd=0;
+0050     <span class="keyword">else</span>
+0051         laserInd=[];
+0052     <span class="keyword">end</span>
+0053     set(gcf, <span class="string">'WindowButtonMotionFcn'</span>, <span class="string">''</span>);
+0054     <span class="keyword">return</span>;
+0055 <span class="keyword">end</span>
+0056 pt = get(gca, <span class="string">'CurrentPoint'</span>);
+0057 px(2)=pt(1,1);
+0058 py(2)=pt(1,2);
+0059 
+0060 <span class="comment">% delete(T);</span>
+0061 ptheta=cart2pol(py,px);
+0062 pthetamin=min(ptheta);
+0063 pthetamax=max(ptheta);
+0064 laserInd = angleVector&gt;pthetamin &amp; angleVector&lt;pthetamax;
+0065 <span class="comment">% stop callback</span>
+0066 set(gcf, <span class="string">'WindowButtonMotionFcn'</span>, <span class="string">''</span>);
+0067 
+0068 <a name="_sub1" href="#_subfunctions" class="code">function linedispcallback(src,event,p)</a>
+0069 
+0070 <span class="comment">% get mouse position</span>
+0071 pt = get(gca, <span class="string">'CurrentPoint'</span>);
+0072 x = pt(1, 1);
+0073 y = pt(1, 2);
+0074 
+0075 <span class="comment">% check if its within axes limits</span>
+0076 xLim = get(gca, <span class="string">'XLim'</span>);    
+0077 yLim = get(gca, <span class="string">'YLim'</span>);
+0078 <span class="keyword">if</span> x &lt; xLim(1)
+0079     x=xLim(1);
+0080 <span class="keyword">elseif</span> x &gt; xLim(2)
+0081     x=xLim(2);
+0082 <span class="keyword">end</span>
+0083 <span class="keyword">if</span> y &lt; yLim(1)
+0084     y=yLim(1);
+0085 <span class="keyword">elseif</span> y&gt;yLim(2)
+0086     y=yLim(2);
+0087 <span class="keyword">end</span>
+0088 set(p,<span class="string">'XData'</span>,[0,x],<span class="string">'YData'</span>,[0,y]);
+0089 
+0090 <a name="_sub2" href="#_subfunctions" class="code">function getcoordscallback(src,event)</a>
+0091 <span class="comment">% get mouse position</span>
+0092 pt = get(gca, <span class="string">'CurrentPoint'</span>);
+0093 x = pt(1, 1);
+0094 y = pt(1, 2);
+0095 
+0096 <span class="comment">% check if its within axes limits</span>
+0097 xLim = get(gca, <span class="string">'XLim'</span>);    
+0098 yLim = get(gca, <span class="string">'YLim'</span>);
+0099 <span class="keyword">if</span> x &lt; xLim(1)
+0100     x=xLim(1);
+0101 <span class="keyword">elseif</span> x &gt; xLim(2)
+0102     x=xLim(2);
+0103 <span class="keyword">end</span>
+0104 <span class="keyword">if</span> y &lt; yLim(1)
+0105     y=yLim(1);
+0106 <span class="keyword">elseif</span> y&gt;yLim(2)
+0107     y=yLim(2);
+0108 <span class="keyword">end</span>
+0109</pre></div>
+<hr><address>Generated on Thu 08-Apr-2010 14:35:09 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" target="_parent">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

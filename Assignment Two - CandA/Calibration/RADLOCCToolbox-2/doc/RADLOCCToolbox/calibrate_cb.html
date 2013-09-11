@@ -1,0 +1,87 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of calibrate_cb</title>
+  <meta name="keywords" content="calibrate_cb">
+  <meta name="description" content="CALIBRATE_CB is the calibration callback file.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+  <script type="text/javascript">
+    if (top.frames.length == 0) { top.location = "../index.html"; };
+  </script>
+</head>
+<body>
+<a name="_top"></a>
+<!-- menu.html RADLOCCToolbox -->
+<h1>calibrate_cb
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>CALIBRATE_CB is the calibration callback file.</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>This is a script file. </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> CALIBRATE_CB is the calibration callback file.
+
+ CALIBRATE_CB is the calibration callback file for the GUI. It calls the
+ final calibration function CAMLASERCALIB.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <span class="comment">% CALIBRATE_CB is the calibration callback file.</span>
+0002 <span class="comment">%</span>
+0003 <span class="comment">% CALIBRATE_CB is the calibration callback file for the GUI. It calls the</span>
+0004 <span class="comment">% final calibration function CAMLASERCALIB.</span>
+0005 
+0006 
+0007 <span class="keyword">if</span> ~exist(<span class="string">'boardclstrs'</span>,<span class="string">'var'</span>) || isempty(find(boardclstrs,1))
+0008     disp(<span class="string">'No Extracted Board Points.'</span>);
+0009     <span class="keyword">return</span>;
+0010 <span class="keyword">end</span>
+0011 <span class="keyword">if</span> ~exist(<span class="string">'.\Calib_Results.mat'</span>,<span class="string">'file'</span>)
+0012     disp(<span class="string">'Calib_Results.mat is needed to proceed.'</span>);
+0013     <span class="keyword">return</span>;
+0014 <span class="keyword">end</span>
+0015 
+0016 
+0017 <span class="keyword">if</span> ~exist(<span class="string">'selectionnumbers'</span>,<span class="string">'var'</span>)
+0018     selectionnumbers=input(<span class="string">'Enter the scan numbers to be used for calibration ([]=all):'</span>);
+0019     <span class="keyword">if</span> isempty(selectionnumbers)
+0020         selectionnumbers=1:size(rangeMatrix,1);
+0021     <span class="keyword">end</span>
+0022 <span class="keyword">end</span>
+0023 disp(<span class="string">'Laser-Camera Calibration.'</span>);
+0024 <span class="comment">% adjust selection numbers</span>
+0025 selectionnumbers(boardclstrs(selectionnumbers)==0)=[];
+0026 [Lpts,Nc,Lptsnos] = GetCameraLaserCalibrationData(selectionnumbers,rangeMatrix,angleVector,clstrs,boardclstrs,Nci);
+0027 <span class="comment">% disp('Running optimsations. Please wait.'); % no need, fast</span>
+0028 [delta,phi] = camlasercalib(Lpts,Nc,deltaest,phiest);
+0029 rmserror=geterror(Lpts,Nc,delta,phi);
+0030 [deltae,rote]=getuncert(Lpts,Lptsnos,Nc);
+0031 disp(<span class="string">'Results:'</span>);
+0032 disp([<span class="string">'Delta:'</span>,mat2str(delta',3),<span class="string">'±'</span>,mat2str(deltae',3)]);
+0033 disp([<span class="string">'Phi (in degrees):'</span>,mat2str(rad2deg(dcm2angvec(phi))',3),<span class="string">'±'</span>,mat2str(rad2deg(rote)',3)]);
+0034 disp([<span class="string">'Total rms error:'</span>,num2str(rmserror,3)]);
+0035 
+0036 <span class="comment">% update initial estimate</span>
+0037 deltaest=delta;
+0038 phiest=phi;</pre></div>
+<hr><address>Generated on Thu 08-Apr-2010 14:35:09 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" target="_parent">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

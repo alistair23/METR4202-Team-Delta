@@ -1,0 +1,193 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of getedgelineclstrs</title>
+  <meta name="keywords" content="getedgelineclstrs">
+  <meta name="description" content="GETEDGELINECLSTRS divides the laser scans into straight lines.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+  <script type="text/javascript">
+    if (top.frames.length == 0) { top.location = "../../index.html"; };
+  </script>
+</head>
+<body>
+<a name="_top"></a>
+<!-- ../menu.html RADLOCCToolbox --><!-- menu.html Functions -->
+<h1>getedgelineclstrs
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>GETEDGELINECLSTRS divides the laser scans into straight lines.</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function clstrs=getedgelineclstrs(angleVector,rangeMatrix,distth) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> GETEDGELINECLSTRS divides the laser scans into straight lines.
+ 
+ GETEDGELINECLSTRS divides the laser scans into straight lines by
+ considering range jumps and the straight line criteria as described in
+ the RADLOCC technical report.
+ 
+ USAGE:
+     clstrs=getedgelineclstrs(angleVector,rangeMatrix,distth);
+ 
+ INPUTS:
+     angleVector: 1xN vector; angleVector lists the angles for the ranges
+     in rangeMatrix.
+ 
+     rangeMatrix: MxN array; Each row in rangeMatrix contains a laser scan
+     with ranges at the angles specified in angleVector.
+ 
+     distth: is the threshold value for the straight line criteria. 
+ 
+ OUTPUTS:
+     clstrs: MxN array. Each element in clstrs is an integer indicating
+     the line cluster the range to which reading belongs.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="getcombs.html" class="code" title="function combvec=getcombs(ind1,ind2,maincombvec)">getcombs</a>	GETCOMBS is an auxiliary function used for obtaining combinations.</li><li><a href="laseredge.html" class="code" title="function values=laseredge(ranges)">laseredge</a>	LASEREDEGE gets the range difference between consecutive laser ranges.</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function clstrs=getedgelineclstrs(angleVector,rangeMatrix,distth)</a>
+0002 <span class="comment">% GETEDGELINECLSTRS divides the laser scans into straight lines.</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% GETEDGELINECLSTRS divides the laser scans into straight lines by</span>
+0005 <span class="comment">% considering range jumps and the straight line criteria as described in</span>
+0006 <span class="comment">% the RADLOCC technical report.</span>
+0007 <span class="comment">%</span>
+0008 <span class="comment">% USAGE:</span>
+0009 <span class="comment">%     clstrs=getedgelineclstrs(angleVector,rangeMatrix,distth);</span>
+0010 <span class="comment">%</span>
+0011 <span class="comment">% INPUTS:</span>
+0012 <span class="comment">%     angleVector: 1xN vector; angleVector lists the angles for the ranges</span>
+0013 <span class="comment">%     in rangeMatrix.</span>
+0014 <span class="comment">%</span>
+0015 <span class="comment">%     rangeMatrix: MxN array; Each row in rangeMatrix contains a laser scan</span>
+0016 <span class="comment">%     with ranges at the angles specified in angleVector.</span>
+0017 <span class="comment">%</span>
+0018 <span class="comment">%     distth: is the threshold value for the straight line criteria.</span>
+0019 <span class="comment">%</span>
+0020 <span class="comment">% OUTPUTS:</span>
+0021 <span class="comment">%     clstrs: MxN array. Each element in clstrs is an integer indicating</span>
+0022 <span class="comment">%     the line cluster the range to which reading belongs.</span>
+0023 
+0024 fprintf(<span class="string">'Progress: '</span>);
+0025 
+0026 <span class="keyword">if</span> ~exist(<span class="string">'distth'</span>,<span class="string">'var'</span>)
+0027     distth=0.02; <span class="comment">%m</span>
+0028 <span class="keyword">end</span>
+0029 
+0030 <span class="comment">% pec threshold</span>
+0031 <span class="comment">% objth=1; % metre</span>
+0032 
+0033 <span class="comment">% jump threshold</span>
+0034 jumpth=0.1; <span class="comment">% metre (10cm)</span>
+0035 
+0036 noscans=size(rangeMatrix,1);
+0037 nopts=length(angleVector);
+0038 
+0039 mainlncombvec=combnk(1:nopts,2);
+0040 
+0041 <span class="comment">% get xs and ys</span>
+0042 
+0043 [x,y]=pol2cart(repmat(angleVector,[noscans,1]),rangeMatrix);
+0044 
+0045 
+0046 <span class="comment">% set splitpoints according to jumps</span>
+0047 <span class="comment">% all points within the object threshold are included but large jumps should divide the scan</span>
+0048 
+0049 splitpoints=cell(noscans,1);
+0050 spointdone=cell(noscans,1);
+0051 
+0052 <span class="keyword">for</span> cntr1=1:noscans
+0053     range=rangeMatrix(cntr1,:);
+0054 
+0055     rangeedge=<a href="laseredge.html" class="code" title="function values=laseredge(ranges)">laseredge</a>(range);
+0056     
+0057     jumppts=find(abs(rangeedge)&gt;jumpth);
+0058 
+0059     splitpoints{cntr1}=[1,jumppts,nopts+1];
+0060     spointdone{cntr1}=[0,zeros(size(jumppts)),1];
+0061 <span class="keyword">end</span>
+0062 
+0063 <span class="comment">% loop over all scans</span>
+0064 <span class="comment">% objects are now divided according to straight lines</span>
+0065 
+0066 progmsg=[];
+0067 
+0068 <span class="keyword">for</span> cntr1=1:noscans
+0069     fprintf(repmat(<span class="string">'\b'</span>, 1, length(progmsg)));
+0070     progmsg=sprintf(<span class="string">'%%%i'</span>,round(cntr1/noscans*100));
+0071     fprintf(<span class="string">'%s'</span>,progmsg);
+0072     <span class="keyword">while</span> ~isempty(find(spointdone{cntr1}==0,1))
+0073         <span class="comment">% loop over all clusters</span>
+0074         <span class="keyword">for</span> cntr2=1:length(splitpoints{cntr1})-1
+0075             <span class="keyword">if</span> ~spointdone{cntr1}(cntr2)
+0076                 indcs=splitpoints{cntr1}(cntr2):splitpoints{cntr1}(cntr2+1)-1;
+0077 
+0078                 <span class="keyword">if</span> length(indcs)&gt;2 <span class="comment">% check if worth splitting first</span>
+0079 
+0080                     <span class="comment">% loop over all line combinations</span>
+0081                     mxlen=0;
+0082                     lncombvec=<a href="getcombs.html" class="code" title="function combvec=getcombs(ind1,ind2,maincombvec)">getcombs</a>(indcs(1),indcs(end),mainlncombvec);
+0083                     <span class="keyword">for</span> cntr3=1:size(lncombvec,1)
+0084                         ind1=lncombvec(cntr3,1);
+0085                         ind2=lncombvec(cntr3,2);
+0086 
+0087                         <span class="comment">% one line should be quicker</span>
+0088 
+0089                         dist = abs((x(cntr1,ind2)-x(cntr1,ind1))*(y(cntr1,ind1)-y(cntr1,ind1:ind2))-(x(cntr1,ind1)-x(cntr1,ind1:ind2))*(y(cntr1,ind2)-y(cntr1,ind1)))<span class="keyword">...</span>
+0090                             /norm([x(cntr1,ind2)-x(cntr1,ind1),y(cntr1,ind2)-y(cntr1,ind1)]);
+0091 
+0092                         <span class="keyword">if</span> isempty(find(dist&gt;distth,1))
+0093                             <span class="keyword">if</span> length(dist)&gt;mxlen
+0094                                 mxlen=length(dist);
+0095                                 mxind1=ind1;
+0096                                 mxind2=ind2;
+0097                             <span class="keyword">end</span>
+0098                         <span class="keyword">end</span>
+0099                     <span class="keyword">end</span>
+0100 
+0101                     <span class="comment">% register results</span>
+0102                     <span class="keyword">if</span> mxind1==indcs(1) &amp;&amp; mxind2==indcs(end)
+0103                         spointdone{cntr1}(cntr2)=1;
+0104                     <span class="keyword">elseif</span> mxind1==indcs(1)
+0105                         spointdone{cntr1}(cntr2)=1;
+0106                         spointdone{cntr1}=[spointdone{cntr1}(1:cntr2),0,spointdone{cntr1}(cntr2+1:end)];
+0107                         splitpoints{cntr1}=[splitpoints{cntr1}(1:cntr2),mxind2+1,splitpoints{cntr1}(cntr2+1:end)];
+0108                     <span class="keyword">elseif</span> mxind2==indcs(end)
+0109                         spointdone{cntr1}=[spointdone{cntr1}(1:cntr2),0,spointdone{cntr1}(cntr2+1:end)];
+0110                         splitpoints{cntr1}=[splitpoints{cntr1}(1:cntr2),mxind1,splitpoints{cntr1}(cntr2+1:end)];
+0111                     <span class="keyword">else</span>
+0112                         spointdone{cntr1}=[spointdone{cntr1}(1:cntr2),0,0,spointdone{cntr1}(cntr2+1:end)];
+0113                         splitpoints{cntr1}=[splitpoints{cntr1}(1:cntr2),mxind1,mxind2+1,splitpoints{cntr1}(cntr2+1:end)];
+0114                     <span class="keyword">end</span>
+0115                     <span class="keyword">break</span>; <span class="comment">% break under all conditions since spointdone exists</span>
+0116                 <span class="keyword">else</span>
+0117                     spointdone{cntr1}(cntr2)=1;
+0118                 <span class="keyword">end</span>
+0119             <span class="keyword">end</span>
+0120         <span class="keyword">end</span>
+0121     <span class="keyword">end</span>
+0122     <span class="keyword">for</span> cntr2=1:length(splitpoints{cntr1})-1
+0123         clstrs(cntr1,splitpoints{cntr1}(cntr2):splitpoints{cntr1}(cntr2+1)-1)=cntr2;
+0124     <span class="keyword">end</span>
+0125 <span class="keyword">end</span>
+0126 
+0127 fprintf(<span class="string">'\n'</span>);</pre></div>
+<hr><address>Generated on Thu 08-Apr-2010 14:35:09 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" target="_parent">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

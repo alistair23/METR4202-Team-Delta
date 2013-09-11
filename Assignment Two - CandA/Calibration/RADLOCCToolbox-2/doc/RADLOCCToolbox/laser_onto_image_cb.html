@@ -1,0 +1,95 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of laser_onto_image_cb</title>
+  <meta name="keywords" content="laser_onto_image_cb">
+  <meta name="description" content="LASER_ONTO_IMAGE_CB is the callback file for Laser onto image feature.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+  <script type="text/javascript">
+    if (top.frames.length == 0) { top.location = "../index.html"; };
+  </script>
+</head>
+<body>
+<a name="_top"></a>
+<!-- menu.html RADLOCCToolbox -->
+<h1>laser_onto_image_cb
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>LASER_ONTO_IMAGE_CB is the callback file for Laser onto image feature.</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>This is a script file. </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> LASER_ONTO_IMAGE_CB is the callback file for Laser onto image feature.
+ 
+ LASER_ONTO_IMAGE_CB is called to reproject laser points from a laser
+ range finder onto an image. This can be useful for the verification of
+ the calibration results.
+ 
+ Calib_Results.mat file needs to present in order to retrieve the camera
+ calibration parameters.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <span class="comment">% LASER_ONTO_IMAGE_CB is the callback file for Laser onto image feature.</span>
+0002 <span class="comment">%</span>
+0003 <span class="comment">% LASER_ONTO_IMAGE_CB is called to reproject laser points from a laser</span>
+0004 <span class="comment">% range finder onto an image. This can be useful for the verification of</span>
+0005 <span class="comment">% the calibration results.</span>
+0006 <span class="comment">%</span>
+0007 <span class="comment">% Calib_Results.mat file needs to present in order to retrieve the camera</span>
+0008 <span class="comment">% calibration parameters.</span>
+0009 
+0010 <span class="keyword">if</span> ~exist(<span class="string">'delta'</span>,<span class="string">'var'</span>)
+0011     disp(<span class="string">'No Calibration Data.'</span>);
+0012     <span class="keyword">return</span>;
+0013 <span class="keyword">end</span>
+0014 <span class="keyword">if</span> ~exist(<span class="string">'.\Calib_Results.mat'</span>,<span class="string">'file'</span>)
+0015     disp(<span class="string">'Calib_Results.mat is needed to proceed.'</span>);
+0016     <span class="keyword">return</span>;
+0017 <span class="keyword">end</span>
+0018 
+0019 <span class="comment">% load camera calibration results.</span>
+0020 load Calib_Results.mat fc cc kc alpha_c fc_error cc_error kc_error alpha_c_error;
+0021 
+0022 <span class="comment">% adjust errors, divide by 3 to get standard deviation (the camera</span>
+0023 <span class="comment">% calibraiton toolbox outputs 3 times the standard deviation as an</span>
+0024 <span class="comment">% uncertainty).</span>
+0025 fc_error=fc_error./3;
+0026 cc_error=cc_error./3;
+0027 kc_error=kc_error./3;
+0028 alpha_c_error=alpha_c_error./3;
+0029 
+0030 <span class="comment">% select images</span>
+0031 loino=input(<span class="string">'Select image numbers to display ([]=none):'</span>);
+0032 
+0033 <span class="comment">% display all images</span>
+0034 <span class="keyword">for</span> cntr=loino
+0035     im=GetImage(cntr);
+0036     <span class="keyword">if</span> isempty(im)
+0037         disp(<span class="string">'File does not exist.'</span>);
+0038         <span class="keyword">return</span>;
+0039     <span class="keyword">else</span>
+0040         InsertLaserIntoImage( GetImage(cntr), angleVector, rangeMatrix(cntr,:), delta, phi, fc, cc, kc, alpha_c,deltae,rote,fc_error,cc_error,kc_error,alpha_c_error);
+0041     <span class="keyword">end</span>
+0042 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 08-Apr-2010 14:35:09 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" target="_parent">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

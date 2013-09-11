@@ -1,0 +1,23 @@
+function imgout=adjimg(img,th)
+% ADJIMG adjusts the intensity of the input image based on the mean and the standard deviation of the intensitites in the image.
+% 
+% ADJIMG
+% 
+if nargin<2 || isempty(th)
+    th=1;
+end
+mimg=mean2(img);
+stdv=std2(img);
+
+imax=mimg+th*stdv;
+imin=mimg-th*stdv;
+
+if imax>1
+    imax=1;
+end
+if imin<0
+    imin=0;
+end
+imgout=(img-imin)./(imax-imin);
+imgout(imgout>1)=1;
+imgout(imgout<0)=0;

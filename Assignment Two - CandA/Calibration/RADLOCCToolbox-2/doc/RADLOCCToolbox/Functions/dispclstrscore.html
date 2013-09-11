@@ -1,0 +1,124 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of dispclstrscore</title>
+  <meta name="keywords" content="dispclstrscore">
+  <meta name="description" content="DISPCLSTRSCORE displays the line clustered scan with scores.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+  <script type="text/javascript">
+    if (top.frames.length == 0) { top.location = "../../index.html"; };
+  </script>
+</head>
+<body>
+<a name="_top"></a>
+<!-- ../menu.html RADLOCCToolbox --><!-- menu.html Functions -->
+<h1>dispclstrscore
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>DISPCLSTRSCORE displays the line clustered scan with scores.</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function dispclstrscore(theta,ranges,clstrs,score,hflag) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> DISPCLSTRSCORE displays the line clustered scan with scores.
+
+ DISPCLSTRSCORE displays the line clustered scan with scores. 'score' is
+ an optional input.
+
+ USAGE:
+     dispclstrscore(angleVector,rangeVector,clstrs,scores);
+ 
+ INPUTS:
+     angleVector: 1xN vector; angleVector lists the angles for the ranges
+     in rangeMatrix.
+ 
+     rangeVector: 1xN vector; ranges of laser scan
+ 
+     clstrs: 1xN vector, cluster numbers of laser points
+ 
+     scores: 1xM vector, where M is the number of clusters. 'scores'
+     includes the score for each cluster</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="SelectLaserPoints.html" class="code" title="function laserInd= SelectLaserPoints(angleVector,rangeVector)">SelectLaserPoints</a>	USAGE:</li><li><a href="dispclstrs.html" class="code" title="function dispclstrs(angleVector,rangeMatrix,clstrs)">dispclstrs</a>	DISPCLSTRS is an auxiliary function used for debugging.</li><li><a href="findlaserboardpoints.html" class="code" title="function [selclstrs,clstrs]=findlaserboardpoints(angleVector,rangeMatrix,laserDivisor,clstrs,tiest,riest,Nci,BoardCorners,thresholds,manselen,debug,manclstrs)">findlaserboardpoints</a>	FINDLASERBOARDPOINTS is the main automatic boar detection function.</li><li><a href="selectscans.html" class="code" title="function scannos=selectscans(angleVector,rangeMatrix,speed)">selectscans</a>	SELECTSCANS is a debugging function.</li><li><a href="showclusters.html" class="code" title="function showclusters(angleVector,rangeMatrix,clstrs)">showclusters</a>	SHOWCLUSTERS is a debugging function to check the clustering results.</li><li><a href="showlasmove.html" class="code" title="function showlasmove(angleVector,rangeMatrix,speed)">showlasmove</a>	SHOWLASMOVE is a debugging function to display the laser scans.</li></ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function dispclstrscore(theta,ranges,clstrs,score,hflag)</a>
+0002 <span class="comment">% DISPCLSTRSCORE displays the line clustered scan with scores.</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% DISPCLSTRSCORE displays the line clustered scan with scores. 'score' is</span>
+0005 <span class="comment">% an optional input.</span>
+0006 <span class="comment">%</span>
+0007 <span class="comment">% USAGE:</span>
+0008 <span class="comment">%     dispclstrscore(angleVector,rangeVector,clstrs,scores);</span>
+0009 <span class="comment">%</span>
+0010 <span class="comment">% INPUTS:</span>
+0011 <span class="comment">%     angleVector: 1xN vector; angleVector lists the angles for the ranges</span>
+0012 <span class="comment">%     in rangeMatrix.</span>
+0013 <span class="comment">%</span>
+0014 <span class="comment">%     rangeVector: 1xN vector; ranges of laser scan</span>
+0015 <span class="comment">%</span>
+0016 <span class="comment">%     clstrs: 1xN vector, cluster numbers of laser points</span>
+0017 <span class="comment">%</span>
+0018 <span class="comment">%     scores: 1xM vector, where M is the number of clusters. 'scores'</span>
+0019 <span class="comment">%     includes the score for each cluster</span>
+0020 
+0021 <span class="keyword">if</span> ~exist(<span class="string">'hflag'</span>,<span class="string">'var'</span>) || isempty(hflag)
+0022     hflag=0;
+0023 <span class="keyword">end</span>
+0024 
+0025 hold on;
+0026 k=max(clstrs);
+0027 h=min(clstrs);
+0028 noclstrs=k-h+1;
+0029 cmap=lines(noclstrs);
+0030 [z,x]=pol2cart(theta,ranges);
+0031 
+0032 xcent=zeros(1,k-h+1);
+0033 zcent=zeros(1,k);
+0034 
+0035 <span class="comment">% get centroids</span>
+0036 <span class="keyword">for</span> cntr=1:noclstrs
+0037     xcent(cntr)=mean(x(clstrs==h+cntr-1));
+0038     zcent(cntr)=mean(z(clstrs==h+cntr-1));
+0039 <span class="keyword">end</span>
+0040 
+0041 <span class="keyword">if</span> ~exist(<span class="string">'score'</span>,<span class="string">'var'</span>)
+0042     score=unique(clstrs);
+0043 <span class="keyword">end</span>
+0044 
+0045 
+0046 <span class="keyword">for</span> cntr=1:noclstrs
+0047     plot(x(clstrs==h+cntr-1),z(clstrs==h+cntr-1),<span class="string">'.'</span>,<span class="string">'color'</span>,cmap(cntr,:));
+0048 <span class="comment">%     plot(x(clstrs==cntr),z(clstrs==cntr),'color',cmap(cntr,:));</span>
+0049     <span class="keyword">if</span> noclstrs&gt;2
+0050         text(xcent(cntr),zcent(cntr),num2str(score(cntr)));
+0051     <span class="keyword">end</span>
+0052 <span class="keyword">end</span>
+0053 
+0054 
+0055 plot(0,0,<span class="string">'o'</span>);
+0056 <span class="comment">% axis manual;</span>
+0057 axis image;
+0058 xlabel(<span class="string">'laser range finder at (0,0), units: mm'</span>);
+0059 grid on;
+0060 
+0061 hold off;</pre></div>
+<hr><address>Generated on Thu 08-Apr-2010 14:35:09 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" target="_parent">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

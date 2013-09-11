@@ -1,0 +1,121 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of geterror</title>
+  <meta name="keywords" content="geterror">
+  <meta name="description" content="GETERROR returns the error of the calibration results.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+  <script type="text/javascript">
+    if (top.frames.length == 0) { top.location = "../../index.html"; };
+  </script>
+</head>
+<body>
+<a name="_top"></a>
+<!-- ../menu.html RADLOCCToolbox --><!-- menu.html Functions -->
+<h1>geterror
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>GETERROR returns the error of the calibration results.</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function [rmserror,errorvec1,errorvec2]=geterror(Lpts,Nc,delta,phi,Lptsnos) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> GETERROR returns the error of the calibration results.
+
+ GETERROR returns the error of the transformation with the data in three
+ different formats.
+ 
+ USAGE:
+     rmserror=geterror(Lpts,Nc,delta,phi,Lptsnos);
+ 
+     [rmserror,errorvec]=geterror(Lpts,Nc,delta,phi,Lptsnos);
+ 
+     [rmserror,errorvec1,errorvec2]=geterror(Lpts,Nc,delta,phi,Lptsnos);
+ 
+ INPUTS:
+     Lpts: 3xN vector containing all the laser board points.
+ 
+     Nc: 3xN vector containing the corresponding normal vector.
+ 
+     delta: 3x1 translation vector output by the calibration.
+ 
+     phi: 3x3 rotation matrix output by the calibration.
+ 
+     Lptsnos: 3xN vector containing the scan numbers of the laser points.
+ 
+
+ OUTPUTS:
+     rmserror: root mean squares of errors.
+ 
+     errorvec1: 1xN vector representing the errors for each point.
+ 
+     errorvec2: 1xM vector representing the RMS error for each scan, where
+     M is the maximum value in Lptsnos.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="geterrorvec.html" class="code" title="function errorvec=geterrorvec(Lpts,Nc,delta,phi)">geterrorvec</a>	GETERRORVEC returns the error for each point.</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [rmserror,errorvec1,errorvec2]=geterror(Lpts,Nc,delta,phi,Lptsnos)</a>
+0002 <span class="comment">% GETERROR returns the error of the calibration results.</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% GETERROR returns the error of the transformation with the data in three</span>
+0005 <span class="comment">% different formats.</span>
+0006 <span class="comment">%</span>
+0007 <span class="comment">% USAGE:</span>
+0008 <span class="comment">%     rmserror=geterror(Lpts,Nc,delta,phi,Lptsnos);</span>
+0009 <span class="comment">%</span>
+0010 <span class="comment">%     [rmserror,errorvec]=geterror(Lpts,Nc,delta,phi,Lptsnos);</span>
+0011 <span class="comment">%</span>
+0012 <span class="comment">%     [rmserror,errorvec1,errorvec2]=geterror(Lpts,Nc,delta,phi,Lptsnos);</span>
+0013 <span class="comment">%</span>
+0014 <span class="comment">% INPUTS:</span>
+0015 <span class="comment">%     Lpts: 3xN vector containing all the laser board points.</span>
+0016 <span class="comment">%</span>
+0017 <span class="comment">%     Nc: 3xN vector containing the corresponding normal vector.</span>
+0018 <span class="comment">%</span>
+0019 <span class="comment">%     delta: 3x1 translation vector output by the calibration.</span>
+0020 <span class="comment">%</span>
+0021 <span class="comment">%     phi: 3x3 rotation matrix output by the calibration.</span>
+0022 <span class="comment">%</span>
+0023 <span class="comment">%     Lptsnos: 3xN vector containing the scan numbers of the laser points.</span>
+0024 <span class="comment">%</span>
+0025 <span class="comment">%</span>
+0026 <span class="comment">% OUTPUTS:</span>
+0027 <span class="comment">%     rmserror: root mean squares of errors.</span>
+0028 <span class="comment">%</span>
+0029 <span class="comment">%     errorvec1: 1xN vector representing the errors for each point.</span>
+0030 <span class="comment">%</span>
+0031 <span class="comment">%     errorvec2: 1xM vector representing the RMS error for each scan, where</span>
+0032 <span class="comment">%     M is the maximum value in Lptsnos.</span>
+0033 
+0034 errorvec1=<a href="geterrorvec.html" class="code" title="function errorvec=geterrorvec(Lpts,Nc,delta,phi)">geterrorvec</a>(Lpts,Nc,delta,phi);
+0035 
+0036 rmserror=sqrt(sum(errorvec1.^2)/length(errorvec1));
+0037 
+0038 <span class="keyword">if</span> exist(<span class="string">'Lptsnos'</span>,<span class="string">'var'</span>) &amp;&amp; ~isempty(Lptsnos)
+0039     uLptsnos=unique(Lptsnos);
+0040     errorvec2=zeros(size(uLptsnos));
+0041     <span class="keyword">for</span> cntr=unique(Lptsnos)
+0042         errorvec2(cntr)=sqrt(sum(errorvec1(Lptsnos==cntr).^2)/nnz(Lptsnos==cntr));
+0043     <span class="keyword">end</span>
+0044 <span class="keyword">end</span>
+0045</pre></div>
+<hr><address>Generated on Thu 08-Apr-2010 14:35:09 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" target="_parent">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

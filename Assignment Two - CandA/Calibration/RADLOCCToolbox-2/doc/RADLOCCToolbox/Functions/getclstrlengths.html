@@ -1,0 +1,101 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of getclstrlengths</title>
+  <meta name="keywords" content="getclstrlengths">
+  <meta name="description" content="GETCLSTRLENGTHS gets the length of each cluster.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+  <script type="text/javascript">
+    if (top.frames.length == 0) { top.location = "../../index.html"; };
+  </script>
+</head>
+<body>
+<a name="_top"></a>
+<!-- ../menu.html RADLOCCToolbox --><!-- menu.html Functions -->
+<h1>getclstrlengths
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>GETCLSTRLENGTHS gets the length of each cluster.</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function lengths=getclstrlengths(angleVector,rangeMatrix,clstrs) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> GETCLSTRLENGTHS gets the length of each cluster.
+
+ GETCLSTRLENGTHS gets the length of each cluster. The length is defined as
+ the Euclidean distance between the end points.
+ 
+     angleVector: 1xN vector; angleVector lists the angles for the ranges
+     in rangeMatrix.
+ 
+     rangeMatrix: MxN array; Each row in rangeMatrix contains a laser scan
+     with ranges at the angles specified in angleVector.
+ 
+     clstrs: MxN array. clstrs should be the same size as rangeMatrix.
+     Each element in clstrs is an integer indicating the line cluster the
+     range to which reading belongs.
+ 
+ OUTPUTS:
+     lengths: MxK array where K is the largest cluster number. It
+     contains the lengths for each cluster.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="findlaserboardpoints.html" class="code" title="function [selclstrs,clstrs]=findlaserboardpoints(angleVector,rangeMatrix,laserDivisor,clstrs,tiest,riest,Nci,BoardCorners,thresholds,manselen,debug,manclstrs)">findlaserboardpoints</a>	FINDLASERBOARDPOINTS is the main automatic boar detection function.</li></ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function lengths=getclstrlengths(angleVector,rangeMatrix,clstrs)</a>
+0002 <span class="comment">% GETCLSTRLENGTHS gets the length of each cluster.</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% GETCLSTRLENGTHS gets the length of each cluster. The length is defined as</span>
+0005 <span class="comment">% the Euclidean distance between the end points.</span>
+0006 <span class="comment">%</span>
+0007 <span class="comment">%     angleVector: 1xN vector; angleVector lists the angles for the ranges</span>
+0008 <span class="comment">%     in rangeMatrix.</span>
+0009 <span class="comment">%</span>
+0010 <span class="comment">%     rangeMatrix: MxN array; Each row in rangeMatrix contains a laser scan</span>
+0011 <span class="comment">%     with ranges at the angles specified in angleVector.</span>
+0012 <span class="comment">%</span>
+0013 <span class="comment">%     clstrs: MxN array. clstrs should be the same size as rangeMatrix.</span>
+0014 <span class="comment">%     Each element in clstrs is an integer indicating the line cluster the</span>
+0015 <span class="comment">%     range to which reading belongs.</span>
+0016 <span class="comment">%</span>
+0017 <span class="comment">% OUTPUTS:</span>
+0018 <span class="comment">%     lengths: MxK array where K is the largest cluster number. It</span>
+0019 <span class="comment">%     contains the lengths for each cluster.</span>
+0020 
+0021 noscans=size(rangeMatrix,1);
+0022 
+0023 [x,y]=pol2cart(repmat(angleVector,[noscans,1]),rangeMatrix);
+0024 
+0025 noclstrs=max(clstrs,[],2);
+0026 maxnoclstrs=max(noclstrs);
+0027 
+0028 lengths=zeros(noscans,maxnoclstrs);
+0029 
+0030 <span class="keyword">for</span> cntr1=1:noscans
+0031     <span class="keyword">for</span> cntr2=1:noclstrs(cntr1)
+0032         ind=find(clstrs(cntr1,:)==cntr2);
+0033         pt1=min(ind);
+0034         pt2=max(ind);
+0035         len=norm([x(cntr1,pt2)-x(cntr1,pt1),y(cntr1,pt2)-y(cntr1,pt1)]);
+0036         lengths(cntr1,cntr2)=len;
+0037     <span class="keyword">end</span>
+0038 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 08-Apr-2010 14:35:09 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" target="_parent">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

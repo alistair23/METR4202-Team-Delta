@@ -1,0 +1,163 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of getuncert</title>
+  <meta name="keywords" content="getuncert">
+  <meta name="description" content="GETUNCERT finds the uncertainty in the calibration parameters">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+  <script type="text/javascript">
+    if (top.frames.length == 0) { top.location = "../../index.html"; };
+  </script>
+</head>
+<body>
+<a name="_top"></a>
+<!-- ../menu.html RADLOCCToolbox --><!-- menu.html Functions -->
+<h1>getuncert
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>GETUNCERT finds the uncertainty in the calibration parameters</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function [deltae,rote]=getuncert(Lpts,Lptsnos,Nc) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> GETUNCERT finds the uncertainty in the calibration parameters
+
+ GETUNCERT finds the uncertainty in the calibration parameters using
+ jack-knife resampling method.
+ 
+ INPUTS:
+     Lpts: 3xN array containing all N points to be used for the
+     calibration process.
+ 
+     Lptsnos: 3xN array containing the corresponding scan numbers of the
+     points in Lpts.
+     
+     Nc: 3xN array containing the corresponding normal vectors for the
+     points in Lpts.
+ 
+ INPUTS:
+     deltae: 3x1 vector with the standard deviations of the delta vector.
+     
+     rote: 3x1 vector with the standard deviations of the Euler angles.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="constraint_phi.html" class="code" title="function [zero, diff] = constraint_phi(A)">constraint_phi</a>	Compute the constraint for the rotation matrix phi</li><li><a href="dcm2angvec.html" class="code" title="function rot=dcm2angvec(phi)">dcm2angvec</a>	DCM2ANGVEC facilitates the use of the function dcm2angle.</li><li><a href="frobenius_norm.html" class="code" title="function diff = frobenius_norm(A, B)">frobenius_norm</a>	Computes the Frobenius norm of the difference of two matrices</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [deltae,rote]=getuncert(Lpts,Lptsnos,Nc)</a>
+0002 <span class="comment">% GETUNCERT finds the uncertainty in the calibration parameters</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% GETUNCERT finds the uncertainty in the calibration parameters using</span>
+0005 <span class="comment">% jack-knife resampling method.</span>
+0006 <span class="comment">%</span>
+0007 <span class="comment">% INPUTS:</span>
+0008 <span class="comment">%     Lpts: 3xN array containing all N points to be used for the</span>
+0009 <span class="comment">%     calibration process.</span>
+0010 <span class="comment">%</span>
+0011 <span class="comment">%     Lptsnos: 3xN array containing the corresponding scan numbers of the</span>
+0012 <span class="comment">%     points in Lpts.</span>
+0013 <span class="comment">%</span>
+0014 <span class="comment">%     Nc: 3xN array containing the corresponding normal vectors for the</span>
+0015 <span class="comment">%     points in Lpts.</span>
+0016 <span class="comment">%</span>
+0017 <span class="comment">% INPUTS:</span>
+0018 <span class="comment">%     deltae: 3x1 vector with the standard deviations of the delta vector.</span>
+0019 <span class="comment">%</span>
+0020 <span class="comment">%     rote: 3x1 vector with the standard deviations of the Euler angles.</span>
+0021 
+0022 <span class="comment">% setup for closed form solution</span>
+0023 Lptshat = [Lpts(1,:); Lpts(3,:); ones(1,size(Lpts,2))];
+0024 
+0025 Avec=zeros(size(Lpts,2),9);
+0026 
+0027 <span class="keyword">for</span> cntr=1:size(Lpts,2)
+0028     Avec(cntr,:)=reshape(Lptshat(:,cntr)*Nc(:,cntr)',1,9);
+0029 <span class="keyword">end</span>
+0030 
+0031 N=sqrt(sum(Nc.^2)');
+0032 
+0033 <span class="comment">% normalise</span>
+0034 Avec=Avec./repmat(N,1,9);
+0035 
+0036 <span class="comment">% get indices for each scan</span>
+0037 scannos=unique(Lptsnos);
+0038 
+0039 sinds=cell(1,max(scannos));
+0040 
+0041 <span class="keyword">for</span> cntr=scannos
+0042     sinds{cntr}=find(Lptsnos==cntr);
+0043 <span class="keyword">end</span>
+0044 
+0045 scancomb=combnk(scannos,length(scannos)-1);
+0046 <span class="comment">% scancomb=combnk(scannos,5);</span>
+0047 
+0048 <span class="comment">% allocate memory for parameters</span>
+0049 
+0050 parmat=zeros(size(scancomb,1),6);
+0051 detmat=zeros(size(scancomb,1),1);
+0052 
+0053 options = optimset(<span class="string">'LargeScale'</span>,<span class="string">'off'</span>,<span class="string">'Display'</span>,<span class="string">'off'</span>);
+0054 warning(<span class="string">'off'</span>,<span class="string">'optim:fmincon:NLPAlgLargeScaleConflict'</span>);
+0055 
+0056 Ns=size(scancomb,1);
+0057 
+0058 <span class="comment">% loop over all scan combinations</span>
+0059 <span class="keyword">for</span> cntr=1:size(scancomb,1)
+0060     ctinds=cell2mat(sinds(scancomb(cntr,:)));
+0061     A=Avec(ctinds,:);
+0062     ctN=N(ctinds);
+0063     h=A\ctN;
+0064     H=reshape(h,3,3)';
+0065     ctphi=[H(:,1), cross(-H(:,1),H(:,2)), H(:,2)]';
+0066     ctphi0=ctphi;
+0067     ctphi = fmincon(@(ctphi)<a href="frobenius_norm.html" class="code" title="function diff = frobenius_norm(A, B)">frobenius_norm</a>(ctphi,ctphi0),ctphi0,[],[],[],[],[],[],@<a href="constraint_phi.html" class="code" title="function [zero, diff] = constraint_phi(A)">constraint_phi</a>,options);
+0068     ctrot=<a href="dcm2angvec.html" class="code" title="function rot=dcm2angvec(phi)">dcm2angvec</a>(ctphi);
+0069     ctdelta=H(:,3); <span class="comment">% delta positive</span>
+0070     parmat(cntr,:)=[ctdelta',ctrot'];
+0071     detmat(cntr)=1/cond(A);
+0072 <span class="keyword">end</span>
+0073 
+0074 <span class="comment">% jack knifing</span>
+0075 deltamat=parmat(:,1:3);
+0076 rotmat=parmat(:,4:6);
+0077 
+0078 <span class="comment">% get average of delta</span>
+0079 deltamatm=sum(deltamat)/Ns;
+0080 
+0081 <span class="comment">% get average of rot</span>
+0082 [rotmatx,rotmaty]=pol2cart(rotmat,ones(size(rotmat)));
+0083 rotmatxm=sum(rotmatx)/Ns;
+0084 rotmatym=sum(rotmaty)/Ns;
+0085 rotmatm=cart2pol(rotmatxm,rotmatym);
+0086 
+0087 <span class="comment">% get differences</span>
+0088 deltamatd=deltamat-repmat(deltamatm,Ns,1);
+0089 rotmatd=rotmat-repmat(rotmatm,Ns,1);
+0090 
+0091 
+0092 <span class="comment">% adjust for angle differences more than pi and less than -pi</span>
+0093 rotmatd(rotmatd&gt;pi)=rotmatd(rotmatd&gt;pi)-2*pi;
+0094 rotmatd(rotmatd&lt;-pi)=rotmatd(rotmatd&lt;-pi)+2*pi;
+0095 
+0096 deltae=sqrt((Ns-1)/Ns*sum(deltamatd.^2))';
+0097 rote=sqrt((Ns-1)/Ns*sum(rotmatd.^2))';
+0098 
+0099</pre></div>
+<hr><address>Generated on Thu 08-Apr-2010 14:35:09 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" target="_parent">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

@@ -1,0 +1,319 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of rodrigues</title>
+  <meta name="keywords" content="rodrigues">
+  <meta name="description" content="RODRIGUES	Transform rotation matrix into rotation vector and viceversa.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+  <script type="text/javascript">
+    if (top.frames.length == 0) { top.location = "../../index.html"; };
+  </script>
+</head>
+<body>
+<a name="_top"></a>
+<!-- ../menu.html RADLOCCToolbox --><!-- menu.html Functions -->
+<h1>rodrigues
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>RODRIGUES	Transform rotation matrix into rotation vector and viceversa.</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function	[out,dout]=rodrigues(in) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> RODRIGUES    Transform rotation matrix into rotation vector and viceversa.
+        
+        Sintax:  [OUT]=RODRIGUES(IN)
+         If IN is a 3x3 rotation matrix then OUT is the
+        corresponding 3x1 rotation vector
+         if IN is a rotation 3-vector then OUT is the 
+        corresponding 3x3 rotation matrix</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="rodrigues.html" class="code" title="function	[out,dout]=rodrigues(in)">rodrigues</a>	RODRIGUES	Transform rotation matrix into rotation vector and viceversa.</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="camlasercalib.html" class="code" title="function [delta,phi]=camlasercalib(Lpts,Nc,deltaest,phiest)">camlasercalib</a>	CAMLASERCALIB performs the final laser-camera calibration step.</li><li><a href="geterroropt.html" class="code" title="function errorvec=geterroropt(deltaphi,Lpts,Nc)">geterroropt</a>	GETERROROPT is the optimisation objective function.</li><li><a href="rodrigues.html" class="code" title="function	[out,dout]=rodrigues(in)">rodrigues</a>	RODRIGUES	Transform rotation matrix into rotation vector and viceversa.</li></ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function    [out,dout]=rodrigues(in)</a>
+0002 
+0003 <span class="comment">% RODRIGUES    Transform rotation matrix into rotation vector and viceversa.</span>
+0004 <span class="comment">%</span>
+0005 <span class="comment">%        Sintax:  [OUT]=RODRIGUES(IN)</span>
+0006 <span class="comment">%         If IN is a 3x3 rotation matrix then OUT is the</span>
+0007 <span class="comment">%        corresponding 3x1 rotation vector</span>
+0008 <span class="comment">%         if IN is a rotation 3-vector then OUT is the</span>
+0009 <span class="comment">%        corresponding 3x3 rotation matrix</span>
+0010 <span class="comment">%</span>
+0011 
+0012 <span class="comment">%%</span>
+0013 <span class="comment">%%        Copyright (c) March 1993 -- Pietro Perona</span>
+0014 <span class="comment">%%        California Institute of Technology</span>
+0015 <span class="comment">%%</span>
+0016 
+0017 <span class="comment">%% ALL CHECKED BY JEAN-YVES BOUGUET, October 1995.</span>
+0018 <span class="comment">%% FOR ALL JACOBIAN MATRICES !!! LOOK AT THE TEST AT THE END !!</span>
+0019 
+0020 <span class="comment">%% BUG when norm(om)=pi fixed -- April 6th, 1997;</span>
+0021 <span class="comment">%% Jean-Yves Bouguet</span>
+0022 
+0023 <span class="comment">%% Add projection of the 3x3 matrix onto the set of special ortogonal matrices SO(3) by SVD -- February 7th, 2003;</span>
+0024 <span class="comment">%% Jean-Yves Bouguet</span>
+0025 
+0026 <span class="comment">% BUG FOR THE CASE norm(om)=pi fixed by Mike Burl on Feb 27, 2007</span>
+0027 
+0028 
+0029 [m,n] = size(in);
+0030 <span class="comment">%bigeps = 10e+4*eps;</span>
+0031 bigeps = 10e+20*eps;
+0032 
+0033 <span class="keyword">if</span> ((m==1) &amp; (n==3)) | ((m==3) &amp; (n==1)) <span class="comment">%% it is a rotation vector</span>
+0034     theta = norm(in);
+0035     <span class="keyword">if</span> theta &lt; eps
+0036         R = eye(3);
+0037 
+0038         <span class="comment">%if nargout &gt; 1,</span>
+0039 
+0040         dRdin = [0 0 0;
+0041             0 0 1;
+0042             0 -1 0;
+0043             0 0 -1;
+0044             0 0 0;
+0045             1 0 0;
+0046             0 1 0;
+0047             -1 0 0;
+0048             0 0 0];
+0049 
+0050         <span class="comment">%end;</span>
+0051 
+0052     <span class="keyword">else</span>
+0053         <span class="keyword">if</span> n==length(in)  in=in'; <span class="keyword">end</span>;     <span class="comment">%% make it a column vec. if necess.</span>
+0054 
+0055         <span class="comment">%m3 = [in,theta]</span>
+0056 
+0057         dm3din = [eye(3);in'/theta];
+0058 
+0059         omega = in/theta;
+0060 
+0061         <span class="comment">%m2 = [omega;theta]</span>
+0062 
+0063         dm2dm3 = [eye(3)/theta -in/theta^2; zeros(1,3) 1];
+0064 
+0065         alpha = cos(theta);
+0066         beta = sin(theta);
+0067         gamma = 1-cos(theta);
+0068         omegav=[[0 -omega(3) omega(2)];[omega(3) 0 -omega(1)];[-omega(2) omega(1) 0 ]];
+0069         A = omega*omega';
+0070 
+0071         <span class="comment">%m1 = [alpha;beta;gamma;omegav;A];</span>
+0072 
+0073         dm1dm2 = zeros(21,4);
+0074         dm1dm2(1,4) = -sin(theta);
+0075         dm1dm2(2,4) = cos(theta);
+0076         dm1dm2(3,4) = sin(theta);
+0077         dm1dm2(4:12,1:3) = [0 0 0 0 0 1 0 -1 0;
+0078             0 0 -1 0 0 0 1 0 0;
+0079             0 1 0 -1 0 0 0 0 0]';
+0080 
+0081         w1 = omega(1);
+0082         w2 = omega(2);
+0083         w3 = omega(3);
+0084 
+0085         dm1dm2(13:21,1) = [2*w1;w2;w3;w2;0;0;w3;0;0];
+0086         dm1dm2(13: 21,2) = [0;w1;0;w1;2*w2;w3;0;w3;0];
+0087         dm1dm2(13:21,3) = [0;0;w1;0;0;w2;w1;w2;2*w3];
+0088 
+0089         R = eye(3)*alpha + omegav*beta + A*gamma;
+0090 
+0091         dRdm1 = zeros(9,21);
+0092 
+0093         dRdm1([1 5 9],1) = ones(3,1);
+0094         dRdm1(:,2) = omegav(:);
+0095         dRdm1(:,4:12) = beta*eye(9);
+0096         dRdm1(:,3) = A(:);
+0097         dRdm1(:,13:21) = gamma*eye(9);
+0098 
+0099         dRdin = dRdm1 * dm1dm2 * dm2dm3 * dm3din;
+0100 
+0101 
+0102     <span class="keyword">end</span>;
+0103     out = R;
+0104     dout = dRdin;
+0105 
+0106     <span class="comment">%% it is prob. a rot matr.</span>
+0107 <span class="keyword">elseif</span> ((m==n) &amp; (m==3) &amp; (norm(in' * in - eye(3)) &lt; bigeps)<span class="keyword">...</span>
+0108         &amp; (abs(det(in)-1) &lt; bigeps))
+0109     R = in;
+0110 
+0111     <span class="comment">% project the rotation matrix to SO(3);</span>
+0112     [U,S,V] = svd(R);
+0113     R = U*V';
+0114 
+0115     tr = (trace(R)-1)/2;
+0116     dtrdR = [1 0 0 0 1 0 0 0 1]/2;
+0117     theta = real(acos(tr));
+0118 
+0119 
+0120     <span class="keyword">if</span> sin(theta) &gt;= 1e-4,
+0121 
+0122         dthetadtr = -1/sqrt(1-tr^2);
+0123 
+0124         dthetadR = dthetadtr * dtrdR;
+0125         <span class="comment">% var1 = [vth;theta];</span>
+0126         vth = 1/(2*sin(theta));
+0127         dvthdtheta = -vth*cos(theta)/sin(theta);
+0128         dvar1dtheta = [dvthdtheta;1];
+0129 
+0130         dvar1dR =  dvar1dtheta * dthetadR;
+0131 
+0132 
+0133         om1 = [R(3,2)-R(2,3), R(1,3)-R(3,1), R(2,1)-R(1,2)]';
+0134 
+0135         dom1dR = [0 0 0 0 0 1 0 -1 0;
+0136             0 0 -1 0 0 0 1 0 0;
+0137             0 1 0 -1 0 0 0 0 0];
+0138 
+0139         <span class="comment">% var = [om1;vth;theta];</span>
+0140         dvardR = [dom1dR;dvar1dR];
+0141 
+0142         <span class="comment">% var2 = [om;theta];</span>
+0143         om = vth*om1;
+0144         domdvar = [vth*eye(3) om1 zeros(3,1)];
+0145         dthetadvar = [0 0 0 0 1];
+0146         dvar2dvar = [domdvar;dthetadvar];
+0147 
+0148 
+0149         out = om*theta;
+0150         domegadvar2 = [theta*eye(3) om];
+0151 
+0152         dout = domegadvar2 * dvar2dvar * dvardR;
+0153 
+0154 
+0155     <span class="keyword">else</span>
+0156         <span class="keyword">if</span> tr &gt; 0;             <span class="comment">% case norm(om)=0;</span>
+0157 
+0158             out = [0 0 0]';
+0159 
+0160             dout = [0 0 0 0 0 1/2 0 -1/2 0;
+0161                 0 0 -1/2 0 0 0 1/2 0 0;
+0162                 0 1/2 0 -1/2 0 0 0 0 0];
+0163         <span class="keyword">else</span>
+0164 
+0165             <span class="comment">% case norm(om)=pi;</span>
+0166             <span class="keyword">if</span>(0)
+0167 
+0168                 <span class="comment">%% fixed April 6th by Bouguet -- not working in all cases!</span>
+0169                 out = theta * (sqrt((diag(R)+1)/2).*[1;2*(R(1,2:3)&gt;=0)'-1]);
+0170                 <span class="comment">%keyboard;</span>
+0171 
+0172             <span class="keyword">else</span>
+0173 
+0174                 <span class="comment">% Solution by Mike Burl on Feb 27, 2007</span>
+0175                 <span class="comment">% This is a better way to determine the signs of the</span>
+0176                 <span class="comment">% entries of the rotation vector using a hash table on all</span>
+0177                 <span class="comment">% the combinations of signs of a pairs of products (in the</span>
+0178                 <span class="comment">% rotation matrix)</span>
+0179 
+0180                 <span class="comment">% Define hashvec and Smat</span>
+0181                 hashvec = [0; -1; -3; -9; 9; 3; 1; 13; 5; -7; -11];
+0182                 Smat = [1,1,1; 1,0,-1; 0,1,-1; 1,-1,0; 1,1,0; 0,1,1; 1,0,1; 1,1,1; 1,1,-1;
+0183                     1,-1,-1; 1,-1,1];
+0184 
+0185                 M = (R+eye(3,3))/2;
+0186                 uabs = sqrt(M(1,1));
+0187                 vabs = sqrt(M(2,2));
+0188                 wabs = sqrt(M(3,3));
+0189 
+0190                 mvec = [M(1,2), M(2,3), M(1,3)];
+0191                 syn  = ((mvec &gt; 1e-4) - (mvec &lt; -1e-4)); <span class="comment">% robust sign() function</span>
+0192                 hash = syn * [9; 3; 1];
+0193                 idx = find(hash == hashvec);
+0194                 svec = Smat(idx,:)';
+0195 
+0196                 out = theta * [uabs; vabs; wabs] .* svec;
+0197 
+0198             <span class="keyword">end</span>;
+0199 
+0200             <span class="keyword">if</span> nargout &gt; 1,
+0201                 fprintf(1,<span class="string">'WARNING!!!! Jacobian domdR undefined!!!\n'</span>);
+0202                 dout = NaN*ones(3,9);
+0203             <span class="keyword">end</span>;
+0204         <span class="keyword">end</span>;
+0205     <span class="keyword">end</span>;
+0206 
+0207 <span class="keyword">else</span>
+0208     error(<span class="string">'Neither a rotation matrix nor a rotation vector were provided'</span>);
+0209 <span class="keyword">end</span>;
+0210 
+0211 <span class="keyword">return</span>;
+0212 
+0213 <span class="comment">%% test of the Jacobians:</span>
+0214 
+0215 <span class="comment">%%%% TEST OF dRdom:</span>
+0216 om = randn(3,1);
+0217 dom = randn(3,1)/1000000;
+0218 
+0219 [R1,dR1] = <a href="rodrigues.html" class="code" title="function    [out,dout]=rodrigues(in)">rodrigues</a>(om);
+0220 R2 = <a href="rodrigues.html" class="code" title="function    [out,dout]=rodrigues(in)">rodrigues</a>(om+dom);
+0221 
+0222 R2a = R1 + reshape(dR1 * dom,3,3);
+0223 
+0224 gain = norm(R2 - R1)/norm(R2 - R2a)
+0225 
+0226 <span class="comment">%%% TEST OF dOmdR:</span>
+0227 om = randn(3,1);
+0228 R = <a href="rodrigues.html" class="code" title="function    [out,dout]=rodrigues(in)">rodrigues</a>(om);
+0229 dom = randn(3,1)/10000;
+0230 dR = <a href="rodrigues.html" class="code" title="function    [out,dout]=rodrigues(in)">rodrigues</a>(om+dom) - R;
+0231 
+0232 [omc,domdR] = <a href="rodrigues.html" class="code" title="function    [out,dout]=rodrigues(in)">rodrigues</a>(R);
+0233 [om2] = <a href="rodrigues.html" class="code" title="function    [out,dout]=rodrigues(in)">rodrigues</a>(R+dR);
+0234 
+0235 om_app = omc + domdR*dR(:);
+0236 
+0237 gain = norm(om2 - omc)/norm(om2 - om_app)
+0238 
+0239 
+0240 <span class="comment">%%% OTHER BUG: (FIXED NOW!!!)</span>
+0241 
+0242 omu = randn(3,1);   
+0243 omu = omu/norm(omu)
+0244 om = pi*omu;        
+0245 [R,dR]= <a href="rodrigues.html" class="code" title="function    [out,dout]=rodrigues(in)">rodrigues</a>(om);
+0246 [om2] = <a href="rodrigues.html" class="code" title="function    [out,dout]=rodrigues(in)">rodrigues</a>(R);
+0247 [om om2]
+0248 
+0249 <span class="comment">%%% NORMAL OPERATION</span>
+0250 
+0251 om = randn(3,1);         
+0252 [R,dR]= <a href="rodrigues.html" class="code" title="function    [out,dout]=rodrigues(in)">rodrigues</a>(om);
+0253 [om2] = <a href="rodrigues.html" class="code" title="function    [out,dout]=rodrigues(in)">rodrigues</a>(R);
+0254 [om om2]
+0255 
+0256 <span class="keyword">return</span>
+0257 
+0258 <span class="comment">% Test: norm(om) = pi</span>
+0259 
+0260 u = randn(3,1);
+0261 u = u / sqrt(sum(u.^2));
+0262 om = pi*u;
+0263 R = <a href="rodrigues.html" class="code" title="function    [out,dout]=rodrigues(in)">rodrigues</a>(om);
+0264 
+0265 R2 = <a href="rodrigues.html" class="code" title="function    [out,dout]=rodrigues(in)">rodrigues</a>(<a href="rodrigues.html" class="code" title="function    [out,dout]=rodrigues(in)">rodrigues</a>(R));
+0266 
+0267 norm(R - R2)</pre></div>
+<hr><address>Generated on Thu 08-Apr-2010 14:35:09 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" target="_parent">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

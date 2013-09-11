@@ -1,0 +1,116 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of showlasmove</title>
+  <meta name="keywords" content="showlasmove">
+  <meta name="description" content="SHOWLASMOVE is a debugging function to display the laser scans.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+  <script type="text/javascript">
+    if (top.frames.length == 0) { top.location = "../../index.html"; };
+  </script>
+</head>
+<body>
+<a name="_top"></a>
+<!-- ../menu.html RADLOCCToolbox --><!-- menu.html Functions -->
+<h1>showlasmove
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>SHOWLASMOVE is a debugging function to display the laser scans.</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function showlasmove(angleVector,rangeMatrix,speed) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> SHOWLASMOVE is a debugging function to display the laser scans.
+
+ SHOWLASMOVE is a debugging function to display the laser scans.
+ 
+ USAGE:
+     showclusters(angleVector,rangeMatrix,clstrs);
+ 
+ INPUTS:
+     angleVector: 1xN vector; angleVector lists the angles for the ranges
+     in rangeMatrix.
+ 
+     rangeMatrix: MxN array; Each row in rangeMatrix contains a laser scan
+     with ranges at the angles specified in angleVector.
+ 
+     speed: display speed (integer greater than or equal to 1).</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="dispclstrscore.html" class="code" title="function dispclstrscore(theta,ranges,clstrs,score,hflag)">dispclstrscore</a>	DISPCLSTRSCORE displays the line clustered scan with scores.</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function showlasmove(angleVector,rangeMatrix,speed)</a>
+0002 <span class="comment">% SHOWLASMOVE is a debugging function to display the laser scans.</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% SHOWLASMOVE is a debugging function to display the laser scans.</span>
+0005 <span class="comment">%</span>
+0006 <span class="comment">% USAGE:</span>
+0007 <span class="comment">%     showclusters(angleVector,rangeMatrix,clstrs);</span>
+0008 <span class="comment">%</span>
+0009 <span class="comment">% INPUTS:</span>
+0010 <span class="comment">%     angleVector: 1xN vector; angleVector lists the angles for the ranges</span>
+0011 <span class="comment">%     in rangeMatrix.</span>
+0012 <span class="comment">%</span>
+0013 <span class="comment">%     rangeMatrix: MxN array; Each row in rangeMatrix contains a laser scan</span>
+0014 <span class="comment">%     with ranges at the angles specified in angleVector.</span>
+0015 <span class="comment">%</span>
+0016 <span class="comment">%     speed: display speed (integer greater than or equal to 1).</span>
+0017 
+0018 figure;
+0019 axis;
+0020 mov=1;
+0021 <span class="keyword">if</span> ~exist(<span class="string">'speed'</span>,<span class="string">'var'</span>)
+0022     mov=0;
+0023 <span class="keyword">end</span>
+0024 
+0025 <span class="keyword">if</span> mov
+0026     <span class="keyword">for</span> cntr=1:speed:size(rangeMatrix,1);
+0027         polar(angleVector,rangeMatrix(cntr,:),<span class="string">'.'</span>);
+0028         title(num2str(cntr));
+0029         drawnow;
+0030         cla;
+0031     <span class="keyword">end</span>
+0032 <span class="keyword">else</span>
+0033     cntr=1;
+0034     <span class="keyword">while</span> 1
+0035         <a href="dispclstrscore.html" class="code" title="function dispclstrscore(theta,ranges,clstrs,score,hflag)">dispclstrscore</a>(angleVector,rangeMatrix(cntr,:),ones(size(angleVector)));
+0036         imdistline;
+0037         title(num2str(cntr));
+0038         <span class="keyword">while</span> ~waitforbuttonpress
+0039         <span class="keyword">end</span>
+0040         btnprsd=get(gcf,<span class="string">'CurrentCharacter'</span>);
+0041         <span class="keyword">if</span> btnprsd==<span class="string">'n'</span>
+0042             cntr=cntr+1;
+0043             <span class="keyword">if</span> cntr&gt;size(rangeMatrix,1)
+0044                 cntr=size(rangeMatrix,1);
+0045             <span class="keyword">end</span>
+0046         <span class="keyword">elseif</span> btnprsd==<span class="string">'b'</span>
+0047             cntr=cntr-1;
+0048             <span class="keyword">if</span> cntr&lt;1
+0049                 cntr=1;
+0050             <span class="keyword">end</span>
+0051         <span class="keyword">elseif</span> btnprsd==<span class="string">'e'</span>
+0052             <span class="keyword">break</span>;
+0053         <span class="keyword">end</span>
+0054         cla;
+0055     <span class="keyword">end</span>
+0056 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 08-Apr-2010 14:35:09 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" target="_parent">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

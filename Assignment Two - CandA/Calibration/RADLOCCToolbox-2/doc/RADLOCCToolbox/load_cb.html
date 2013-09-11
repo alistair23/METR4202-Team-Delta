@@ -1,0 +1,72 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of load_cb</title>
+  <meta name="keywords" content="load_cb">
+  <meta name="description" content="LOAD_CB is the callback file that loads available information from files.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+  <script type="text/javascript">
+    if (top.frames.length == 0) { top.location = "../index.html"; };
+  </script>
+</head>
+<body>
+<a name="_top"></a>
+<!-- menu.html RADLOCCToolbox -->
+<h1>load_cb
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>LOAD_CB is the callback file that loads available information from files.</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>This is a script file. </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> LOAD_CB is the callback file that loads available information from files.
+
+ LOAD_CB loads files previously saved in the current directory.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <span class="comment">% LOAD_CB is the callback file that loads available information from files.</span>
+0002 <span class="comment">%</span>
+0003 <span class="comment">% LOAD_CB loads files previously saved in the current directory.</span>
+0004 
+0005 <span class="keyword">if</span> exist(<span class="string">'.\LaserScans.mat'</span>,<span class="string">'file'</span>)
+0006     disp(<span class="string">'Loading LaserScans.mat'</span>);
+0007     load .\LaserScans.mat;
+0008 <span class="keyword">end</span>
+0009 <span class="keyword">if</span> exist(<span class="string">'.\CalibPoints.mat'</span>,<span class="string">'file'</span>)
+0010     disp(<span class="string">'Loading CalibPoints.mat'</span>);
+0011     load CalibPoints.mat;
+0012 <span class="keyword">end</span>
+0013 <span class="keyword">if</span> exist(<span class="string">'.\AutoClstrs.mat'</span>,<span class="string">'file'</span>)
+0014     disp(<span class="string">'Loading AutoClstrs.mat'</span>);
+0015     load .\AutoClstrs.mat;
+0016 <span class="keyword">end</span>
+0017 <span class="keyword">if</span> exist(<span class="string">'.\ManClstrs.mat'</span>,<span class="string">'file'</span>)
+0018     disp(<span class="string">'Loading ManClstrs.mat'</span>);
+0019     load .\ManClstrs.mat
+0020 <span class="keyword">end</span>
+0021 <span class="keyword">if</span> exist(<span class="string">'.\LaserCalibResults.mat'</span>,<span class="string">'file'</span>);
+0022     disp(<span class="string">'Loading LaserCalibResults.mat'</span>);
+0023     load .\LaserCalibResults.mat;
+0024 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 08-Apr-2010 14:35:09 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" target="_parent">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

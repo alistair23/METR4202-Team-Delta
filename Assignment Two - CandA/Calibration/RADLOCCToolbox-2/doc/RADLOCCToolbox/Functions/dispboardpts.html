@@ -1,0 +1,122 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of dispboardpts</title>
+  <meta name="keywords" content="dispboardpts">
+  <meta name="description" content="DISPBOARDPTS displays the selected calibration points onto one scan.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+  <script type="text/javascript">
+    if (top.frames.length == 0) { top.location = "../../index.html"; };
+  </script>
+</head>
+<body>
+<a name="_top"></a>
+<!-- ../menu.html RADLOCCToolbox --><!-- menu.html Functions -->
+<h1>dispboardpts
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>DISPBOARDPTS displays the selected calibration points onto one scan.</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function dispboardpts(angleVector,rangeMatrix,clstrs,boardclstrs,selectionnumbers) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> DISPBOARDPTS displays the selected calibration points onto one scan.
+
+ DISPBOARDPTS displays the selected calibration points onto one scan.
+
+ USAGE:
+     dispboardpts(angleVector,rangeMatrix,clstrs,boardclstrs,selectionnumbers)
+ 
+ INPUTS:
+     angleVector: 1xN vector; angleVector lists the angles for the ranges
+     in rangeMatrix.
+ 
+     rangeMatrix: MxN array; Each row in rangeMatrix contains a laser scan
+     with ranges at the angles specified in angleVector.
+ 
+     clstrs: MxN array. clstrs should be the same size as rangeMatrix.
+     Each element in clstrs is an integer indicating the line cluster the
+     range to which reading belongs.
+ 
+     boardclstrs: Mx1 vector with the selected cluster of each scan.
+     (0=none)
+ 
+     selectionnumbers: row vector containing the active scan numbers</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function dispboardpts(angleVector,rangeMatrix,clstrs,boardclstrs,selectionnumbers)</a>
+0002 <span class="comment">% DISPBOARDPTS displays the selected calibration points onto one scan.</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% DISPBOARDPTS displays the selected calibration points onto one scan.</span>
+0005 <span class="comment">%</span>
+0006 <span class="comment">% USAGE:</span>
+0007 <span class="comment">%     dispboardpts(angleVector,rangeMatrix,clstrs,boardclstrs,selectionnumbers)</span>
+0008 <span class="comment">%</span>
+0009 <span class="comment">% INPUTS:</span>
+0010 <span class="comment">%     angleVector: 1xN vector; angleVector lists the angles for the ranges</span>
+0011 <span class="comment">%     in rangeMatrix.</span>
+0012 <span class="comment">%</span>
+0013 <span class="comment">%     rangeMatrix: MxN array; Each row in rangeMatrix contains a laser scan</span>
+0014 <span class="comment">%     with ranges at the angles specified in angleVector.</span>
+0015 <span class="comment">%</span>
+0016 <span class="comment">%     clstrs: MxN array. clstrs should be the same size as rangeMatrix.</span>
+0017 <span class="comment">%     Each element in clstrs is an integer indicating the line cluster the</span>
+0018 <span class="comment">%     range to which reading belongs.</span>
+0019 <span class="comment">%</span>
+0020 <span class="comment">%     boardclstrs: Mx1 vector with the selected cluster of each scan.</span>
+0021 <span class="comment">%     (0=none)</span>
+0022 <span class="comment">%</span>
+0023 <span class="comment">%     selectionnumbers: row vector containing the active scan numbers</span>
+0024 
+0025 <span class="comment">% remove scans with no boardcluster (guard)</span>
+0026 selectionnumbers(boardclstrs(selectionnumbers)==0)=[];
+0027 
+0028 <span class="keyword">if</span> isempty(selectionnumbers)
+0029     disp(<span class="string">'No selected boards.'</span>);
+0030     <span class="keyword">return</span>;
+0031 <span class="keyword">end</span>
+0032 
+0033 noscans=size(rangeMatrix,1);
+0034 <span class="comment">% conver to cartestian coordinates</span>
+0035 [z,x]=pol2cart(repmat(angleVector,[noscans,1]),rangeMatrix);
+0036 
+0037 figure;
+0038 hold on;
+0039 nopoints=0;
+0040 <span class="keyword">for</span> cntr=selectionnumbers
+0041     ind=(clstrs(cntr,:)==boardclstrs(cntr));
+0042     plot(x(cntr,ind),z(cntr,ind),<span class="string">'r.'</span>,0,0,<span class="string">'bo'</span>);
+0043     nopoints=nopoints+length(ind);
+0044 <span class="keyword">end</span>
+0045 hold off;
+0046 
+0047 axis equal;
+0048 grid on;
+0049 legend(<span class="string">'Laser Points'</span>,<span class="string">'Laser Origin'</span>);
+0050 title(<span class="string">'Laser Points on Board Planes'</span>);
+0051 xlabel(<span class="string">'x'</span>);
+0052 ylabel(<span class="string">'z'</span>);
+0053 fprintf( <span class="string">'Planes selected:'</span>);disp(selectionnumbers);
+0054 fprintf( <span class="string">'Total of %d planes selected, with a total of %d data points.\n'</span>, length(selectionnumbers),nopoints);
+0055 drawnow;</pre></div>
+<hr><address>Generated on Thu 08-Apr-2010 14:35:09 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" target="_parent">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>
