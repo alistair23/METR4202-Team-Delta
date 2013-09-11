@@ -14,7 +14,8 @@ global mDownThree;
 HLU = 32;
 VLU = 20;
 currentPosition = [0, 0, 0];
-initialOffset = [157, 98, (248 - 209.25)];
+%initialOffset = [157, 98, (248 - 209.25)];
+initialOffset = [164, 90, (248.8 - 209.25)];
 
 %% verify that the RWTH - Mindstorms NXT toolbox is installed.
 if verLessThan('RWTHMindstormsNXT', '4.01');

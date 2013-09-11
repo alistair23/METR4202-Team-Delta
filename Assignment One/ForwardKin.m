@@ -15,6 +15,7 @@ function [ x_0, y_0, z_0 ] = ForwardKin( theta1, theta2, theta3 )
     theta2 = (theta2/5) * (pi/180);
     theta3 = (theta3/5) * (pi/180);
  
+    %% Calculate the sphere coords
      y1 = -(t + lengthTop * cos(theta1));
      z1 = -lengthTop * sin(theta1);
  
