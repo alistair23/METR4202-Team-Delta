@@ -1,4 +1,4 @@
-package trials;
+package functions;
 
 import static com.googlecode.javacv.cpp.opencv_core.*;
 import static com.googlecode.javacv.cpp.opencv_highgui.*;
