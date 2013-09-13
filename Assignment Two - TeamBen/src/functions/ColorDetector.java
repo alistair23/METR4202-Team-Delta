@@ -20,7 +20,6 @@ public class ColorDetector {
 	public void hsvThresholdCoord(int x, int y) {
 	  // 8-bit, 3- color =(RGB)
 		IplImage imgHSV = cvCreateImage(cvGetSize(sourceImage), 8, 3);
-		System.out.println(cvGetSize(sourceImage));
 		cvCvtColor(sourceImage, imgHSV, CV_BGR2HSV);
       
 		// uses bottom pixel x,y as hue calibration
@@ -38,17 +37,44 @@ public class ColorDetector {
 		// cvScalar : ( H , S , V, A)
 		
 		// GOOD FOR TABLE RECOGNITION
-		//cvInRangeS(imgHSV, cvScalar(hueLower, 100, 50, 0), cvScalar(hueUpper, 255, 255, 0), imgThreshold);
-		// GOLD
-		cvInRangeS(imgHSV, cvScalar(hueLower, 100, 100, 0), cvScalar(hueUpper, 255, 255, 0), imgThreshold);
-		// SILVER
-		//cvInRangeS(imgHSV, cvScalar(0, 0, 50, 0), cvScalar(255, 100, 150, 0), imgThreshold);
+		cvInRangeS(imgHSV, cvScalar(hueLower, 100, 50, 0), cvScalar(hueUpper, 255, 255, 0), imgThreshold);
 		
 		cvReleaseImage(imgHSV);
 		cvSmooth(imgThreshold, imgThreshold, CV_MEDIAN, 1);
       
 		//return imgThreshold.clone();
 	}
+	
+	public void hsvThresholdGold() {
+		  // 8-bit, 3- color =(RGB)
+			IplImage imgHSV = cvCreateImage(cvGetSize(sourceImage), 8, 3);
+			cvCvtColor(sourceImage, imgHSV, CV_BGR2HSV);
+			
+			// 8-bit 1- color = monochrome
+			imgThreshold = cvCreateImage(cvGetSize(sourceImage), 8, 1);
+			// cvScalar : ( H , S , V, A)
+
+			cvInRangeS(imgHSV, cvScalar(15, 100, 100, 0), cvScalar(30, 255, 255, 0), imgThreshold);
+			
+			cvReleaseImage(imgHSV);
+			cvSmooth(imgThreshold, imgThreshold, CV_MEDIAN, 1);
+			cvSaveImage("gold_threshold.png", imgThreshold);
+		}
+	
+	public void hsvThresholdSilver() {
+		  // 8-bit, 3- color =(RGB)
+			IplImage imgHSV = cvCreateImage(cvGetSize(sourceImage), 8, 3);
+			cvCvtColor(sourceImage, imgHSV, CV_BGR2HSV);
+			
+			// 8-bit 1- color = monochrome
+			imgThreshold = cvCreateImage(cvGetSize(sourceImage), 8, 1);
+			// cvScalar : ( H , S , V, A)
+
+			cvInRangeS(imgHSV, cvScalar(0, 0, 50, 0), cvScalar(255, 100, 150, 0), imgThreshold);
+			
+			cvReleaseImage(imgHSV);
+			cvSmooth(imgThreshold, imgThreshold, CV_MEDIAN, 1);
+		}
   
 	private static ArrayList<Double> getPixelColor(IplImage hsvImage, int x, int y) {
 		CvScalar s=cvGet2D(hsvImage, y, x);                
