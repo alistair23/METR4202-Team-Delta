@@ -10,10 +10,10 @@ import static com.googlecode.javacv.cpp.opencv_highgui.cvWaitKey;
 
 import java.util.ArrayList;
 
-import com.googlecode.javacv.cpp.opencv_core.CvPoint;
-import com.googlecode.javacv.cpp.opencv_core.CvPoint2D32f;
-import com.googlecode.javacv.cpp.opencv_core.CvScalar;
-import com.googlecode.javacv.cpp.opencv_core.IplImage;
+import static com.googlecode.javacv.cpp.opencv_imgproc.*;
+import com.googlecode.javacv.*;
+import com.googlecode.javacv.cpp.*;
+import static com.googlecode.javacv.cpp.opencv_core.*;
 import functions.*;
 
 public class Main {
@@ -21,6 +21,24 @@ public class Main {
 	public static void main(String[] args) {
 		
 		IplImage sourceImage = cvLoadImage(args[0]);
+		
+		//IplImage orgImg = sourceImage.clone();
+		//IplImage hsv = IplImage.create( orgImg.width(), orgImg.height(), orgImg.depth(), orgImg.nChannels() );
+		//IplImage hue = IplImage.create( orgImg.width(), orgImg.height(), orgImg.depth(), CV_8UC1 );
+		//IplImage sat = IplImage.create( orgImg.width(), orgImg.height(), orgImg.depth(), CV_8UC1 );
+		//IplImage val = IplImage.create( orgImg.width(), orgImg.height(), orgImg.depth(), CV_8UC1 );
+		//cvCvtColor( orgImg, hsv, CV_BGR2HLS );
+		//cvSplit( hsv, hue, sat, val, null );
+		//cvShowImage("blehhhhh", val);  
+		//cvWaitKey(0);
+		
+		EdgesAndLines edgeTool = new EdgesAndLines(sourceImage);
+		IplImage edges = edgeTool.getEdges();
+		cvShowImage("Edges", edges);  
+		cvWaitKey(0);
+		
+		
+		//sourceImage = IplImageUtils.equalizeHist(sourceImage,sourceImage);
 		HoughCircles plate = new HoughCircles(sourceImage.clone());
 		plate.runHoughCirclesRGBPlate();
 		ArrayList<Float> plateCoord = plate.getCircleDataList();
@@ -57,7 +75,7 @@ public class Main {
 		}
 		System.out.println(coordList);
 		
-		cvShowImage("temp image", tempImage);  
+		cvShowImage("Identified Circles", tempImage);  
 		cvWaitKey(0);
 		
 		//printCoordinates(coordList);
@@ -67,7 +85,8 @@ public class Main {
 		tempImage = sourceImage.clone();
 		System.out.println("Check gold...");
 		colorMod.hsvThresholdGold();
-		//colorMod.display();
+		colorMod.display();
+		
 		Integer goldCount = 0;
 		int k=0;
 		for (int i=0; i < radiusList.size(); i++) {
@@ -98,7 +117,7 @@ public class Main {
 				cvCircle(tempImage, center, radius, CvScalar.WHITE, 1, CV_AA, 0);
 			}
 		}
-		cvShowImage("coins identified", tempImage);  
+		cvShowImage("Coins Identified", tempImage);  
 		cvWaitKey(0);
 		
 		System.out.print("Gold coins: "+goldCount.toString()+", ");

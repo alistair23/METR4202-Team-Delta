@@ -58,7 +58,7 @@ public class ColorDetector {
 			
 			cvReleaseImage(imgHSV);
 			cvSmooth(imgThreshold, imgThreshold, CV_MEDIAN, 1);
-			cvSaveImage("gold_threshold.png", imgThreshold);
+			//cvSaveImage("gold_threshold.png", imgThreshold);
 		}
 	
 	public void hsvThresholdSilver() {
@@ -86,7 +86,7 @@ public class ColorDetector {
 	}
 	
 	public void display() {
-		cvShowImage("Result", imgThreshold);  
+		cvShowImage("ColorDetector", imgThreshold);  
 		cvWaitKey(0);
 	}
 	

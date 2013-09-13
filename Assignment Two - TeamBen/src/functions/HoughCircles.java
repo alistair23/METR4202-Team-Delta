@@ -12,6 +12,20 @@ public class HoughCircles{
 	private ArrayList<Float> circleData;
 	private ArrayList<Integer> radiusData;
 	
+	// IMG 1
+	//private static int minCoinRadius = 10;
+	//private static int maxCoinRadius = 100;
+	//private static int coinCentreThreshold = 50;
+	// IMG 2
+	//private static int minCoinRadius = 2;
+	//private static int maxCoinRadius = 60;
+	//private static int coinCentreThreshold = 30;
+	// CALIB
+	private static int minCoinRadius = 5;
+	private static int maxCoinRadius = 20;
+	private static int coinCentreThreshold = 20;
+	
+	
 	public HoughCircles(IplImage sourceImage) {
 		this.sourceImage = sourceImage;
 		circleData = new ArrayList<Float>();
@@ -66,9 +80,9 @@ public class HoughCircles{
 				1, //Inverse ratio
 				10, //Minimum distance between the centers of the detected circles
 				20, //Higher threshold for canny edge detector
-				50, //Threshold at the center detection stage
-				10, //min radius
-				100 //max radius
+				coinCentreThreshold, //Threshold at the center detection stage
+				minCoinRadius, //min radius
+				maxCoinRadius //max radius
 				);
    
 		for(int i = 0; i < circles.total(); i++){
@@ -99,8 +113,8 @@ public class HoughCircles{
 				10, //Minimum distance between the centers of the detected circles
 				20, //Higher threshold for canny edge detector
 				50, //Threshold at the center detection stage
-				10, //min radius
-				100 //max radius
+				minCoinRadius, //min radius
+				maxCoinRadius //max radius
 				);
    
 		for(int i = 0; i < circles.total(); i++){
