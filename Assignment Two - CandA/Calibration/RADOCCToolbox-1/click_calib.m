@@ -30,9 +30,6 @@ if ~exist(['I_' num2str(ind_active(1))]),
 end;
 
 
-fprintf(1,'\nExtraction of the grid corners on the images\n');
-
-
 if (exist('map')~=1), map = gray(256); end;
 
 
@@ -54,15 +51,8 @@ end;
 
 
 if ~exist('dX_default')|~exist('dY_default');
-    
-    % Setup of JY - 3D calibration rig at Intel (new at Intel) - use units in mm to match Zhang
-    dX_default = 30;
-    dY_default = 30;
-    
-    % Setup of JY - 3D calibration rig at Google - use units in mm to match Zhang
-    dX_default = 100;
-    dY_default = 100;
-    
+    dX_default = 27;
+    dY_default = 27;  
 end;
 
 
@@ -81,20 +71,7 @@ end;
 if ~exist('wintx') | ~exist('winty'),
     clear_windows; % Clear all the window sizes (to re-initiate)
 end;
-
-
-
-if ~exist('dont_ask'),
-    dont_ask = 0;
-end;
-
-
-
-if ~dont_ask,
-    ima_numbers = input('Number(s) of image(s) to process ([] = all images) = ');
-else
     ima_numbers = [];
-end;
 
 if isempty(ima_numbers),
     ima_proc = 1:n_ima;
@@ -152,20 +129,22 @@ kk_first = ima_proc(1); %input('Start image number ([]=1=first): ');
 %     manual_squares = 0;
 % end;
 
-if (exist('dX')~=1)|(exist('dY')~=1), % This question is now asked only once
-    % Enter the size of each square
-    
-    dX = input(['Size dX of each square along the X direction ([]=' num2str(dX_default) 'mm) = ']);
-    dY = input(['Size dY of each square along the Y direction ([]=' num2str(dY_default) 'mm) = ']);
-    if isempty(dX), dX = dX_default; else dX_default = dX; end;
-    if isempty(dY), dY = dY_default; else dY_default = dY; end;
-else
-    fprintf(1,['Size of each square along the X direction: dX=' num2str(dX) 'mm\n']);
-    fprintf(1,['Size of each square along the Y direction: dY=' num2str(dY) 'mm   (Note: To reset the size of the squares, clear the variables dX and dY)\n']);
-    %fprintf(1,'Note: To reset the size of the squares, clear the variables dX
-    %and dY\n');
-end
+% if (exist('dX')~=1)|(exist('dY')~=1), % This question is now asked only once
+%     % Enter the size of each square
+%     
+%     dX = input(['Size dX of each square along the X direction ([]=' num2str(dX_default) 'mm) = ']);
+%     dY = input(['Size dY of each square along the Y direction ([]=' num2str(dY_default) 'mm) = ']);
+%     if isempty(dX), dX = dX_default; else dX_default = dX; end;
+%     if isempty(dY), dY = dY_default; else dY_default = dY; end;
+% else
+%     fprintf(1,['Size of each square along the X direction: dX=' num2str(dX) 'mm\n']);
+%     fprintf(1,['Size of each square along the Y direction: dY=' num2str(dY) 'mm   (Note: To reset the size of the squares, clear the variables dX and dY)\n']);
+%     %fprintf(1,'Note: To reset the size of the squares, clear the variables dX
+%     %and dY\n');
+% end
 
+dX = 27;
+dY = 27;
 
 for kk = ima_proc,
     if exist(['I_' num2str(kk)]),
@@ -251,7 +230,12 @@ for kk= 1:n_ima
     end
 end
 
-disp('done');
+            eval(['sus_',num2str(kk),'=0;'])
+            I=eval(['I_',num2str(kk)]);
+            figure(3);
+            image(I); colormap(map); hold on;
+            grid_pts_mat=eval(['grid_pts_mat_',num2str(kk)]);
+            plot(grid_pts_mat(:,:,2),grid_pts_mat(:,:,1),'+');
 
 return;
 

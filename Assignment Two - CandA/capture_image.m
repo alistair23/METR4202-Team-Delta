@@ -1,4 +1,4 @@
-% This Code is property of Aaron METR4202
+% This Code is based on Aaron's METR4202 code
 %
 % [photo, depth] = capture_image(show);
 % Captures a single, photo and depth image from an attached Kinect
@@ -13,7 +13,7 @@
 % figure;
 % subplot(1,2,1), h1 = imshow(photo); 
 % subplot(1,2,2), h2 = imshow(depth, [0 9000]); colormap('jet');
-function [photo, depth] = caputre_image(show, save_images)
+function [photo, depth] = caputre_image(show, save_images, num)
     % Path to the KinectMatlab toolbox. No trailing slash
     PATH_TO_KINECT_MATLAB = 'C:\Users\Alistair\Documents\MATLAB\Kinect_Matlab_version2\OpenNI1';
     MEX_PATH = fullfile(PATH_TO_KINECT_MATLAB, 'Mex');
@@ -52,14 +52,14 @@ function [photo, depth] = caputre_image(show, save_images)
 
     if(nargin() > 1 && save_images == true)
         disp('Saving Images...');
-        filename = fullfile(pwd(), [datestr(clock, 'yyyy-mm-dd_HH-MM-SS')])
+        filename = fullfile(pwd(), ['Photo']);
         
         % Save .mat file
-        save([filename '_rgbd.mat'], 'photo', 'depth');
+        %save([filename '_rgbd.mat'], 'photo', 'depth');
         
         % Save pngs
-        imwrite(photo, [filename '_rgb.png']);
-        imwrite(depth, [filename '_d.png']);
+        imwrite(photo, [filename int2str(num) '.png']);
+        %imwrite(depth, [filename '_d.png']);
     end
 
     disp('Done!');

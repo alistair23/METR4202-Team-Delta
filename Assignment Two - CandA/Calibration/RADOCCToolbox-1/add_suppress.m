@@ -26,10 +26,6 @@ ind_active = find(active_images);
 % I did not call check_active_images, because I want to prevent a break
 %check_active_images;
 
-
-fprintf(1,'\nThis function is useful to select a subset of images to calibrate\n');
-
-   fprintf(1,'\nThere are currently %d active images selected for calibration (out of %d):\n',length(ind_active),n_ima);
    
    if ~isempty(ind_active),
       
@@ -75,10 +71,6 @@ fprintf(1,'\nThis function is useful to select a subset of images to calibrate\n
       end;
    end;
    
-   if (choice~=0) & (choice ~=1),
-   	fprintf(1,'\nDo you want to suppress or add images from that list?\n');
-   end;
-   
 while (choice~=0)&(choice~=1),
    choice = input('For suppressing images enter 0, for adding images enter 1 ([]=no change): ');
    if isempty(choice),
@@ -105,14 +97,9 @@ if isempty(ima_numbers),
 else
    
    
-	ima_numbers = input('Number(s) of image(s) to suppress ([] = no image) = ');
-
-	if isempty(ima_numbers),
-      fprintf(1,'No image has been suppressed. No modication of the list of active images.\n',n_ima);
+	%ima_numbers = input('Number(s) of image(s) to suppress ([] = no image) = ');
+    ima_numbers = [];
    	ima_proc = [];
-	else
-   	ima_proc = ima_numbers;
-	end;
    
 end;
 
@@ -124,9 +111,6 @@ end;
 
 
    check_active_images;
-   
-
-   fprintf(1,'\nThere is now a total of %d active images for calibration:\n',length(ind_active));
    
    if ~isempty(ind_active),
       

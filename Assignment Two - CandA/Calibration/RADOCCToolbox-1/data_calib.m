@@ -36,55 +36,11 @@ Nima_valid = 0;
 
 while (Nima_valid==0),
 
-   fprintf(1,'\n');
-   calib_name = input('Basename camera calibration images (without number nor suffix): ','s');
+   %fprintf(1,'\n');
+   %calib_name = input('Basename camera calibration images (without number nor suffix): ','s');
+   calib_name = 'Photo';
    
-   format_image = '0';
-   
-	while format_image == '0',
-   
-   	format_image =  input('Image format: ([]=''r''=''ras'', ''b''=''bmp'', ''t''=''tif'', ''p''=''pgm'', ''j''=''jpg'', ''m''=''ppm'', ''n''=''png'') ','s');
-		
-		if isempty(format_image),
-   		format_image = 'ras';
-		end;
-      
-      if lower(format_image(1)) == 'm',
-         format_image = 'ppm';
-      else
-         if lower(format_image(1)) == 'b',
-            format_image = 'bmp';
-         else
-            if lower(format_image(1)) == 't',
-               format_image = 'tif';
-            else
-               if lower(format_image(1)) == 'p',
-                  format_image = 'pgm';
-               else
-                  if lower(format_image(1)) == 'j',
-                     format_image = 'jpg';
-                  else
-                     if lower(format_image(1)) == 'r',
-                        format_image = 'ras';
-                     else
-                         if lower(format_image(1)) == 'g',
-                             format_image = 'jpeg';
-                         else
-                             if lower(format_image(1)) == 'n',
-                                format_image = 'png';
-                             else
-                                 disp('Invalid image format');
-                                 format_image = '0'; % Ask for format once again
-                             end
-                         end;
-                     end;
-                  end;
-               end;
-            end;
-         end;
-      end;
-   end;
-
+   format_image = 'png';
       
    check_directory;
    
