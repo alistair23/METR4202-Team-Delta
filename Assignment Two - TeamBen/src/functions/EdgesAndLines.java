@@ -31,17 +31,14 @@ public class EdgesAndLines {
         CvMemStorage storage = cvCreateMemStorage(0);
         CvSeq lines = new CvSeq();
 
-        CanvasFrame source = new CanvasFrame("Source");
-        CanvasFrame hough = new CanvasFrame("Hough");
         if (src == null) {
             System.out.println("Couldn't load source image.");
             return null;
         }
 
         dst = cvCreateImage(cvGetSize(src), src.depth(), 1);
+        cvCanny(src, dst, 50, 300, 3);
         colorDst = cvCreateImage(cvGetSize(src), src.depth(), 3);
-
-        cvCanny(src, dst, 50, 200, 3);
         cvCvtColor(dst, colorDst, CV_GRAY2BGR);
 
         /*
@@ -51,7 +48,7 @@ public class EdgesAndLines {
          */
         if (style.contentEquals("probabilistic")) { 
             System.out.println("Using the Probabilistic Hough Transform");
-            lines = cvHoughLines2(dst, storage, CV_HOUGH_PROBABILISTIC, 1, Math.PI / 180, 40, 50, 10);
+            lines = cvHoughLines2(dst, storage, CV_HOUGH_PROBABILISTIC, 0.1, Math.PI / 180, 40, 25, 10);
             for (int i = 0; i < lines.total(); i++) {
                 // from JavaCPP, the equivalent of the C code:
                 // CvPoint* line = (CvPoint*)cvGetSeqElem(lines,i);
@@ -110,14 +107,14 @@ public class EdgesAndLines {
                 System.out.println("Line spotted: ");
                 System.out.println("\t rho= " + rho);
                 System.out.println("\t theta= " + theta);
-                //cvLine(colorDst, pt1, pt2, CV_RGB(255, 0, 0), 3, CV_AA, 0);
+                cvLine(colorDst, pt1, pt2, CV_RGB(255, 0, 0), 3, CV_AA, 0);
             }
         }
         //source.showImage(src);
-        hough.showImage(colorDst);
+     //   hough.showImage(colorDst);
 
         //source.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        hough.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+      //  hough.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         return colorDst;
     }
 }

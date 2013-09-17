@@ -24,10 +24,6 @@ public class KinectReader {
 	private SimpleViewer viewer2;
 	private JFrame windowFrame;
 	
-	
-	
-	
-	
 	public void Start(){
 		System.out.println("Starting Kinect");
 		OpenNI.initialize();
