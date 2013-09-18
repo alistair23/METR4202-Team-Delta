@@ -50,7 +50,7 @@ function [photo, depth] = caputre_image(show, save_images, num)
         subplot(1,2,2), h2 = imshow(depth, [0 9000]); colormap('jet');
     end
 
-    if(nargin() > 1 && save_images == true)
+    if(nargin() > 1 && save_images == true && num > 1)
         disp('Saving Images...');
         filename = fullfile(pwd(), ['Photo']);
         
@@ -60,6 +60,9 @@ function [photo, depth] = caputre_image(show, save_images, num)
         % Save pngs
         imwrite(photo, [filename int2str(num) '.png']);
         %imwrite(depth, [filename '_d.png']);
+    elseif(num == 1)
+        filename = fullfile(pwd(), ['ColourPhoto']);
+        imwrite(photo, [filename '.png']);
     end
 
     disp('Done!');

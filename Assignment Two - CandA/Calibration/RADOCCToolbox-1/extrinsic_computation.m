@@ -5,53 +5,8 @@ if ~exist('fc')|~exist('cc')|~exist('kc')|~exist('alpha_c'),
    return;
 end;
 
-dir;
-
-fprintf(1,'\n');
-disp('Computation of the extrinsic parameters from an image of a pattern');
-disp('The intrinsic camera parameters are assumed to be known (previously computed)');
-
-fprintf(1,'\n');
-image_name = input('Image name (full name without extension): ','s');
-
-format_image2 = '0';
-
-while format_image2 == '0',
-   
-   format_image2 =  input('Image format: ([]=''r''=''ras'', ''b''=''bmp'', ''t''=''tif'', ''p''=''pgm'', ''j''=''jpg'', ''m''=''ppm'') ','s');
-	
-	if isempty(format_image2),
-   	format_image2 = 'ras';
-	end;
-   
-   if lower(format_image2(1)) == 'm',
-      format_image2 = 'ppm';
-   else
-      if lower(format_image2(1)) == 'b',
-         format_image2 = 'bmp';
-      else
-         if lower(format_image2(1)) == 't',
-            format_image2 = 'tif';
-         else
-            if lower(format_image2(1)) == 'p',
-               format_image2 = 'pgm';
-            else
-               if lower(format_image2(1)) == 'j',
-                  format_image2 = 'jpg';
-               else
-                  if lower(format_image2(1)) == 'r',
-                     format_image2 = 'ras';
-                  else  
-                     disp('Invalid image format');
-                     format_image2 = '0'; % Ask for format once again
-                  end;
-               end;
-            end;
-         end;
-      end;
-   end;
-end;
-
+image_name = 'CalibPhoto'
+format_image2 = 'jpg';
 ima_name = [image_name '.' format_image2];
 
 
@@ -77,23 +32,10 @@ end;
 
 
 %%% EXTRACT GRID CORNERS:
-
-fprintf(1,'\nExtraction of the grid corners on the image\n');
-
-disp('Window size for corner finder (wintx and winty):');
-wintx = input('wintx ([] = 5) = ');
-if isempty(wintx), wintx = 5; end;
-wintx = round(wintx);
-winty = input('winty ([] = 5) = ');
-if isempty(winty), winty = 5; end;
-winty = round(winty);
-
-fprintf(1,'Window size = %dx%d\n',2*wintx+1,2*winty+1);
-
+wintx = round(wintx_7);
+winty = round(winty_7);
 
 [x_ext,X_ext,n_sq_x,n_sq_y,ind_orig,ind_x,ind_y] = extract_grid(I,wintx,winty,fc,cc,kc);
-
-
 
 %%% Computation of the Extrinsic Parameters attached to the grid:
 

@@ -232,11 +232,11 @@ end
 
             eval(['sus_',num2str(kk),'=0;'])
             I=eval(['I_',num2str(kk)]);
-            figure(3);
-            image(I); colormap(map); hold on;
-            grid_pts_mat=eval(['grid_pts_mat_',num2str(kk)]);
-            plot(grid_pts_mat(:,:,2),grid_pts_mat(:,:,1),'+');
-
+%             h = figure(3);
+%             image(I); colormap(map); hold on;
+%             grid_pts_mat=eval(['grid_pts_mat_',num2str(kk)]);
+%             plot(grid_pts_mat(:,:,2),grid_pts_mat(:,:,1),'+');
+%             saveas(h, 'CalibPhoto.jpg', 'jpg');            
 return;
 
 go_calib_optim;
