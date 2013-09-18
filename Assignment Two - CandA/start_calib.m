@@ -56,6 +56,54 @@ fprintf(1,'Rotation matrix:    Rc_ext = [ %3.6f \t %3.6f \t %3.6f\n',Rckk(1,:)')
 fprintf(1,'                               %3.6f \t %3.6f \t %3.6f\n',Rckk(2,:)');
 fprintf(1,'                               %3.6f \t %3.6f \t %3.6f ]\n',Rckk(3,:)');
 
+%% Object segmentaion
+%Get a picture from the kinect
+%[photo(:,:,:,i), depth(:,:,:,i)] = capture_image(false, true, 2);
+im = imread('CoinPhoto.png');
 
+% Convert to grey scale
+imgrey = rgb2gray(im);
+
+% Get a gaussian kernel for blurring
+K = fspecial('gaussian');
+
+% Blur the image
+imgf = imfilter(imgrey, K);
+imgf = imfilter(imgf, K);
+imgf = imfilter(imgf, K);
+
+% Detect edges
+E = edge(imgrey, 'canny');
+
+% Perform Hough Line transform
+[H, T, R] = hough(E);
+
+% Get top N line candidates from hough accumulator
+N = 10;
+P = houghpeaks(H, N);
+
+% Get hough line parameters
+lines = houghlines(imgf, T, R, P);
+
+% Select four control points as shown in the figure,
+% then select File > Export Points to Workspace
+%cpselect(imgrey, checkerboard);
+
+% Use the selected points to create a recover the projective transform
+%tform = cp2tform(input_points, base_points, 'projective');
+transformMat = Rckk(1,1:2);
+transformMat = [transformMat; Rckk(2,1:2)];
+transformMat = [transformMat [0; 0]];
+transformMat = [transformMat; [0 0 1]];
+tform = affine2d(transformMat);
+
+% Transform the grayscale image
+Igft = imwarp(imgrey, tform);
+
+min_radius = 15;
+max_radius = 20;
+
+% Detect and show circles
+houghcircles(Igft, min_radius, max_radius);
 end
 
