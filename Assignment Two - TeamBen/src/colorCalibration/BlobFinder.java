@@ -14,24 +14,31 @@ import static com.googlecode.javacv.cpp.opencv_imgproc.*;
 
 public class BlobFinder {
 	
-	private static IplImage RawImage;
+	private static IplImage sourceImage;
+	private ArrayList<Integer> blobCent;
 	private ArrayList<Integer> blobData;
 	
 	public BlobFinder(IplImage source) {
-		BlobFinder.RawImage = source.clone();
+		BlobFinder.sourceImage = source.clone();
 		blobData = new ArrayList<Integer>();
+		blobCent = new ArrayList<Integer>();
 	}
 	
-    public IplImage find() {
-        int MinArea = 2000;
+    public IplImage findBlobs(IplImage RawImage, CvScalar minThresh, CvScalar maxThresh, int MinArea) {
+    	
+    	blobCent.clear(); blobData.clear();
+    	
+        //int MinArea = 2000;
         int ErodeCount = 0;
         int DilateCount = 1;
         
-        IplImage GrayImage = cvCreateImage(cvGetSize(RawImage), IPL_DEPTH_8U, 1);     
-        cvCvtColor(RawImage, GrayImage, CV_BGR2GRAY);
-
-        IplImage BWImage = cvCreateImage(cvGetSize(GrayImage), IPL_DEPTH_8U, 1); 
-        cvThreshold(GrayImage, BWImage, 70, 255, CV_THRESH_BINARY);
+        //IplImage GrayImage = cvCreateImage(cvGetSize(RawImage), IPL_DEPTH_8U, 1);     
+        //cvCvtColor(RawImage, GrayImage, CV_BGR2GRAY);
+        
+        IplImage BWImage = cvCreateImage(cvGetSize(RawImage), IPL_DEPTH_8U, 1);
+        //cvThreshold(GrayImage, BWImage, minThresh, maxThresh, CV_THRESH_BINARY);
+        cvInRangeS(RawImage, minThresh, maxThresh, BWImage);
+        //cvShowImage("thresh", BWImage);
             
         IplImage WorkingImage = cvCreateImage(cvGetSize(BWImage), IPL_DEPTH_8U, 1);     
         cvErode(BWImage, WorkingImage, null, ErodeCount);    
@@ -58,11 +65,12 @@ public class BlobFinder {
             int MaxY = (int) Region[Blobs.BLOBMAXY];
             if (!((MaxX-MinX)>(RawImage.width()-50))) {
             	Highlight(RawImage,  MinX, MinY, MaxX, MaxY, 1);
-                blobData.add((MaxX+MinX)/2); blobData.add((MaxY+MinY)/2);
+                blobCent.add((MaxX+MinX)/2); blobCent.add((MaxY+MinY)/2);
+                blobData.add(MinX); blobData.add(MinY); blobData.add(MaxX); blobData.add(MaxY);
             }
             }
         
-        cvReleaseImage(GrayImage);
+        //cvReleaseImage(GrayImage);
         cvReleaseImage(BWImage);
         cvReleaseImage(WorkingImage);
         //cvReleaseImage(RawImage);
@@ -72,6 +80,10 @@ public class BlobFinder {
     }
     
     public ArrayList<Integer> getCentres() {
+    	return blobCent;
+    }
+    
+    public ArrayList<Integer> getData() {
     	return blobData;
     }
     

@@ -10,7 +10,5 @@
 	<classpathentry kind="lib" path="C:/javacv-bin/javacv-macosx-x86_64.jar"/>
 	<classpathentry kind="lib" path="C:/javacv-bin/javacv-windows-x86.jar"/>
 	<classpathentry kind="lib" path="C:/javacv-bin/javacv-windows-x86_64.jar"/>
-	<classpathentry kind="lib" path="C:/Program Files/OpenNI2/Tools/org.openni.jar"/>
-	<classpathentry kind="lib" path="C:/Program Files/OpenNI2/Redist/org.openni.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
