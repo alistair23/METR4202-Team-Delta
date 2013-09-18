@@ -1,4 +1,4 @@
-public class Lab2 {
+public class TestReadKinect {
 	
 	public static void main(String s[]) {
 	

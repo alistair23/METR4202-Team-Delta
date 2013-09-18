@@ -11,14 +11,22 @@ import static com.googlecode.javacv.cpp.opencv_highgui.cvWaitKey;
 import java.util.ArrayList;
 
 import static com.googlecode.javacv.cpp.opencv_imgproc.*;
+
 import com.googlecode.javacv.*;
 import com.googlecode.javacv.cpp.*;
+import com.googlecode.javacv.cpp.opencv_core.IplImage;
+
 import static com.googlecode.javacv.cpp.opencv_core.*;
 import functions.*;
 
 public class Main {
 
 	public static void main(String[] args) {
+		
+		if(args.length == 0){
+			args = new String[1];
+			args[0] = "test_images/calib.png";
+		}
 		
 		IplImage sourceImage = cvLoadImage(args[0]);
 		
