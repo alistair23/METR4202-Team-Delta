@@ -1,4 +1,4 @@
-function [ output_args ] = start_calib()
+function main()
 % %% Start Colour Calibration
 % 
 % %Get a picture from the kinect
