@@ -56,6 +56,10 @@ fprintf(1,'Rotation matrix:    Rc_ext = [ %3.6f \t %3.6f \t %3.6f\n',Rckk(1,:)')
 fprintf(1,'                               %3.6f \t %3.6f \t %3.6f\n',Rckk(2,:)');
 fprintf(1,'                               %3.6f \t %3.6f \t %3.6f ]\n',Rckk(3,:)');
 
+%% Generate the sift detectors
+[N50F, N50F_f, N50F_d] = sift_training('NoteCalibration/fifty_front.jpg');
+[N50B, N50B_f, N50B_d] = sift_training('NoteCalibration/fifty_back.jpg');
+
 %% Object segmentaion
 %Get a picture from the kinect
 %[photo(:,:,:,i), depth(:,:,:,i)] = capture_image(false, true, 2);
