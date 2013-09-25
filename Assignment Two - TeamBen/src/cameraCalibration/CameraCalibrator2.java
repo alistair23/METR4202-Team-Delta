@@ -1,34 +1,84 @@
+package cameraCalibration;
 
 	import static com.googlecode.javacv.cpp.opencv_core.CV_32FC1;
-	import static com.googlecode.javacv.cpp.opencv_core.IPL_DEPTH_32F;
-	import static com.googlecode.javacv.cpp.opencv_core.cvCloneImage;
-	import static com.googlecode.javacv.cpp.opencv_core.cvCreateImage;
-	import static com.googlecode.javacv.cpp.opencv_core.cvCreateMat;
-	import static com.googlecode.javacv.cpp.opencv_core.cvGetSize;
-	import static com.googlecode.javacv.cpp.opencv_core.cvReleaseImage;
-	import static com.googlecode.javacv.cpp.opencv_core.cvScalarAll;
-	import static com.googlecode.javacv.cpp.opencv_imgproc.CV_INTER_LINEAR;
-	import static com.googlecode.javacv.cpp.opencv_imgproc.CV_WARP_FILL_OUTLIERS;
-	import static com.googlecode.javacv.cpp.opencv_imgproc.cvInitUndistortMap;
-	import static com.googlecode.javacv.cpp.opencv_imgproc.cvRemap;
+import static com.googlecode.javacv.cpp.opencv_core.IPL_DEPTH_32F;
+import static com.googlecode.javacv.cpp.opencv_core.cvCloneImage;
+import static com.googlecode.javacv.cpp.opencv_core.cvCreateImage;
+import static com.googlecode.javacv.cpp.opencv_core.cvCreateMat;
+import static com.googlecode.javacv.cpp.opencv_core.cvGetSize;
+import static com.googlecode.javacv.cpp.opencv_core.cvReleaseImage;
+import static com.googlecode.javacv.cpp.opencv_core.cvScalarAll;
+import static com.googlecode.javacv.cpp.opencv_highgui.cvLoadImage;
+import static com.googlecode.javacv.cpp.opencv_imgproc.CV_INTER_LINEAR;
+import static com.googlecode.javacv.cpp.opencv_imgproc.CV_WARP_FILL_OUTLIERS;
+import static com.googlecode.javacv.cpp.opencv_imgproc.cvInitUndistortMap;
+import static com.googlecode.javacv.cpp.opencv_imgproc.cvRemap;
 
-	import com.googlecode.javacv.CanvasFrame;
-	import com.googlecode.javacv.FrameGrabber;
-	import com.googlecode.javacv.OpenCVFrameGrabber;
-	import com.googlecode.javacv.cpp.opencv_core.CvMat;
-	import com.googlecode.javacv.cpp.opencv_core.IplImage;
+import java.util.List;
+
+import javax.swing.JOptionPane;
+
+import org.openni.Device;
+import org.openni.DeviceInfo;
+import org.openni.OpenNI;
+
+import com.googlecode.javacv.CameraDevice;
+import com.googlecode.javacv.CanvasFrame;
+import com.googlecode.javacv.FrameGrabber;
+import com.googlecode.javacv.OpenCVFrameGrabber;
+import com.googlecode.javacv.OpenKinectFrameGrabber;
+import com.googlecode.javacv.VideoInputFrameGrabber;
+import com.googlecode.javacv.cpp.opencv_core.CvMat;
+import com.googlecode.javacv.cpp.opencv_core.IplImage;
+
+	
 
 	public class CameraCalibrator2 {
 		public static void main(String[] args) throws Exception {
 			CameraCalibrator2 cc = new CameraCalibrator2();
-			cc.calibrate(args); // no arguments are required
+			cc.calibrate(); // no arguments are required
 		}
 
 		// ----------------------------------------------------------------------------
-		private void calibrate(String[] argv) throws Exception {
-			FrameGrabber grabber = new OpenCVFrameGrabber(
-					"http://10.13.18.11/mjpg/video.mjpg?resolution=320x240&req_fps=30&.mjpg");
-			grabber.start();
+		public void calibrate() throws Exception {
+			
+			
+			
+			OpenNI.initialize();
+			
+			//Check for connected devices
+			 List<DeviceInfo> devicesInfo = OpenNI.enumerateDevices();
+		        if (devicesInfo.isEmpty()) {
+		            JOptionPane.showMessageDialog(null, "No device is connected", "Error", JOptionPane.ERROR_MESSAGE);
+		            return;
+		        }
+
+		        
+		        Device device = Device.open(devicesInfo.get(0).getUri());
+			
+			
+		        
+			
+		        
+			int n = com.googlecode.javacv.cpp.videoInputLib.videoInput.listDevices();
+
+			 System.out.println(n);
+			
+			for (int i = 0; i < n; i++) {
+				   String info = com.googlecode.javacv.cpp.videoInputLib.videoInput.getDeviceName(i);
+
+				   System.out.println(info);
+				}
+			
+		
+			
+			//CameraDevice device = new CameraDevice();
+			
+			//FrameGrabber grabber = new VideoInputFrameGrabber(0);
+			
+			//grabber.start();
+			
+			
 
 			CanvasFrame undistortFrame = new CanvasFrame("Undistort");
 			CanvasFrame rawFrame = new CanvasFrame("Raw Video");
@@ -84,7 +134,7 @@
 			printMatrix("intrisic",intrinsic);
 			printMatrix("distortion",distortion);
 
-			IplImage image = grabber.grab();// cvQueryFrame( capture );
+			IplImage image = cvLoadImage("test_images/chessboard.jpg");// cvQueryFrame( capture );
 			rawFrame.showImage(image);
 
 			// Build the undistort map which we will use for all
@@ -104,7 +154,7 @@
 				cvReleaseImage(t);
 				undistortFrame.showImage(image); // Show corrected image
 
-				image = grabber.grab();// cvQueryFrame( capture );
+				image = cvLoadImage("test_images/chessboard.jpg");// cvQueryFrame( capture );
 			}
 		}
 		

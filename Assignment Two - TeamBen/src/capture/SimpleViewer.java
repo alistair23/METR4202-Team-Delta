@@ -1,3 +1,4 @@
+package capture;
 // this file was stolen from the OpenNI examples and is just used to simply display video streams
 
 import java.awt.*;

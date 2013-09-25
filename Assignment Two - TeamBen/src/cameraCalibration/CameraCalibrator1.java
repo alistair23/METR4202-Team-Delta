@@ -1,3 +1,4 @@
+package cameraCalibration;
 //Code currently stolen/adapted from http://www.chiefdelphi.com/forums/showthread.php?t=101753
 	import static com.googlecode.javacv.cpp.opencv_calib3d.CV_CALIB_CB_FAST_CHECK;
 	import static com.googlecode.javacv.cpp.opencv_calib3d.cvCalibrateCamera2;
@@ -37,9 +38,9 @@
 	import com.googlecode.javacv.cpp.opencv_core.IplImage;
 	import com.googlecode.javacv.cpp.opencv_highgui.CvCapture;
 
-	public class CameraCalibrator {
+	public class CameraCalibrator1 {
 		public static void main(String[] args) throws Exception {
-			CameraCalibrator cc = new CameraCalibrator();
+			CameraCalibrator1 cc = new CameraCalibrator1();
 			String[] argv = new String[] { " ", "4", "5", "10", "210" };
 			// empty, internal_w_corners, internal_h_corners, number_of_samples, frames_between_samples
 
