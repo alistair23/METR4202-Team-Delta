@@ -109,6 +109,8 @@ public class KinectReader implements KeyListener {
  	
 	public void Stop(){
 		device.close();
+		Cstream.destroy();
+		Dstream.destroy();
 		windowFrame.dispose();
 		
 	}

@@ -124,9 +124,9 @@ import static com.googlecode.javacv.cpp.opencv_core.CV_32FC1;
 			}
 			mustInitUndistort = false;
 			cvRemap(image, undistortedImage, mapx, mapy, CV_INTER_LINEAR, CvScalar.ZERO);
-			cvShowImage("image", image);  
-			cvShowImage("undistorted", undistortedImage);  
-			cvWaitKey(0);
+			//cvShowImage("image", image);  
+			//cvShowImage("undistorted", undistortedImage);  
+			//cvWaitKey(0);
 		}
 
 	}
