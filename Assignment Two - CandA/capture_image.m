@@ -51,7 +51,6 @@ function [photo, depth] = caputre_image(show, save_images, num)
     end
 
     if(nargin() > 1 && save_images == true && num > 2)
-        disp('Saving Images...');
         filename = fullfile(pwd(), ['Photo']);
         
         % Save .mat file
@@ -65,8 +64,7 @@ function [photo, depth] = caputre_image(show, save_images, num)
         imwrite(photo, [filename '.png']);
     elseif(num == 2)
         filename = fullfile(pwd(), ['CoinPhoto']);
-        imwrite(photo, [filename '.png']);
+        imwrite(photo, [filename '_c.png']);
+        imwrite(depth, [filename '_d.png']);
     end
-
-    disp('Done!');
 end
