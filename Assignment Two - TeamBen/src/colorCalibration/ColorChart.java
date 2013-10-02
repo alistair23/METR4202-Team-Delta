@@ -6,6 +6,7 @@ import static com.googlecode.javacv.cpp.opencv_core.cvCircle;
 import static com.googlecode.javacv.cpp.opencv_core.cvCopy;
 import static com.googlecode.javacv.cpp.opencv_core.cvCreateImage;
 import static com.googlecode.javacv.cpp.opencv_core.cvGet2D;
+import static com.googlecode.javacv.cpp.opencv_core.cvInRangeS;
 import static com.googlecode.javacv.cpp.opencv_core.cvPoint;
 import static com.googlecode.javacv.cpp.opencv_core.cvPointFrom32f;
 import static com.googlecode.javacv.cpp.opencv_core.cvRect;
@@ -64,7 +65,7 @@ public class ColorChart {
 		BlobFinder blobFinder = new BlobFinder(sourceImage);
 		IplImage chartImage = getChartSubImage(blobFinder);
 		
-	//	cvShowImage("source", sourceImage);
+		//cvShowImage("sub image", chartImage);
 		
 		ArrayList<CvScalar> goldData = getGoldData(chartImage, blobFinder);
 		GOLDHSVDATA = goldData.get(1);
@@ -94,7 +95,6 @@ public class ColorChart {
 		System.out.print("Silver YCrCb :  "); System.out.print((int)ycrcb.getVal(0)+", ");
 		System.out.print((int)ycrcb.getVal(1)+", "); System.out.println((int)ycrcb.getVal(2));
 		
-		cvWaitKey(0);
 	}
 	
 	public IplImage getChartSubImage(BlobFinder blobFinder) {
@@ -117,8 +117,9 @@ public class ColorChart {
 		//cvResetImageROI(chartImage);
 		
 		//sourceImage.copyTo(buff);
-		
-		return chartImage;
+		IplImage clone = chartImage.clone();
+		cvResetImageROI(sourceImage);
+		return clone;
 	}
 	
 	public ArrayList<CvScalar> getGoldData(IplImage chartImage, BlobFinder blobFinder) {
