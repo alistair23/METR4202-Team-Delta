@@ -14,6 +14,7 @@ public class TestReadKinect {
 		
 		kr.showStreams();
 		
+		//kr.Stop();
 	}
 	
 	

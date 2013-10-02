@@ -18,6 +18,7 @@ import static com.googlecode.javacv.cpp.opencv_highgui.cvLoadImage;
 import static com.googlecode.javacv.cpp.opencv_highgui.cvShowImage;
 import static com.googlecode.javacv.cpp.opencv_highgui.cvWaitKey;
 import static com.googlecode.javacv.cpp.opencv_core.*;
+import static com.googlecode.javacv.cpp.opencv_imgproc.cvEqualizeHist;
 
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
@@ -36,13 +37,26 @@ public class ColorChart {
 	// Orange Yellow (#e0a32e - chart #12)
 	// Neutral 6.5 (#a0a0a0 - chart #21)
 	
-	public CvScalar GOLDHSVDATA;
-	public CvScalar SILVERHSVDATA; 
+	private IplImage silver = null;
+	private IplImage gold = null;
+	
+	private IplImage chartImage;
+	
+	public CvScalar silverBGR;
+	public CvScalar silverHSV;
+	public CvScalar silverYCrCb;
+	
+	public CvScalar goldBGR;
+	public CvScalar goldHSV;
+	public CvScalar goldYCrCb;
+	
+	private CvScalar BLACK;
 	
 	private IplImage sourceImage;
 	
-	public ColorChart(IplImage sourceImage) {
+	public ColorChart(IplImage sourceImage, CvScalar BLACK) {
 		this.sourceImage = sourceImage.clone();
+		this.BLACK = BLACK;
 	}
 	
 	public void doStuff() {
@@ -61,46 +75,62 @@ public class ColorChart {
 	//	cvWaitKey(0);
 	}
 	
-	public void findCalibColors() {
+	public void printColorData() {
+		System.out.print("Gold RGB :  "); System.out.print((int)goldBGR.getVal(2)+", ");
+		System.out.print((int)goldBGR.getVal(1)+", "); System.out.println((int)goldBGR.getVal(0));
+		System.out.print("Gold HSV :  "); System.out.print((int)goldHSV.getVal(0)+", ");
+		System.out.print((int)goldHSV.getVal(1)+", "); System.out.println((int)goldHSV.getVal(2));
+		System.out.print("Gold YCrCb :  "); System.out.print((int)goldYCrCb.getVal(0)+", ");
+		System.out.print((int)goldYCrCb.getVal(1)+", "); System.out.println((int)goldYCrCb.getVal(2));
+		System.out.println("");
+		System.out.print("Silver RGB :  "); System.out.print((int)silverBGR.getVal(2)+", ");
+		System.out.print((int)silverBGR.getVal(1)+", "); System.out.println((int)silverBGR.getVal(0));
+		System.out.print("Silver HSV :  "); System.out.print((int)silverHSV.getVal(0)+", ");
+		System.out.print((int)silverHSV.getVal(1)+", "); System.out.println((int)silverHSV.getVal(2));
+		System.out.print("Silver YCrCb :  "); System.out.print((int)silverYCrCb.getVal(0)+", ");
+		System.out.print((int)silverYCrCb.getVal(1)+", "); System.out.println((int)silverYCrCb.getVal(2));
+	}
+	
+	public boolean findCalibColors() {
+		//cvShowImage("source", sourceImage);
 		BlobFinder blobFinder = new BlobFinder(sourceImage);
-		IplImage chartImage = getChartSubImage(blobFinder);
-		
-		//cvShowImage("sub image", chartImage);
+		chartImage = getChartSubImage(blobFinder);
+		if (chartImage == null) {
+			return false;
+		}
+	//	cvShowImage("sub image", chartImage);
 		
 		ArrayList<CvScalar> goldData = getGoldData(chartImage, blobFinder);
-		GOLDHSVDATA = goldData.get(1);
-		CvScalar rgb = goldData.get(0);
-		CvScalar hsv = goldData.get(1);
-		CvScalar ycrcb = goldData.get(2);
+		if (goldData == null) {
+			return false;
+		}
 		
-		System.out.print("Gold RGB :  "); System.out.print((int)rgb.getVal(2)+", ");
-		System.out.print((int)rgb.getVal(1)+", "); System.out.println((int)rgb.getVal(0));
-		System.out.print("Gold HSV :  "); System.out.print((int)hsv.getVal(0)+", ");
-		System.out.print((int)hsv.getVal(1)+", "); System.out.println((int)hsv.getVal(2));
-		System.out.print("Gold YCrCb :  "); System.out.print((int)ycrcb.getVal(0)+", ");
-		System.out.print((int)ycrcb.getVal(1)+", "); System.out.println((int)ycrcb.getVal(2));
-		
-		System.out.println("");
+		goldHSV = goldData.get(1);
 		
 		ArrayList<CvScalar> silverData = getSilverData(chartImage, blobFinder);
-		SILVERHSVDATA = silverData.get(1);
-		rgb = silverData.get(0);
-		hsv = silverData.get(1);
-		ycrcb = silverData.get(2);
+		if (silverData == null) {
+			return false;
+		}
 		
-		System.out.print("Silver RGB :  "); System.out.print((int)rgb.getVal(2)+", ");
-		System.out.print((int)rgb.getVal(1)+", "); System.out.println((int)rgb.getVal(0));
-		System.out.print("Silver HSV :  "); System.out.print((int)hsv.getVal(0)+", ");
-		System.out.print((int)hsv.getVal(1)+", "); System.out.println((int)hsv.getVal(2));
-		System.out.print("Silver YCrCb :  "); System.out.print((int)ycrcb.getVal(0)+", ");
-		System.out.print((int)ycrcb.getVal(1)+", "); System.out.println((int)ycrcb.getVal(2));
+		silverHSV = silverData.get(1);
 		
+		return true;
 	}
 	
 	public IplImage getChartSubImage(BlobFinder blobFinder) {
 		// TURN OFF DRAW ON IMAGE BEFORE FURTHER PROCESSING!!
-		IplImage chartImage = blobFinder.findBlobs(sourceImage, cvScalar(15, 0, 20, 0), cvScalar(30, 100, 70, 0), 6000);
+		
+		// set to find black edges of chart
+		double blackV = BLACK.getVal(2);
+		IplImage chartImage = blobFinder.findBlobs(sourceImage, cvScalar(0, 0, 0, 0),
+															cvScalar(255, 255, 50+blackV, 0), 6000);
+		
+		// WATCH OUT FOR POSSIBLE IMAGE FLIP ON CAPTURE!
+		
 		ArrayList<Integer> blobData = blobFinder.getData();
+		if (blobData.isEmpty()) {
+			return null;
+		}
 		int x = blobData.get(0); int y = blobData.get(1);
 		int width = blobData.get(2)-blobData.get(0);
 		int height = blobData.get(3)-blobData.get(1);
@@ -123,30 +153,83 @@ public class ColorChart {
 	}
 	
 	public ArrayList<CvScalar> getGoldData(IplImage chartImage, BlobFinder blobFinder) {
-
-		IplImage gold = blobFinder.findBlobs(chartImage.clone(), cvScalar(0, 110, 180, 0), cvScalar(40, 170, 255, 0), 2000);
+		//ideal gold: 27 203 224
+		//ideal black: any any 0
+		
+		// VERY LEFTSIDE GOLD IMAGE! PIC IS REVERSED IN CAPTURE!
+		
+	//	IplImage gold = blobFinder.findBlobs(chartImage.clone(), cvScalar(0, 110, 180, 0), cvScalar(40, 170, 255, 0), 2000);
+		gold = blobFinder.findBlobs(chartImage.clone(),
+				cvScalar(10, 100, 100, 0),
+				cvScalar(44, 255, 255, 0), 2000);
+		// 25 100 150
 		//cvShowImage("gold", gold);
 		
 		ArrayList<Integer> blobCent = blobFinder.getCentres();
-		if (blobCent.size() != 4) {
-			System.out.println("Bad read! Try again.");
-		}
 		
-		ArrayList<CvScalar> goldData = getPixelHSV(chartImage, blobCent.get(2), blobCent.get(3));
+		int deltax = chartImage.width()/6;
+		for (int i=0; i < blobCent.size(); i+=2) {
+			int x = blobCent.get(i);
+			if (x > deltax) {
+				System.out.println(x);
+				System.out.println(deltax);
+				blobCent.remove(i);
+				blobCent.remove(i);
+				i -= 2;
+			}
+		}
+
+		if (blobCent.size() < 2) {
+			return null;
+		}
+		//System.out.println(blobCent);
+		
+		// pos 0,1 is centre of sub image, pos 2,3 should be leftmost orange
+		//ArrayList<CvScalar> goldData = getPixelHSV(chartImage, blobCent.get(2), blobCent.get(3));
+		ArrayList<CvScalar> goldData = getPixelHSV(chartImage, blobCent.get(0), blobCent.get(1));
+		
+		CvPoint cp = cvPoint(blobCent.get(0),blobCent.get(1));
+        cvCircle(gold, cp, 2, CvScalar.RED, 10, CV_AA, 0);
+        
 		return goldData;
 	}
 	
 	public ArrayList<CvScalar> getSilverData(IplImage chartImage, BlobFinder blobFinder) {
-
-		IplImage silver = blobFinder.findBlobs(chartImage.clone(), cvScalar(80, 100, 160, 0), cvScalar(255, 180, 190, 0), 2000);
+		//ideal silver 0 0 160
+		
+		// 3 FROM THE RIGHT! IMAGE REVERSED IN CAPTURE!
+		
+		//IplImage silver = blobFinder.findBlobs(chartImage.clone(), cvScalar(80, 100, 160, 0), cvScalar(255, 180, 190, 0), 2000);
+		silver = blobFinder.findBlobs(chartImage.clone(),
+				cvScalar(100, 120, 60, 0),
+				cvScalar(200, 255, 200, 0), 2000);
+		// 120 30 130
 		//cvShowImage("silver", silver);
 		
 		ArrayList<Integer> blobCent = blobFinder.getCentres();
-		if (blobCent.size() != 4) {
-			System.out.println("Bad read! Try again.");
-		}
 		
-		ArrayList<CvScalar> silverData = getPixelHSV(chartImage, blobCent.get(2), blobCent.get(3));
+		int deltay = chartImage.height()/4;
+		for (int i=0; i < blobCent.size(); i+=2) {
+			int y = blobCent.get(i+1);
+			if (y < 2*deltay) {
+				blobCent.remove(i);
+				blobCent.remove(i);
+				i -= 2;
+			}
+		}
+
+		if (blobCent.size() < 2) {
+			return null;
+		}
+		//System.out.println(blobCent);
+		
+		// pos 0,1 is centre of sub image, pos 2,3 should be leftmost silver
+		//ArrayList<CvScalar> silverData = getPixelHSV(chartImage, blobCent.get(2), blobCent.get(3));
+		ArrayList<CvScalar> silverData = getPixelHSV(chartImage, blobCent.get(0), blobCent.get(1));
+		
+		CvPoint cp = cvPoint(blobCent.get(0),blobCent.get(1));
+        cvCircle(silver, cp, 2, CvScalar.RED, 10, CV_AA, 0);
+        
 		return silverData;
 	}
 	
@@ -160,12 +243,33 @@ public class ColorChart {
 		CvScalar hsvData = cvGet2D(hsvImage, y, x);
 		CvScalar yCrCbData = cvGet2D(yCrCbImage, y, x);
 		
-		IplImage colorImg = cvCreateImage(cvGetSize(rgbImage),8,3);
-		cvSet(colorImg, CV_RGB(rgbData.val(2),rgbData.val(1),rgbData.val(0)));
+		//IplImage colorImg = cvCreateImage(cvGetSize(rgbImage),8,3);
+		//cvSet(colorImg, CV_RGB(rgbData.val(2),rgbData.val(1),rgbData.val(0)));
 		//cvShowImage("Color fill", colorImg);
 		
 		ArrayList<CvScalar> values = new ArrayList<CvScalar>();
 		values.add(rgbData); values.add(hsvData); values.add(yCrCbData);
 		return values;
+	}
+	
+	public IplImage getSilverImg() {
+		if (silver == null) {
+			return null;
+		}
+		return silver.clone();
+	}
+	
+	public IplImage getGoldImg() {
+		if (gold == null) {
+			return null;
+		}
+		return gold.clone();
+	}
+	
+	public IplImage getSubImage() {
+		if (chartImage == null) {
+			return null;
+		}
+		return chartImage.clone();
 	}
 }

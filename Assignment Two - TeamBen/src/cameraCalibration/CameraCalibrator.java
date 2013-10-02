@@ -44,7 +44,7 @@ import static com.googlecode.javacv.cpp.opencv_core.CV_32FC1;
 public class CameraCalibrator {
 
 	 CvPoint2D32f corners; // stores the position of the checkerboard corners in pixels
-	 CvSize boardSize = new CvSize(5,4);
+	 CvSize boardSize = new CvSize(7,7);
 	 int pointNumber = boardSize.width()*boardSize.height();
 	 
 	 public int Samples = 13;

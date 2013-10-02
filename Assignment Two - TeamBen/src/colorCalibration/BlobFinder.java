@@ -38,8 +38,9 @@ public class BlobFinder {
         IplImage BWImage = cvCreateImage(cvGetSize(RawImage), IPL_DEPTH_8U, 1);
         //cvThreshold(GrayImage, BWImage, minThresh, maxThresh, CV_THRESH_BINARY);
         cvInRangeS(RawImage, minThresh, maxThresh, BWImage);
-        //cvShowImage("thresh", BWImage);
-            
+   //     cvShowImage("thresh", BWImage);
+   //     cvWaitKey(0);
+        
         IplImage WorkingImage = cvCreateImage(cvGetSize(BWImage), IPL_DEPTH_8U, 1);     
         cvErode(BWImage, WorkingImage, null, ErodeCount);    
         cvDilate(WorkingImage, WorkingImage, null, DilateCount);
@@ -107,7 +108,7 @@ public class BlobFinder {
         cvRectangle(image, pt1, pt2, CvScalar.WHITE, Thick, 4, 0);
         
         CvPoint cp = cvPoint((xMax+xMin)/2,(yMax+yMin)/2);
-        cvCircle(image, cp, 2, CvScalar.WHITE, 1, CV_AA, 0);
+        cvCircle(image, cp, 2, CvScalar.WHITE, 10, CV_AA, 0);
     }
     
     public static void PrintGrayImage(IplImage image, String caption)

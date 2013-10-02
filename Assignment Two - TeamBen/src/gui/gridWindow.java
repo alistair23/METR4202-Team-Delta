@@ -1,6 +1,8 @@
 package gui;
 
 import static com.googlecode.javacv.cpp.opencv_highgui.cvLoadImage;
+import static com.googlecode.javacv.cpp.opencv_highgui.cvShowImage;
+import static com.googlecode.javacv.cpp.opencv_highgui.cvWaitKey;
 
 import java.awt.Component;
 import java.awt.Dimension;
@@ -12,6 +14,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.sql.Timestamp;
 import java.util.Scanner;
@@ -29,6 +33,10 @@ import cameraCalibration.CameraCalibrator;
 import capture.ImageConverter;
 import capture.KinectReader;
 
+import colorCalibration.ColorChart;
+import colorCalibration.BlackBalance;
+
+import com.googlecode.javacv.cpp.opencv_core.CvScalar;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
 public class gridWindow extends JFrame {
@@ -109,7 +117,7 @@ public class gridWindow extends JFrame {
     	JButton b15 = new JButton("Calibrate");
     	b15.setMaximumSize(new Dimension(200, 30));
     	JButton b16 = new JButton("Capture");
-    	JButton b17 = new JButton("Detect Edges");
+    	JButton b17 = new JButton("Color Calibrator");
     	JButton b18 = new JButton("Detect Circles");
     	JButton b19 = new JButton("Exit");
     	
@@ -144,8 +152,6 @@ public class gridWindow extends JFrame {
    		 
             public void actionPerformed(ActionEvent e)
             {
-    			
-    			
     			//for(int i = 0; cc.SampleAt < cc.Samples; i++){
     				IplImage image = kr.getColorFrame();
     				cc.addToCalibration(image);
@@ -211,7 +217,7 @@ public class gridWindow extends JFrame {
             {
             	ImageConverter ic = new ImageConverter();
             	
-           	
+            	
             	String str = (String)JOptionPane.showInputDialog( null, "Enter the File Name:", "Customized Dialog", JOptionPane.PLAIN_MESSAGE, null, null, "Image");
             	
             	ic.savePNG(str, kr.getColorFrame());
@@ -222,7 +228,27 @@ public class gridWindow extends JFrame {
     	b17.addActionListener(new ActionListener() {
       		 
             public void actionPerformed(ActionEvent e)
-            {
+            {	
+            	
+        		//IplImage grabImage = cvLoadImage("test_images/chart.png");
+        		IplImage grabImage = kr.getColorFrame();
+        		
+        		gw.addPanel(P05, grabImage, s);
+        		
+        		IplImage blackimg = cvLoadImage("test_images/black.png");
+            	BlackBalance blackBal = new BlackBalance(blackimg);
+            	CvScalar black = blackBal.getHsvValues();
+            	
+        		ColorChart chart = new ColorChart(grabImage, black);
+        		if (! chart.findCalibColors()) {
+        			System.out.println("Cannot find colors!");
+        		} else {
+        			gw.addPanel(P06, chart.getGoldImg(), s);
+	        		gw.addPanel(P07, chart.getSilverImg(), s);
+        		}
+        		
+        		gw.validate();
+            	
             }
         });      
 
@@ -239,7 +265,13 @@ public class gridWindow extends JFrame {
             {
     			gw.exit();
             }
-        });      
+        });
+    	
+    	gw.addWindowListener(new WindowAdapter() {
+			public void windowClosing(WindowEvent e) {
+				gw.exit();
+			}
+    	});
 
     	while(1==1){
     		if(imgtype == true){
@@ -249,6 +281,7 @@ public class gridWindow extends JFrame {
     		}
     			
     		gw.addPanel(PM, Mainimage, 1);
+    		b17.doClick();
     	}
     	
     	

@@ -81,8 +81,12 @@ public class KinectReader implements KeyListener {
 	    }
 	        
         device = Device.open(devicesInfo.get(0).getUri());
-	
+        
         Cstream = VideoStream.create(device, SensorType.COLOR);
+        
+        //Cstream.getCameraSettings().setAutoExposureEnabled(true);
+        //Cstream.getCameraSettings().setAutoWhiteBalanceEnabled(true);
+        
         Dstream = VideoStream.create(device, SensorType.DEPTH);
         
         Cstream.setVideoMode(Cstream.getSensorInfo().getSupportedVideoModes().get(1));
