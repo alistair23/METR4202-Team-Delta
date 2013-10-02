@@ -98,18 +98,36 @@ im = single(rgb2gray(im));
 [f_im, d_im] = vl_sift(im);
 
 %% Check every note against the image
+
+%Front
 i = 2;
 %for i=1:5
     [matches, scores] = vl_ubcmatch(d_im, squeeze(NF_d(i,:,:)), 1.8);
-    [input_points(i,:,:), base_points(i,:,:)] = visualise_sift_matches( im, squeeze(NF(i,:,:)), f_im, squeeze(NF_f(i,:,:)), matches );
+    [note_input_points(i,:,:), note_base_points(i,:,:)] = visualise_sift_matches( im, squeeze(NF(i,:,:)), f_im, squeeze(NF_f(i,:,:)), matches );
 %end
 
+%Back
 i = 2;
 %for i=1:5
     [matches, scores] = vl_ubcmatch(d_im, squeeze(NB_d(i,:,:)), 1.8);
-    [input_points(i,:,:), base_points(i,:,:)] = visualise_sift_matches( im, squeeze(NB(i,:,:)), f_im, squeeze(NB_f(i,:,:)), matches );
+    [note_input_points(i+5,:,:), note_base_points(i+5,:,:)] = visualise_sift_matches( im, squeeze(NB(i,:,:)), f_im, squeeze(NB_f(i,:,:)), matches );
 %end
 
+%% Check every coin against the image
+
+%Front
+i = 2;
+%for i=1:6
+    [matches, scores] = vl_ubcmatch(d_im, squeeze(CF_d(i,:,:)), 1.8);
+    [coin_input_points(i,:,:), coin_base_points(i,:,:)] = visualise_sift_matches( im, squeeze(NF(i,:,:)), f_im, squeeze(NF_f(i,:,:)), matches );
+%end
+
+%Back
+i = 2;
+%for i=1:6
+    [matches, scores] = vl_ubcmatch(d_im, squeeze(CB_d(i,:,:)), 1.8);
+    [coin_input_points(i+6,:,:), coin_base_points(i+6,:,:)] = visualise_sift_matches( im, squeeze(NB(i,:,:)), f_im, squeeze(NB_f(i,:,:)), matches );
+%end
 
 %%
 
