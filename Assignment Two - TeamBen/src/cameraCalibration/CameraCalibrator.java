@@ -47,7 +47,7 @@ public class CameraCalibrator {
 	 CvSize boardSize = new CvSize(5,4);
 	 int pointNumber = boardSize.width()*boardSize.height();
 	 
-	 public int Samples = 12;
+	 public int Samples = 13;
 	 public int SampleAt = 0;
 	 
 	 CvMat objectPoints = CvMat.create(pointNumber*Samples,3);
@@ -63,7 +63,7 @@ public class CameraCalibrator {
 	 CvMat mapx = CvMat.create(Resolution.height(), Resolution.width(), CV_32FC1);
 	 CvMat mapy = CvMat.create(Resolution.height(), Resolution.width(), CV_32FC1);
 
-			
+	Double error;		
 		
 	public static void main(String[] args) {
 		
@@ -131,9 +131,16 @@ public class CameraCalibrator {
 		    return image;
 		}
 	
-	public void addToCalibration(IplImage image){
-		if(hasBoard(image)){
-		FindChessboard(image);
+	public boolean addToCalibration(IplImage image){
+		
+		corners = new CvPoint2D32f(boardSize.width() * boardSize.height());
+	    int[] cornerCount = new int[1];
+	    int flags = CV_CALIB_CB_ADAPTIVE_THRESH | CV_CALIB_CB_NORMALIZE_IMAGE;
+	    int patternFound = cvFindChessboardCorners(image, boardSize, corners, cornerCount, flags);
+		
+	    if(patternFound > 0){
+		
+	    FindChessboard(image);
 		
 		
 		//set up imagepoints
@@ -149,9 +156,12 @@ public class CameraCalibrator {
 		if(SampleAt > Samples){
 			SampleAt = 0;
 		}
-		}
+		}else{
 		
 		System.out.println("No Board Found!");
+		return false;
+		}
+	    return true;
 	}
 	
 	public double calibrate(){
@@ -165,7 +175,7 @@ public class CameraCalibrator {
 		double error = cvCalibrateCamera2(objectPoints,imagePoints,	pointCount,	Resolution,cameraMatrix, distCoeffs, null, null, 0);
 		cvReleaseMat(pointCount);
 		cvInitUndistortMap(cameraMatrix, distCoeffs, mapx, mapy);
-		
+		this.error = error;
 		return error;
 	}
 	
@@ -194,6 +204,13 @@ public class CameraCalibrator {
 		return d;
 	}
 	
+	public boolean isCalibrated(){
+		boolean r = false;
+		if(this.error != null){
+			r = true;
+		}
+		return r;
+	}
 	
 	}
 

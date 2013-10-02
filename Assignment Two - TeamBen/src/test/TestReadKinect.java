@@ -1,4 +1,6 @@
-package capture;
+package test;
+
+import capture.KinectReader;
 
 public class TestReadKinect {
 	

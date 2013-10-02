@@ -1,10 +1,11 @@
-package cameraCalibration;
+package test;
 
 import static com.googlecode.javacv.cpp.opencv_highgui.cvLoadImage;
 
 import com.googlecode.javacv.cpp.opencv_core.CvSize;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
+import cameraCalibration.CameraCalibration4;
 import capture.KinectReader;
 
 public class CalibrationTest {

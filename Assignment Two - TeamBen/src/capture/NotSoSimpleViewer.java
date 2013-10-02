@@ -63,6 +63,7 @@ public class NotSoSimpleViewer implements KeyListener  {
 			cc.setup();
 		
 			while(cc.SampleAt < cc.Samples){
+				
 				image = kr.getColorFrame();
 				cc.addToCalibration(image);
 				con.removeAll();
