@@ -38,96 +38,43 @@ function main()
 % HSV_Silver = rgb2hsv(RGB_Silver);
 
 %% Start Intrisic Calibration
-for i=1:7
-    %Get a picture from the kinect
-    %[photo(:,:,:,i), depth(:,:,:,i)] = capture_image(false, true, i);
-end
+% for i=1:7
+%     %Get a picture from the kinect
+%     %[photo(:,:,:,i), depth(:,:,:,i)] = capture_image(false, true, i);
+% end
+% 
+% ima_read_calib();
+% add_suppress();
+% click_calib();
+% go_calib_optim();
+% ext_calib();
+% 
+% fprintf(1,'\n\nExtrinsic parameters:\n\n');
+% fprintf(1,'Translation vector: Tc_ext = [ %3.6f \t %3.6f \t %3.6f ]\n',Tckk);
+% fprintf(1,'Rotation vector:   omc_ext = [ %3.6f \t %3.6f \t %3.6f ]\n',omckk);
+% fprintf(1,'Rotation matrix:    Rc_ext = [ %3.6f \t %3.6f \t %3.6f\n',Rckk(1,:)');
+% fprintf(1,'                               %3.6f \t %3.6f \t %3.6f\n',Rckk(2,:)');
+% fprintf(1,'                               %3.6f \t %3.6f \t %3.6f ]\n',Rckk(3,:)');
 
-ima_read_calib();
-add_suppress();
-click_calib();
-go_calib_optim();
-ext_calib();
-
-fprintf(1,'\n\nExtrinsic parameters:\n\n');
-fprintf(1,'Translation vector: Tc_ext = [ %3.6f \t %3.6f \t %3.6f ]\n',Tckk);
-fprintf(1,'Rotation vector:   omc_ext = [ %3.6f \t %3.6f \t %3.6f ]\n',omckk);
-fprintf(1,'Rotation matrix:    Rc_ext = [ %3.6f \t %3.6f \t %3.6f\n',Rckk(1,:)');
-fprintf(1,'                               %3.6f \t %3.6f \t %3.6f\n',Rckk(2,:)');
-fprintf(1,'                               %3.6f \t %3.6f \t %3.6f ]\n',Rckk(3,:)');
-
-%% Generate the sift detectors
-% [NF(), NF_f(1), NF_d(1)] = sift_training('NoteCalibration/hundred_front.jpg');
-% [NB(1), NB_f(1), NB_d(1)] = sift_training('NoteCalibration/hundred_back.jpg');
-
-[NF(2,:,:), NF_f(2,:,:), NF_d(2,:,:)] = sift_training('NoteCalibration/fifty_front.jpg');
-[NB(2,:,:), NB_f(2,:,:), NB_d(2,:,:)] = sift_training('NoteCalibration/fifty_back.jpg');
-
-% [NF(3), NF_f(3), NF_d(3)] = sift_training('NoteCalibration/twenty_front.jpg');
-% [NB(3), NB_f(3), NB_d(3)] = sift_training('NoteCalibration/twenty_back.jpg');
-% 
-% [NF(4), NF_f(4), NF_d(4)] = sift_training('NoteCalibration/ten_front.jpg');
-% [NB(4), NB_f(4), NB_d(4)] = sift_training('NoteCalibration/ten_back.jpg');
-% 
-% [NF(5), NF_f(5), NF_d(5)] = sift_training('NoteCalibration/five_front.jpg');
-% [NB(5), NB_f(5), NB_d(5)] = sift_training('NoteCalibration/five_back.jpg');
-% 
-% [CF(1), CF_f(1), CF_d(1)] = sift_training('NoteCalibration/two_front.jpg');
-% [CB(1), CB_f(1), CB_d(1)] = sift_training('NoteCalibration/two_back.jpg');
-% 
-% [CF(2), CF_f(2), CF_d(2)] = sift_training('NoteCalibration/one_front.jpg');
-% [CB(2), CB_f(2), CB_d(2)] = sift_training('NoteCalibration/one_back.jpg');
-% 
-% [CF(3), CF_f(3), CF_d(3)] = sift_training('NoteCalibration/fiftycents_front.jpg');
-% [CB(3), CB_f(3), CB_d(3)] = sift_training('NoteCalibration/fiftycents_back.jpg');
-% 
-% [CF(4), CF_f(4), CF_d(4)] = sift_training('NoteCalibration/twentycents_front.jpg');
-% [CB(4), CB_f(4), CB_d(4)] = sift_training('NoteCalibration/twentycents_back.jpg');
-% 
-% [CF(5), CF_f(5), CF_d(5)] = sift_training('NoteCalibration/tencents_front.jpg');
-% [CB(5), CB_f(5), CB_d(5)] = sift_training('NoteCalibration/tencents_back.jpg');
-% 
-% [CF(6), CF_f(6), CF_d(6)] = sift_training('NoteCalibration/fivecents_front.jpg');
-% [CB(6), CB_f(6), CB_d(6)] = sift_training('NoteCalibration/fivecents_back.jpg');
 
 %% Capture the image of the scene
 %Get a picture from the kinect
 %[photo(:,:,:,i), depth(:,:,:,i)] = capture_image(false, true, 2);
-im = imread('test_2.jpg');
+im = imread('2CoinPhoto_c.png');
 im = single(rgb2gray(im));
 [f_im, d_im] = vl_sift(im);
 
-%% Check every note against the image
+%% Check for $2 coin
+[CF_2, CF_2_f, CF_2_d] = sift_training('NoteCalibration/2_C_Front.jpg');
+[CB_2, CB_2_f, CB_2_d] = sift_training('NoteCalibration/2_C_Back.jpg');
 
 %Front
-i = 2;
-%for i=1:5
-    [matches, scores] = vl_ubcmatch(d_im, squeeze(NF_d(i,:,:)), 1.8);
-    [note_input_points(i,:,:), note_base_points(i,:,:)] = visualise_sift_matches( im, squeeze(NF(i,:,:)), f_im, squeeze(NF_f(i,:,:)), matches );
-%end
+[matches, scores] = vl_ubcmatch(d_im, squeeze(CF_2_d), 1.8);
+[coin_input_points(1,:,:), coin_base_points(1,:,:)] = visualise_sift_matches(im, squeeze(CF_2), f_im, squeeze(CF_2_f), matches );
 
 %Back
-i = 2;
-%for i=1:5
-    [matches, scores] = vl_ubcmatch(d_im, squeeze(NB_d(i,:,:)), 1.8);
-    [note_input_points(i+5,:,:), note_base_points(i+5,:,:)] = visualise_sift_matches( im, squeeze(NB(i,:,:)), f_im, squeeze(NB_f(i,:,:)), matches );
-%end
-
-%% Check every coin against the image
-
-%Front
-i = 2;
-%for i=1:6
-    [matches, scores] = vl_ubcmatch(d_im, squeeze(CF_d(i,:,:)), 1.8);
-    [coin_input_points(i,:,:), coin_base_points(i,:,:)] = visualise_sift_matches( im, squeeze(NF(i,:,:)), f_im, squeeze(NF_f(i,:,:)), matches );
-%end
-
-%Back
-i = 2;
-%for i=1:6
-    [matches, scores] = vl_ubcmatch(d_im, squeeze(CB_d(i,:,:)), 1.8);
-    [coin_input_points(i+6,:,:), coin_base_points(i+6,:,:)] = visualise_sift_matches( im, squeeze(NB(i,:,:)), f_im, squeeze(NB_f(i,:,:)), matches );
-%end
+[matches, scores] = vl_ubcmatch(d_im, squeeze(CB_2_d), 1.8);
+[coin_input_points(2,:,:), coin_base_points(2,:,:)] = visualise_sift_matches(im, squeeze(CB_2), f_im, squeeze(CB_2_f), matches );
 
 %%
 
