@@ -63,7 +63,8 @@ public class CameraCalibrator {
 	 CvMat mapx = CvMat.create(Resolution.height(), Resolution.width(), CV_32FC1);
 	 CvMat mapy = CvMat.create(Resolution.height(), Resolution.width(), CV_32FC1);
 
-	Double error;		
+	Double error;
+	public int patternFound;
 		
 	public static void main(String[] args) {
 		
@@ -116,19 +117,21 @@ public class CameraCalibrator {
 	public IplImage FindChessboard (IplImage image){
 	
 	// Read input image
-			
+			patternFound = 0;
 
 		    // Find chessboard corners
 		    corners = new CvPoint2D32f(boardSize.width() * boardSize.height());
 		    int[] cornerCount = new int[1];
 		    int flags = CV_CALIB_CB_ADAPTIVE_THRESH | CV_CALIB_CB_NORMALIZE_IMAGE;
-		    int patternFound = cvFindChessboardCorners(image, boardSize, corners, cornerCount, flags);
+		    patternFound = cvFindChessboardCorners(image, boardSize, corners, cornerCount, flags);
 
+		    IplImage image2 = image.clone();
+		    
 		    // Draw the corners
-		    cvDrawChessboardCorners(image, boardSize, corners, cornerCount[0], patternFound);
+		    cvDrawChessboardCorners(image2, boardSize, corners, cornerCount[0], patternFound);
 		    //cvShowImage("Corners on Chessboard",image);
 		    //cvWaitKey(0);
-		    return image;
+		    return image2;
 		}
 	
 	public boolean addToCalibration(IplImage image){
@@ -180,11 +183,11 @@ public class CameraCalibrator {
 	}
 	
 	public IplImage remap(final IplImage image){
-		IplImage undistortedImage = image;
+		IplImage undistortedImage = image.clone();
 		cvRemap(image, undistortedImage, mapx, mapy, CV_INTER_LINEAR, CvScalar.ZERO);
-		cvShowImage("image", image);  
-		cvShowImage("undistorted", undistortedImage);  
-		cvWaitKey(0);
+		//cvShowImage("image", image);  
+		//cvShowImage("undistorted", undistortedImage);  
+		//cvWaitKey(0);
 		return undistortedImage;
 	}
 	
