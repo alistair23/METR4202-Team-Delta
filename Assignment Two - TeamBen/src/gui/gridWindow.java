@@ -1,8 +1,12 @@
 package gui;
 
+import static com.googlecode.javacv.cpp.opencv_core.cvCreateImage;
+import static com.googlecode.javacv.cpp.opencv_core.cvGetSize;
 import static com.googlecode.javacv.cpp.opencv_highgui.cvLoadImage;
 import static com.googlecode.javacv.cpp.opencv_highgui.cvShowImage;
 import static com.googlecode.javacv.cpp.opencv_highgui.cvWaitKey;
+import static com.googlecode.javacv.cpp.opencv_imgproc.*;
+import static com.googlecode.javacv.cpp.opencv_imgproc.cvCvtColor;
 
 import java.awt.Component;
 import java.awt.Dimension;
@@ -18,6 +22,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 import javax.swing.ImageIcon;
@@ -39,6 +44,8 @@ import colorCalibration.BlackBalance;
 import com.googlecode.javacv.cpp.opencv_core.CvScalar;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
+import functions.ImageRectifier;
+
 public class gridWindow extends JFrame {
 
     GridBagConstraints gc = new GridBagConstraints();
@@ -46,7 +53,12 @@ public class gridWindow extends JFrame {
     Dimension d = new Dimension(1200, 1000);
     static boolean imgtype = true;
     final static JTextArea con = new JTextArea();
+    
  
+    public static ArrayList<Integer> depthPickerData = new ArrayList<Integer>();
+    private static IplImage colorImage;
+    private static IplImage depthImage;
+    
     
     public gridWindow(){
     	
@@ -56,9 +68,25 @@ public class gridWindow extends JFrame {
     }
     
     public static void main(String[] args) {
-    	
+    	final gridWindow gw = new gridWindow();
         final KinectReader kr = new KinectReader();
-  	  
+        
+        final DepthPicker depthPicker = new DepthPicker();
+        depthPicker.addWindowListener(
+        		new WindowAdapter() { 
+        			public void windowClosing(WindowEvent e) { 
+        				gw.setEnabled(true);
+        				depthPicker.setVisible(false);
+        				depthPickerData = depthPicker.getCoords();
+        				if (depthPickerData != null) {
+        					for (Integer coord : depthPickerData) {
+        						con.append(coord.toString()+", ");
+        				    }
+        				    con.append("\n");
+        			    } else {
+        			    	con.append("Bad selection.\n");
+        			    }
+        }});
     	
     	kr.Start();
 		
@@ -67,7 +95,7 @@ public class gridWindow extends JFrame {
 		
     	//IplImage img = cvLoadImage("test_images/colorchart.png");
     	
-    	 final gridWindow gw = new gridWindow();
+    	 
     	//JPanel p = new JPanel();
     	//p.add(new JLabel("PANELLLLL"));
     	
@@ -116,9 +144,9 @@ public class gridWindow extends JFrame {
    	
     	JButton b15 = new JButton("Calibrate");
     	b15.setMaximumSize(new Dimension(200, 30));
-    	JButton b16 = new JButton("Capture");
+    	JButton b16 = new JButton("Rectify Image");
     	JButton b17 = new JButton("Color Calibrator");
-    	JButton b18 = new JButton("Detect Circles");
+    	JButton b18 = new JButton("Pick Depth Data");
     	JButton b19 = new JButton("Exit");
     	
     	gw.addPanel(P01, 0, 4, 1, 1);
@@ -212,24 +240,34 @@ public class gridWindow extends JFrame {
         });      
     	
     	b16.addActionListener(new ActionListener() {
-      		 
-            public void actionPerformed(ActionEvent e)
-            {
-            	ImageConverter ic = new ImageConverter();
-            	
-            	
-            	String str = (String)JOptionPane.showInputDialog( null, "Enter the File Name:", "Customized Dialog", JOptionPane.PLAIN_MESSAGE, null, null, "Image");
-            	
-            	ic.savePNG(str, kr.getColorFrame());
-            	
-            }
-        });      
-
-    	b17.addActionListener(new ActionListener() {
-      		 
+      		 // IMAGE RECTIFICATION
             public void actionPerformed(ActionEvent e)
             {	
+            	// old image save function:
+            	//ImageConverter ic = new ImageConverter();
+            	//String str = (String)JOptionPane.showInputDialog( null, "Enter the File Name:", "Customized Dialog", JOptionPane.PLAIN_MESSAGE, null, null, "Image");
+            	//ic.savePNG(str, kr.getColorFrame());
             	
+            	
+            	if (depthPickerData.isEmpty()) {
+            		con.append("Pick a region first!\n");
+            	} else {
+            		//System.out.println(depthPickerData);
+	            	//IplImage colorImage = cvLoadImage("test_images/trialcount_img.png");
+	        		//IplImage depthImage = cvLoadImage("test_images/trialcount_depth.png");
+	            	
+	            	ImageRectifier rectifyImage = new ImageRectifier(colorImage, depthImage, depthPickerData);
+	        		IplImage trialTable = rectifyImage.drawTableLines();
+	        		gw.addPanel(P02, trialTable, s);
+	        		con.append(rectifyImage.getDepthData().toString());
+            	}
+            }
+        });      
+    	
+    	b17.addActionListener(new ActionListener() {
+      		// COLOR CALIBRATION
+            public void actionPerformed(ActionEvent e)
+            {	
         		//IplImage grabImage = cvLoadImage("test_images/chart.png");
         		IplImage grabImage = kr.getColorFrame();
         		
@@ -241,10 +279,12 @@ public class gridWindow extends JFrame {
             	
         		ColorChart chart = new ColorChart(grabImage, black);
         		if (! chart.findCalibColors()) {
-        			System.out.println("Cannot find colors!");
+        			con.append("Cannot find colors!\n");
+        			//System.out.println("Cannot find colors!");
         		} else {
         			gw.addPanel(P06, chart.getGoldImg(), s);
 	        		gw.addPanel(P07, chart.getSilverImg(), s);
+	        		con.append(chart.getColorData());
         		}
         		
         		gw.validate();
@@ -253,9 +293,27 @@ public class gridWindow extends JFrame {
         });      
 
     	b18.addActionListener(new ActionListener() {
-      		 
+    		// DEPTH PICKER
             public void actionPerformed(ActionEvent e)
-            {
+            {	
+            	//IplImage depthImage = cvLoadImage("test_images/trialcount_depth.png");
+            	// 640 x 480
+            	colorImage = kr.getColorFrame();
+            	depthImage = kr.getDepthFrame();
+            	
+            	//colorImage = cvCreateImage(cvGetSize(colorImageRGB),8,3);
+            	//depthImage = cvCreateImage(cvGetSize(depthImageInput),8,1);
+            	
+        		//cvCvtColor(depthImageInput, depthImage, CV_BGR2GRAY);
+            	
+        		//cvShowImage("afdsadfs", depthImage);
+        		//cvWaitKey(0);
+        		
+            	depthPicker.setImage(depthImage);
+            	depthPicker.setVisible(true);
+            	
+            	con.append("Pick a region...\n");
+            	gw.setEnabled(false);
             }
         });      
 
@@ -281,7 +339,7 @@ public class gridWindow extends JFrame {
     		}
     			
     		gw.addPanel(PM, Mainimage, 1);
-    		b17.doClick();
+    		
     	}
     	
     	
@@ -392,6 +450,4 @@ public class gridWindow extends JFrame {
 	public void exit(){
 		System.exit(0);
 	}
-	
-
 }

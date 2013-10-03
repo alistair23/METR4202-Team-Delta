@@ -103,7 +103,7 @@ public class KinectReader implements KeyListener {
 		windowFrame.getContentPane().add(DPanel);
   
 		CBuffer = ic.convertRGB(Cstream.readFrame());
-		DBuffer = ic.convertD(Dstream.readFrame());
+		DBuffer = ic.convertD(Dstream.readFrame(), Dstream);
 		
 		CPanel.add(new JLabel(new ImageIcon(CBuffer)));
 		DPanel.add(new JLabel(new ImageIcon(DBuffer)));
@@ -138,13 +138,14 @@ public class KinectReader implements KeyListener {
 		//System.out.println("Getting Frames: Depth");
         Dframe = Dstream.readFrame();
 		
-        DBuffer = ic.convertD(Dframe);
+        DBuffer = ic.convertD(Dframe, Dstream);
         
         DPanel.removeAll();
 		DPanel.add(new JLabel(new ImageIcon(DBuffer)));        
         
   		
 		IplImage ii = IplImage.createFrom(DBuffer);
+		
 		 
 		return ii;
 	}
@@ -186,7 +187,8 @@ public class KinectReader implements KeyListener {
 	}
 	
 	   public void keyPressed(KeyEvent event) {
-	    	if(event.getKeyChar() == 'a'){
+	    /**	
+			if(event.getKeyChar() == 'a'){
 	    		getFrames();
 	    		windowFrame.revalidate();
 	    	}else if(event.getKeyChar() == 's'){
@@ -200,6 +202,7 @@ public class KinectReader implements KeyListener {
 				ic.savePNG("img-"+imageindex+"-D", Dframe);
 				imageindex++;
 	    	}
+	    	*/
 		}
 
 		

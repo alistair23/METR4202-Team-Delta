@@ -75,20 +75,16 @@ public class ColorChart {
 	//	cvWaitKey(0);
 	}
 	
-	public void printColorData() {
-		System.out.print("Gold RGB :  "); System.out.print((int)goldBGR.getVal(2)+", ");
-		System.out.print((int)goldBGR.getVal(1)+", "); System.out.println((int)goldBGR.getVal(0));
-		System.out.print("Gold HSV :  "); System.out.print((int)goldHSV.getVal(0)+", ");
-		System.out.print((int)goldHSV.getVal(1)+", "); System.out.println((int)goldHSV.getVal(2));
-		System.out.print("Gold YCrCb :  "); System.out.print((int)goldYCrCb.getVal(0)+", ");
-		System.out.print((int)goldYCrCb.getVal(1)+", "); System.out.println((int)goldYCrCb.getVal(2));
-		System.out.println("");
-		System.out.print("Silver RGB :  "); System.out.print((int)silverBGR.getVal(2)+", ");
-		System.out.print((int)silverBGR.getVal(1)+", "); System.out.println((int)silverBGR.getVal(0));
-		System.out.print("Silver HSV :  "); System.out.print((int)silverHSV.getVal(0)+", ");
-		System.out.print((int)silverHSV.getVal(1)+", "); System.out.println((int)silverHSV.getVal(2));
-		System.out.print("Silver YCrCb :  "); System.out.print((int)silverYCrCb.getVal(0)+", ");
-		System.out.print((int)silverYCrCb.getVal(1)+", "); System.out.println((int)silverYCrCb.getVal(2));
+	public String getColorData() {
+		String s = "";
+		s += "Gold RGB :  "+(int)goldBGR.getVal(2)+", "+(int)goldBGR.getVal(1)+", "+(int)goldBGR.getVal(0)+"\n";
+		s += "Gold HSV :  "+(int)goldHSV.getVal(0)+", "+(int)goldHSV.getVal(1)+", "+(int)goldHSV.getVal(2)+"\n";
+		s += "Gold YCrCb :  "+(int)goldYCrCb.getVal(0)+", "+(int)goldYCrCb.getVal(1)+", "+(int)goldYCrCb.getVal(2)+"\n";
+		s += "\n";
+		s += "Silver RGB :  "+(int)silverBGR.getVal(2)+", "+(int)silverBGR.getVal(1)+", "+(int)silverBGR.getVal(0)+"\n";
+		s += "Silver HSV :  "+(int)silverHSV.getVal(0)+", "+(int)silverHSV.getVal(1)+", "+(int)silverHSV.getVal(2)+"\n";
+		s += "Silver YCrCb :  "+(int)silverYCrCb.getVal(0)+", "+(int)silverYCrCb.getVal(1)+", "+(int)silverYCrCb.getVal(2)+"\n";
+		return s;
 	}
 	
 	public boolean findCalibColors() {
@@ -105,14 +101,18 @@ public class ColorChart {
 			return false;
 		}
 		
+		goldBGR = goldData.get(0);
 		goldHSV = goldData.get(1);
+		goldYCrCb = goldData.get(2);
 		
 		ArrayList<CvScalar> silverData = getSilverData(chartImage, blobFinder);
 		if (silverData == null) {
 			return false;
 		}
 		
+		silverBGR = silverData.get(0);
 		silverHSV = silverData.get(1);
+		silverYCrCb = silverData.get(2);
 		
 		return true;
 	}
@@ -171,8 +171,6 @@ public class ColorChart {
 		for (int i=0; i < blobCent.size(); i+=2) {
 			int x = blobCent.get(i);
 			if (x > deltax) {
-				System.out.println(x);
-				System.out.println(deltax);
 				blobCent.remove(i);
 				blobCent.remove(i);
 				i -= 2;

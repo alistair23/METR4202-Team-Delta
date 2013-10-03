@@ -1,13 +1,13 @@
 package gettingSomewhere;
 
-import static com.googlecode.javacv.cpp.opencv_core.CV_AA;
-import static com.googlecode.javacv.cpp.opencv_core.CV_RGB;
 import static com.googlecode.javacv.cpp.opencv_core.*;
 import static com.googlecode.javacv.cpp.opencv_highgui.cvLoadImage;
 import static com.googlecode.javacv.cpp.opencv_highgui.cvShowImage;
 import static com.googlecode.javacv.cpp.opencv_highgui.cvWaitKey;
 import static com.googlecode.javacv.cpp.opencv_imgproc.cvEqualizeHist;
 
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.ArrayList;
 
 import colorCalibration.*;
@@ -18,6 +18,8 @@ import com.googlecode.javacv.cpp.opencv_core.CvPoint;
 import com.googlecode.javacv.cpp.opencv_core.CvScalar;
 import com.googlecode.javacv.cpp.opencv_core.CvSize;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
+
+import functions.ImageRectifier;
 
 public class Tester {
 
@@ -56,12 +58,16 @@ public class Tester {
 		ColorChart chart = new ColorChart(colorchartsourceRGB, black);
 		chart.findCalibColors();
 		
-		IplImage sourceImageRGB = cvLoadImage("test_images/trialcount_img.png");
-		//cvShowImage("source image", sourceImageRGB);
-		IplImage sourceDepthRGB = cvLoadImage("test_images/trialcount_depth.png");
-	//	cvShowImage("source depth", sourceDepthRGB);
-		
-//		IplImage trialTable = drawTableLines(sourceImageRGB, sourceDepthRGB);
+		IplImage colorImage = cvLoadImage("test_images/trialcount_img.png");
+		IplImage depthImage = cvLoadImage("test_images/trialcount_depth.png");
+		ArrayList<Integer> depthPickerData = new ArrayList<Integer>();
+		depthPickerData.add(49); depthPickerData.add(319);
+		depthPickerData.add(102); depthPickerData.add(121);
+
+		ImageRectifier rectifyImage = new ImageRectifier(colorImage, depthImage, depthPickerData);
+		IplImage trialTable = rectifyImage.drawTableLines();
+		cvShowImage("depth", trialTable);
+		System.out.println(rectifyImage.getDepthData());
 		
 	//	FindCorners corners = new FindCorners(sourceImage);
 	//	corners.findObject();
@@ -74,38 +80,5 @@ public class Tester {
 		
 		cvWaitKey(0);
 	}
-	
-	private static IplImage drawTableLines(IplImage sourceImage, IplImage depthImage) {
-		CvSize imgSize = cvGetSize(sourceImage);
-		//cvShowImage("source", sourceImage);
-		//cvShowImage("depth", depthImage);
-		
-		int x = imgSize.width()/6;
-		double initValue = getPixelValue(depthImage, x, imgSize.height()-10);
-		System.out.println(initValue);
-		double prevPixelValue = 255.0;
-		
-		for (int i = imgSize.height()/2; i < imgSize.height()-10; i++) {
-			double pixelValue = getPixelValue(depthImage, x, i);
-			if ((pixelValue%5 == 0.0) && (pixelValue != prevPixelValue) && (pixelValue != 255.0)) {
-				System.out.print(i+" Value: "); System.out.println(pixelValue);
-				prevPixelValue = pixelValue;
-				CvPoint pt1 = new CvPoint(x-10, i); CvPoint pt2 = new CvPoint(x+10, i);
-				cvLine(depthImage, pt1, pt2, CV_RGB(255, 0, 0), 1, CV_AA, 0);
-			}
-		}
-		
-		//cvShowImage("depth", depthImage);
-		
-		return null;
-	}
-	
-	private static double getPixelValue(IplImage rgbImage, int x, int y) {
-		IplImage hsvImage = cvCreateImage(cvGetSize(rgbImage),8,3);
-		cvCvtColor(rgbImage, hsvImage, CV_RGB2HSV);
-
-		return cvGet2D(hsvImage, y, x).getVal(2);
-	}
-
 }
 
