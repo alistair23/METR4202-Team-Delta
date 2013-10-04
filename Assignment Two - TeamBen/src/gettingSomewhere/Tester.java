@@ -4,7 +4,10 @@ import static com.googlecode.javacv.cpp.opencv_core.*;
 import static com.googlecode.javacv.cpp.opencv_highgui.cvLoadImage;
 import static com.googlecode.javacv.cpp.opencv_highgui.cvShowImage;
 import static com.googlecode.javacv.cpp.opencv_highgui.cvWaitKey;
+import static com.googlecode.javacv.cpp.opencv_imgproc.*;
 import static com.googlecode.javacv.cpp.opencv_imgproc.cvEqualizeHist;
+import static com.googlecode.javacv.cpp.opencv_imgproc.cvGetPerspectiveTransform;
+import static com.googlecode.javacv.cpp.opencv_imgproc.cvWarpPerspective;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -14,12 +17,17 @@ import colorCalibration.*;
 import static com.googlecode.javacv.cpp.opencv_highgui.*;
 import static com.googlecode.javacv.cpp.opencv_imgproc.*;
 
+import com.googlecode.javacpp.Pointer;
+import com.googlecode.javacv.cpp.opencv_core.CvMat;
 import com.googlecode.javacv.cpp.opencv_core.CvPoint;
+import com.googlecode.javacv.cpp.opencv_core.CvPoint2D32f;
 import com.googlecode.javacv.cpp.opencv_core.CvScalar;
 import com.googlecode.javacv.cpp.opencv_core.CvSize;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
 import functions.ImageRectifier;
+
+//import static org.opencv.imgproc.Imgproc.getPerspectiveTransform;
 
 public class Tester {
 
@@ -55,19 +63,19 @@ public class Tester {
     	CvScalar black = blackBal.getHsvValues();
     //	System.out.print("BLACK:  "); System.out.println(black);
     	
-		ColorChart chart = new ColorChart(colorchartsourceRGB, black);
-		chart.findCalibColors();
+		//ColorChart chart = new ColorChart(colorchartsourceRGB, black);
+		//chart.findCalibColors();
 		
-		IplImage colorImage = cvLoadImage("test_images/trialcount_img.png");
-		IplImage depthImage = cvLoadImage("test_images/trialcount_depth.png");
-		ArrayList<Integer> depthPickerData = new ArrayList<Integer>();
-		depthPickerData.add(49); depthPickerData.add(319);
-		depthPickerData.add(102); depthPickerData.add(121);
+		//IplImage colorImage = cvLoadImage("test_images/trialcount_img.png");
+		//IplImage depthImage = cvLoadImage("test_images/trialcount_depth.png");
+		//ArrayList<Integer> depthPickerData = new ArrayList<Integer>();
+		//depthPickerData.add(49); depthPickerData.add(319);
+		//depthPickerData.add(102); depthPickerData.add(121);
 
-		ImageRectifier rectifyImage = new ImageRectifier(colorImage, depthImage, depthPickerData);
-		IplImage trialTable = rectifyImage.drawTableLines();
-		cvShowImage("depth", trialTable);
-		System.out.println(rectifyImage.getDepthData());
+		//ImageRectifier rectifyImage = new ImageRectifier(colorImage, depthImage, depthPickerData);
+		//IplImage trialTable = rectifyImage.drawTableLines();
+		//cvShowImage("depth", trialTable);
+		//System.out.println(rectifyImage.getDepthData());
 		
 	//	FindCorners corners = new FindCorners(sourceImage);
 	//	corners.findObject();
@@ -77,8 +85,41 @@ public class Tester {
 	//	cvCvtColor(sourceImage, trialGray, CV_BGR2GRAY);
 	//	IplImage trial = blobFinder.SkewGrayImage(trialGray, Math.PI/4);
 	//	cvShowImage("skew", trial);
-		
+    	
+    	IplImage trialimg = cvLoadImage("test_images/trialcount_img.png");
+    	
+    	CvMat mmat = cvCreateMat(3,3,CV_32FC1);
+	    CvPoint2D32f c1 = new CvPoint2D32f(4);
+	    CvPoint2D32f c2 = new CvPoint2D32f(4);
+
+	    //corner points of the parking place
+	    c1.position(0).put(130, 100);
+	    c1.position(1).put(170, 100);
+	    c1.position(2).put(100, 200);
+	    c1.position(3).put(200, 200);
+	    
+	    c2.position(0).put(100, 100);
+	    c2.position(1).put(200, 100);
+	    c2.position(2).put(100, 200);
+	    c2.position(3).put(200, 200);
+	    
+	    c1.position(0); c2.position(0);
+	    cvGetPerspectiveTransform(c1, c2, mmat);
+	    
+	    System.out.println(c1);
+	    System.out.println(c2);
+	    System.out.println(mmat);
+	    
+	    IplImage im_out =  cvCreateImage(cvGetSize(trialimg), IPL_DEPTH_8U, 3);
+	    
+	    cvWarpPerspective(trialimg, im_out, mmat, CV_INTER_LINEAR , CvScalar.ZERO);
+	    
+	    //cvShowImage("original", trialimg);
+		cvShowImage("linear", im_out);
 		cvWaitKey(0);
+		
+		//cvReleaseMat(mmat);
+		//cvReleaseImage(im_out);
 	}
 }
 

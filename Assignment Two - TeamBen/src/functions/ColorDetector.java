@@ -70,7 +70,7 @@ public class ColorDetector {
 			imgThreshold = cvCreateImage(cvGetSize(sourceImage), 8, 1);
 			// cvScalar : ( H , S , V, A)
 
-			cvInRangeS(imgHSV, cvScalar(0, 0, 50, 0), cvScalar(255, 100, 150, 0), imgThreshold);
+			cvInRangeS(imgHSV, cvScalar(0, 0, 0, 0), cvScalar(255, 100, 150, 0), imgThreshold);
 			
 			cvReleaseImage(imgHSV);
 			cvSmooth(imgThreshold, imgThreshold, CV_MEDIAN, 1);

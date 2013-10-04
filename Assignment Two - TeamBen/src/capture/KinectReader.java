@@ -11,6 +11,8 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
+import static org.openni.PixelFormat.*;
+
 import org.openni.Device;
 import org.openni.DeviceInfo;
 import org.openni.OpenNI;
@@ -84,13 +86,16 @@ public class KinectReader implements KeyListener {
         
         Cstream = VideoStream.create(device, SensorType.COLOR);
         
-        //Cstream.getCameraSettings().setAutoExposureEnabled(true);
-        //Cstream.getCameraSettings().setAutoWhiteBalanceEnabled(true);
-        
         Dstream = VideoStream.create(device, SensorType.DEPTH);
         
         Cstream.setVideoMode(Cstream.getSensorInfo().getSupportedVideoModes().get(1));
         Dstream.setVideoMode(Dstream.getSensorInfo().getSupportedVideoModes().get(0));
+        
+        //System.out.println(Cstream.getVideoMode().getResolutionX());
+        //Cstream.getVideoMode().setResolution(1280, 1080);
+        //System.out.println(Cstream.getVideoMode().getResolutionX());
+        
+        Dstream.getVideoMode().setPixelFormat(DEPTH_1_MM);
         
         Cstream.start();
         Dstream.start();

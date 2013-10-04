@@ -94,7 +94,7 @@ public class ColorChart {
 		if (chartImage == null) {
 			return false;
 		}
-	//	cvShowImage("sub image", chartImage);
+		cvShowImage("sub image", chartImage);
 		
 		ArrayList<CvScalar> goldData = getGoldData(chartImage, blobFinder);
 		if (goldData == null) {
@@ -159,11 +159,17 @@ public class ColorChart {
 		// VERY LEFTSIDE GOLD IMAGE! PIC IS REVERSED IN CAPTURE!
 		
 	//	IplImage gold = blobFinder.findBlobs(chartImage.clone(), cvScalar(0, 110, 180, 0), cvScalar(40, 170, 255, 0), 2000);
+	//	gold = blobFinder.findBlobs(chartImage.clone(),
+	//			cvScalar(10, 100, 100, 0),
+	//			cvScalar(44, 255, 255, 0), 2000);
+		
 		gold = blobFinder.findBlobs(chartImage.clone(),
-				cvScalar(10, 100, 100, 0),
-				cvScalar(44, 255, 255, 0), 2000);
+				cvScalar(10, 0, 100, 0),
+				cvScalar(90, 255, 255, 0), 2000);
+		
 		// 25 100 150
 		//cvShowImage("gold", gold);
+		// 15 60 200
 		
 		ArrayList<Integer> blobCent = blobFinder.getCentres();
 		
@@ -198,11 +204,16 @@ public class ColorChart {
 		// 3 FROM THE RIGHT! IMAGE REVERSED IN CAPTURE!
 		
 		//IplImage silver = blobFinder.findBlobs(chartImage.clone(), cvScalar(80, 100, 160, 0), cvScalar(255, 180, 190, 0), 2000);
+		//silver = blobFinder.findBlobs(chartImage.clone(),
+		//		cvScalar(100, 120, 60, 0),
+		//		cvScalar(200, 255, 200, 0), 2000);
+		
 		silver = blobFinder.findBlobs(chartImage.clone(),
 				cvScalar(100, 120, 60, 0),
 				cvScalar(200, 255, 200, 0), 2000);
 		// 120 30 130
 		//cvShowImage("silver", silver);
+		// 110 80 200
 		
 		ArrayList<Integer> blobCent = blobFinder.getCentres();
 		

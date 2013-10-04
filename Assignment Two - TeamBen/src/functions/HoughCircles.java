@@ -12,19 +12,13 @@ public class HoughCircles{
 	private ArrayList<Float> circleData;
 	private ArrayList<Integer> radiusData;
 	
-	// IMG 1
-	//private static int minCoinRadius = 10;
-	//private static int maxCoinRadius = 100;
-	//private static int coinCentreThreshold = 50;
-	// IMG 2
-	//private static int minCoinRadius = 2;
-	//private static int maxCoinRadius = 60;
-	//private static int coinCentreThreshold = 30;
-	// CALIB
-	private static int minCoinRadius = 5;
-	private static int maxCoinRadius = 20;
-	private static int coinCentreThreshold = 20;
+	//private static int minCoinRadius = 5;
+	//private static int maxCoinRadius = 40;
+	//private static int coinCentreThreshold = 20;
 	
+	private static int minCoinRadius = 8;
+	private static int maxCoinRadius = 45;
+	private static int coinCentreThreshold = 25;
 	
 	public HoughCircles(IplImage sourceImage) {
 		this.sourceImage = sourceImage;
@@ -62,6 +56,9 @@ public class HoughCircles{
 			circleData.add(circle.x()); circleData.add(circle.y());
 			radiusData.add(radius);
 		}
+		
+		cvShowImage("plate", sourceImage);  
+		cvWaitKey(0);
 	}
 	
 	public void runHoughCirclesRGBCoins() {

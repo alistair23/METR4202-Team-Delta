@@ -8,14 +8,19 @@ import static com.googlecode.javacv.cpp.opencv_core.cvGetSize;
 import static com.googlecode.javacv.cpp.opencv_core.cvLine;
 import static com.googlecode.javacv.cpp.opencv_highgui.cvShowImage;
 import static com.googlecode.javacv.cpp.opencv_highgui.cvWaitKey;
+import static com.googlecode.javacv.cpp.opencv_imgproc.CV_BGR2HSV;
 import static com.googlecode.javacv.cpp.opencv_imgproc.CV_RGB2HSV;
 import static com.googlecode.javacv.cpp.opencv_imgproc.CV_RGB2YCrCb;
 import static com.googlecode.javacv.cpp.opencv_imgproc.cvCvtColor;
+import static com.googlecode.javacv.cpp.opencv_core.*;
+import static com.googlecode.javacv.cpp.opencv_imgproc.*;
 
 import java.util.ArrayList;
 import java.util.TreeMap;
 
+import com.googlecode.javacv.cpp.opencv_core.CvMat;
 import com.googlecode.javacv.cpp.opencv_core.CvPoint;
+import com.googlecode.javacv.cpp.opencv_core.CvPoint2D32f;
 import com.googlecode.javacv.cpp.opencv_core.CvScalar;
 import com.googlecode.javacv.cpp.opencv_core.CvSize;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
@@ -26,6 +31,14 @@ public class ImageRectifier {
 	private static IplImage depthImage;
 	private static ArrayList<Integer> depthPickerData;
 	private static TreeMap<Integer, Integer> depthData;
+	private static IplImage tableDrawn;
+	
+	private static CvPoint pt1;
+	private static CvPoint pt2;
+	private static CvPoint pt3;
+	private static CvPoint pt4;
+	
+	private static int pix0, pix1, delta;
 	
 	public ImageRectifier(IplImage sourceImage, IplImage depthImage, ArrayList<Integer> depthPickerData) {
 		this.sourceImage = sourceImage;
@@ -54,9 +67,7 @@ public class ImageRectifier {
 	}
 	
 	public static IplImage drawTableLines() {
-		CvSize imgSize = cvGetSize(sourceImage);
-		//cvShowImage("source", sourceImage);
-		//cvShowImage("depth", depthImage);
+		
 		int xMin = depthPickerData.get(0); int width = depthPickerData.get(2);
 		int yMin = depthPickerData.get(1); int height = depthPickerData.get(3);
 		
@@ -88,41 +99,88 @@ public class ImageRectifier {
 			}
 		}
 		
-		//cvShowImage("depth", toShow);
-		
 		ArrayList<Double> datafit = fitToData();
 		double slope = datafit.get(0);
 		double intercept = datafit.get(1);
 		
-		IplImage toShowFit = sourceImage.clone();
-		int imgwidth = toShowFit.width();
-		int imgheight = toShowFit.height();
+		tableDrawn = sourceImage.clone();
+		int imgwidth = tableDrawn.width();
+		int imgheight = tableDrawn.height();
 		
 		double[] vals = new double[2];
 		vals[0] = 100; vals[1] = 200;
 		
-		int pix0 = (int) ((vals[0]-intercept)/slope);
-		int pix1 = (int) ((vals[1]-intercept)/slope);
+		pix0 = (int) ((vals[0]-intercept)/slope);
+		pix1 = (int) ((vals[1]-intercept)/slope);
 		
 		//double ratio = ((double)pix0)/((double)pix1);
-		double ratio = vals[0]/vals[1];
-		System.out.println(ratio);
+		double ratio = (vals[0]/vals[1])*1.5;
+		//System.out.println(ratio);
+		//System.out.println(slope);
 		
-		int blerg = (int)(200/ratio)/2;
+		delta = (int)(200/ratio)/2;
 		
-		CvPoint pt1 = new CvPoint(imgwidth/2-100, pix0); CvPoint pt2 = new CvPoint(imgwidth/2+100, pix0);
-		cvLine(toShowFit, pt1, pt2, CvScalar.RED, 2, CV_AA, 0);
+		pt1 = new CvPoint(imgwidth/2-100, pix0);
+		pt2 = new CvPoint(imgwidth/2+100, pix0);
+		cvLine(tableDrawn, pt1, pt2, CvScalar.RED, 2, CV_AA, 0);
 		
-		pt1 = new CvPoint((int)(imgwidth/2-blerg), pix1); pt2 = new CvPoint((int)(imgwidth/2+blerg), pix1);
-		cvLine(toShowFit, pt1, pt2, CvScalar.RED, 2, CV_AA, 0);
+		pt3 = new CvPoint((int)(imgwidth/2-delta), pix1);
+		pt4 = new CvPoint((int)(imgwidth/2+delta), pix1);
+		cvLine(tableDrawn, pt3, pt4, CvScalar.RED, 2, CV_AA, 0);
 		
-		int deltaPix = (int) ((vals[0]-intercept)/slope-(vals[1]-intercept)/slope);
-		System.out.println(deltaPix);
+		cvLine(tableDrawn, pt1, pt3, CvScalar.RED, 2, CV_AA, 0);
+		cvLine(tableDrawn, pt2, pt4, CvScalar.RED, 2, CV_AA, 0);
 		
-		//cvShowImage("depth fit", toShowFit);
-		//cvWaitKey(0);
+		//cvShowImage("drawn", tableDrawn);    
 		
-		return toShowFit;
+		return tableDrawn;
+	}
+	
+	public IplImage transformImage() {
+		
+		int imgwidth = sourceImage.width();
+		int imgheight = sourceImage.height();
+		
+		CvMat mmat = cvCreateMat(3,3,CV_32FC1);
+	    CvPoint2D32f c1 = new CvPoint2D32f(4);
+	    CvPoint2D32f c2 = new CvPoint2D32f(4);
+
+	    //corner points of the parking place
+	    c1.position(0).put(pt1);
+	    c1.position(1).put(pt2);
+	    c1.position(2).put(pt3);
+	    c1.position(3).put(pt4);
+	    
+	    double wtoh = ((double)delta)/((double)imgwidth);
+	    int hdelta = (int) (wtoh*((double)imgheight));
+	    
+	    CvPoint topt1 = new CvPoint((int)(imgwidth/2-delta), pix0);
+	    CvPoint topt2 = new CvPoint((int)(imgwidth/2+delta), pix0);
+	    CvPoint topt3 = new CvPoint((int)(imgwidth/2-delta), pix1+hdelta);
+	    CvPoint topt4 = new CvPoint((int)(imgwidth/2+delta), pix1+hdelta);
+	    
+	    c2.position(0).put(topt1);
+	    c2.position(1).put(topt2);
+	    c2.position(2).put(topt3);
+	    c2.position(3).put(topt4);
+	    
+	    c1.position(0); c2.position(0);
+	    cvGetPerspectiveTransform(c1, c2, mmat);
+	    
+	    //System.out.println(c1);
+	    //System.out.println(c2);
+	    //System.out.println(mmat);
+	    
+	    IplImage im_out =  cvCreateImage(cvSize(imgwidth, imgheight), IPL_DEPTH_8U, sourceImage.nChannels());
+	    
+	    cvWarpPerspective(sourceImage, im_out, mmat, CV_INTER_LINEAR, CvScalar.ZERO);
+	    
+	    IplImage threechannel = cvCreateImage(cvSize(imgwidth, imgheight), IPL_DEPTH_8U, 3);
+	    cvCvtColor(im_out, threechannel, CV_RGBA2RGB);
+	    
+	    //cvShowImage("transformed", im_out);  
+	    
+	    return threechannel;
 	}
 	
 	private static double getPixelValue(IplImage rgbImage, int x, int y) {
@@ -133,66 +191,7 @@ public class ImageRectifier {
 	}
 	
 	private static ArrayList<Double> fitToData() {
-		ArrayList<Double> fit = new ArrayList<Double>();
-		
-		//int n = 0;
-/**		// x is pixel, y is value
-		double[] x = new double[1000]; double[] y = new double[1000];
-		
-		int pos = 0;
-		for (int pix : depthData.keySet()) {
-			x[pos] = pix;
-			y[pos] = depthData.get(pix);
-			pos++;
-		}
-		
-		double sumx = 0.0, sumy = 0.0, sumx2 = 0.0;
-        for (n = 0; n < x.length; n++) {
-            sumx  += x[n];
-            sumx2 += x[n] * x[n];
-            sumy  += y[n];
-        }
-        
-        double xbar = sumx / n;
-        double ybar = sumy / n;
-
-        // second pass: compute summary statistics
-        double xxbar = 0.0, yybar = 0.0, xybar = 0.0;
-        for (int i = 0; i < n; i++) {
-            xxbar += (x[i] - xbar) * (x[i] - xbar);
-            yybar += (y[i] - ybar) * (y[i] - ybar);
-            xybar += (x[i] - xbar) * (y[i] - ybar);
-        }
-        double beta1 = xybar / xxbar;
-        double beta0 = ybar - beta1 * xbar;
-
-        // print results
-        System.out.println("y   = " + beta1 + " * x + " + beta0);
-        fit.add(beta1); fit.add(beta0);
-        
-        // analyze results
-        int df = n - 2;
-        double rss = 0.0;      // residual sum of squares
-        double ssr = 0.0;      // regression sum of squares
-        for (int i = 0; i < n; i++) {
-            double fit = beta1*x[i] + beta0;
-            rss += (fit - y[i]) * (fit - y[i]);
-            ssr += (fit - ybar) * (fit - ybar);
-        }
-        double R2    = ssr / yybar;
-        double svar  = rss / df;
-        double svar1 = svar / xxbar;
-        double svar0 = svar/n + xbar*xbar*svar1;
-        System.out.println("R^2                 = " + R2);
-        System.out.println("std error of beta_1 = " + Math.sqrt(svar1));
-        System.out.println("std error of beta_0 = " + Math.sqrt(svar0));
-        svar0 = svar * sumx2 / (n * xxbar);
-        System.out.println("std error of beta_0 = " + Math.sqrt(svar0));
-
-        System.out.println("SSTO = " + yybar);
-        System.out.println("SSE  = " + rss);
-        System.out.println("SSR  = " + ssr);
-*/		
+		ArrayList<Double> fit = new ArrayList<Double>();	
 		
 		int sumx = 0, sumy = 0;
 		double sumxy = 0.0, sumx2 = 0.0;

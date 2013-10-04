@@ -38,8 +38,8 @@ public class BlobFinder {
         IplImage BWImage = cvCreateImage(cvGetSize(RawImage), IPL_DEPTH_8U, 1);
         //cvThreshold(GrayImage, BWImage, minThresh, maxThresh, CV_THRESH_BINARY);
         cvInRangeS(RawImage, minThresh, maxThresh, BWImage);
-   //     cvShowImage("thresh", BWImage);
-   //     cvWaitKey(0);
+        //cvShowImage("thresh", BWImage);
+        //cvWaitKey(0);
         
         IplImage WorkingImage = cvCreateImage(cvGetSize(BWImage), IPL_DEPTH_8U, 1);     
         cvErode(BWImage, WorkingImage, null, ErodeCount);    

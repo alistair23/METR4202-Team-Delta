@@ -44,6 +44,7 @@ import colorCalibration.BlackBalance;
 import com.googlecode.javacv.cpp.opencv_core.CvScalar;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
+import functions.CoinFinder;
 import functions.ImageRectifier;
 
 public class gridWindow extends JFrame {
@@ -58,7 +59,8 @@ public class gridWindow extends JFrame {
     public static ArrayList<Integer> depthPickerData = new ArrayList<Integer>();
     private static IplImage colorImage;
     private static IplImage depthImage;
-    
+    private static CvScalar BLACK = null;
+    private static IplImage rectifiedImage = null;
     
     public gridWindow(){
     	
@@ -70,23 +72,6 @@ public class gridWindow extends JFrame {
     public static void main(String[] args) {
     	final gridWindow gw = new gridWindow();
         final KinectReader kr = new KinectReader();
-        
-        final DepthPicker depthPicker = new DepthPicker();
-        depthPicker.addWindowListener(
-        		new WindowAdapter() { 
-        			public void windowClosing(WindowEvent e) { 
-        				gw.setEnabled(true);
-        				depthPicker.setVisible(false);
-        				depthPickerData = depthPicker.getCoords();
-        				if (depthPickerData != null) {
-        					for (Integer coord : depthPickerData) {
-        						con.append(coord.toString()+", ");
-        				    }
-        				    con.append("\n");
-        			    } else {
-        			    	con.append("Bad selection.\n");
-        			    }
-        }});
     	
     	kr.Start();
 		
@@ -144,10 +129,10 @@ public class gridWindow extends JFrame {
    	
     	JButton b15 = new JButton("Calibrate");
     	b15.setMaximumSize(new Dimension(200, 30));
-    	JButton b16 = new JButton("Rectify Image");
+    	JButton b16 = new JButton("Find Coins");
     	JButton b17 = new JButton("Color Calibrator");
     	JButton b18 = new JButton("Pick Depth Data");
-    	JButton b19 = new JButton("Exit");
+    	JButton b19 = new JButton("Set Black");
     	
     	gw.addPanel(P01, 0, 4, 1, 1);
     	gw.addPanel(P02, 0, 3, 1, 1);
@@ -176,6 +161,26 @@ public class gridWindow extends JFrame {
     	final CameraCalibrator cc = new CameraCalibrator();
 		cc.setup();
     	
+		final DepthPicker depthPicker = new DepthPicker();
+        depthPicker.addWindowListener(
+        		new WindowAdapter() { 
+        			public void windowClosing(WindowEvent e) { 
+        				gw.setEnabled(true);
+        				depthPicker.setVisible(false);
+        				depthPickerData = depthPicker.getCoords();
+        				if (depthPickerData != null) {
+        					for (Integer coord : depthPickerData) {
+        						con.append(coord.toString()+", ");
+        				    }
+        				    con.append("\n");
+        				    
+        				    rectifyImage(gw, P02, P03, s);
+        				    
+        			    } else {
+        			    	con.append("Bad selection.\n");
+        			    }
+        }});
+		
     	b15.addActionListener(new ActionListener() {
    		 
             public void actionPerformed(ActionEvent e)
@@ -240,26 +245,16 @@ public class gridWindow extends JFrame {
         });      
     	
     	b16.addActionListener(new ActionListener() {
-      		 // IMAGE RECTIFICATION
+      		 // COIN FINDER
             public void actionPerformed(ActionEvent e)
             {	
-            	// old image save function:
-            	//ImageConverter ic = new ImageConverter();
-            	//String str = (String)JOptionPane.showInputDialog( null, "Enter the File Name:", "Customized Dialog", JOptionPane.PLAIN_MESSAGE, null, null, "Image");
-            	//ic.savePNG(str, kr.getColorFrame());
-            	
-            	
-            	if (depthPickerData.isEmpty()) {
-            		con.append("Pick a region first!\n");
+            	if (rectifiedImage == null) {
+            		con.append("Rectify image from depth first!");
             	} else {
-            		//System.out.println(depthPickerData);
-	            	//IplImage colorImage = cvLoadImage("test_images/trialcount_img.png");
-	        		//IplImage depthImage = cvLoadImage("test_images/trialcount_depth.png");
-	            	
-	            	ImageRectifier rectifyImage = new ImageRectifier(colorImage, depthImage, depthPickerData);
-	        		IplImage trialTable = rectifyImage.drawTableLines();
-	        		gw.addPanel(P02, trialTable, s);
-	        		con.append(rectifyImage.getDepthData().toString());
+	            	CoinFinder coinFinder = new CoinFinder(rectifiedImage);
+	            	coinFinder.find();
+	            	// ASSUMES THAT A PLATE IS BEING USED!
+	            	// CAN EASILY MODIFY TO BYPASS THIS
             	}
             }
         });      
@@ -269,31 +264,29 @@ public class gridWindow extends JFrame {
             public void actionPerformed(ActionEvent e)
             {	
         		//IplImage grabImage = cvLoadImage("test_images/chart.png");
-        		IplImage grabImage = kr.getColorFrame();
         		
-        		gw.addPanel(P05, grabImage, s);
-        		
-        		IplImage blackimg = cvLoadImage("test_images/black.png");
-            	BlackBalance blackBal = new BlackBalance(blackimg);
-            	CvScalar black = blackBal.getHsvValues();
-            	
-        		ColorChart chart = new ColorChart(grabImage, black);
-        		if (! chart.findCalibColors()) {
-        			con.append("Cannot find colors!\n");
-        			//System.out.println("Cannot find colors!");
-        		} else {
-        			gw.addPanel(P06, chart.getGoldImg(), s);
-	        		gw.addPanel(P07, chart.getSilverImg(), s);
-	        		con.append(chart.getColorData());
+        		if (BLACK != null) {
+        			IplImage grabImage = kr.getColorFrame();
+            		gw.addPanel(P05, grabImage, s);
+	        		ColorChart chart = new ColorChart(grabImage, BLACK);
+	        		if (! chart.findCalibColors()) {
+	        			con.append("Cannot find colors!\n");
+	        			//System.out.println("Cannot find colors!");
+	        		} else {
+	        			gw.addPanel(P06, chart.getGoldImg(), s);
+		        		gw.addPanel(P07, chart.getSilverImg(), s);
+		        		con.append(chart.getColorData());
+	        		}
+	        		gw.validate();
         		}
-        		
-        		gw.validate();
-            	
+        		else {
+        			con.append("Set black first!");
+        		}
             }
         });      
 
     	b18.addActionListener(new ActionListener() {
-    		// DEPTH PICKER
+    		// DEPTH PICKER AND RECTIFICATION
             public void actionPerformed(ActionEvent e)
             {	
             	//IplImage depthImage = cvLoadImage("test_images/trialcount_depth.png");
@@ -314,6 +307,8 @@ public class gridWindow extends JFrame {
             	
             	con.append("Pick a region...\n");
             	gw.setEnabled(false);
+            	
+            	// RECTIFICATION INITIATED ON WINDOW CLOSE
             }
         });      
 
@@ -321,7 +316,14 @@ public class gridWindow extends JFrame {
       		 
             public void actionPerformed(ActionEvent e)
             {
-    			gw.exit();
+    			//gw.exit();
+            	
+            	IplImage blackimg = kr.getColorFrame();
+            	//IplImage blackimg = cvLoadImage("test_images/black.png");
+            	
+            	BlackBalance blackBal = new BlackBalance(blackimg);
+            	BLACK = blackBal.getHsvValues();
+            	con.append("Black Set.\n");
             }
         });
     	
@@ -341,11 +343,7 @@ public class gridWindow extends JFrame {
     		gw.addPanel(PM, Mainimage, 1);
     		
     	}
-    	
-    	
-  
     }
-    
     
 
 	public void addPanel(Component p, int x, int y, int w, int h){
@@ -435,7 +433,26 @@ public class gridWindow extends JFrame {
 		}
 	}
 
-
+    private static void rectifyImage(gridWindow gw, JPanel P02, JPanel P03, int s) {
+    	
+    	if (depthPickerData.isEmpty()) {
+    		con.append("Pick a region first!\n");
+    	} else {
+    		//System.out.println(depthPickerData);
+        	//IplImage colorImage = cvLoadImage("test_images/trialcount_img.png");
+    		//IplImage depthImage = cvLoadImage("test_images/trialcount_depth.png");
+        	
+        	ImageRectifier rectifyImage = new ImageRectifier(colorImage, depthImage, depthPickerData);
+    		IplImage trialTable = rectifyImage.drawTableLines();
+    		gw.addPanel(P02, trialTable, s);
+    		con.append(rectifyImage.getDepthData().toString());
+    		
+    		rectifiedImage = rectifyImage.transformImage();
+    		gw.addPanel(P03, rectifiedImage, s);
+    		
+    		//cvWaitKey(0);
+    	}
+    }
 
 	public static BufferedImage resize(BufferedImage image, int width, int height) {
 	    BufferedImage bi = new BufferedImage(width, height, BufferedImage.TRANSLUCENT);
