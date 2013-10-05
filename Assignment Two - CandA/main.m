@@ -60,9 +60,23 @@ function main()
 %% Capture the image of the scene
 %Get a picture from the kinect
 %[photo(:,:,:,i), depth(:,:,:,i)] = capture_image(false, true, 2);
-im = imread('2CoinPhoto_c.png');
+im = imread('Testing.png');
+im_d = imread('Testing_d.png');
+
 im = single(rgb2gray(im));
 [f_im, d_im] = vl_sift(im);
+
+%% Rectify the Image
+offset = 0;
+
+for i=1:48
+   image_depth(i - offset) = im_d(60, i*10);
+   if image_depth(i - offset) < 100
+       offset = offset + 1;
+   end
+end
+
+gradient = (image_depth(48 - offset) - image_depth(1))/(48 - offset);
 
 %% Check for $2 coin
 [CF_2, CF_2_f, CF_2_d] = sift_training('NoteCalibration/2_C_Front.jpg');
