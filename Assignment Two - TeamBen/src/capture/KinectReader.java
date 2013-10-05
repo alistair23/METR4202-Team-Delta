@@ -11,6 +11,8 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
+import static com.googlecode.javacv.cpp.opencv_highgui.cvShowImage;
+import static com.googlecode.javacv.cpp.opencv_highgui.cvWaitKey;
 import static org.openni.PixelFormat.*;
 
 import org.openni.Device;
@@ -150,7 +152,6 @@ public class KinectReader implements KeyListener {
         
   		
 		IplImage ii = IplImage.createFrom(DBuffer);
-		
 		 
 		return ii;
 	}
@@ -222,8 +223,17 @@ public class KinectReader implements KeyListener {
 		// TODO Auto-generated method stub
 	}
 	
-	public void setHighRes(){
+	public IplImage getHighResImage(){
+		Cstream.destroy();
+		Cstream = VideoStream.create(device, SensorType.COLOR);
 		Cstream.setVideoMode(Cstream.getSensorInfo().getSupportedVideoModes().get(0));
+		Cstream.start();
+		IplImage hires = getColorFrame();
+		Cstream.destroy();
+		Cstream = VideoStream.create(device, SensorType.COLOR);
+		Cstream.setVideoMode(Cstream.getSensorInfo().getSupportedVideoModes().get(1));
+		Cstream.start();
+		return hires;
 	}
 	
 }

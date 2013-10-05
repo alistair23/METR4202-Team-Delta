@@ -10,24 +10,7 @@
 	<classpathentry kind="lib" path="C:/javacv-bin/javacv-macosx-x86_64.jar"/>
 	<classpathentry kind="lib" path="C:/javacv-bin/javacv-windows-x86.jar"/>
 	<classpathentry kind="lib" path="C:/javacv-bin/javacv-windows-x86_64.jar"/>
-<<<<<<< HEAD
 	<classpathentry kind="lib" path="C:/Program Files/OpenNI2/Redist/org.openni.jar"/>
 	<classpathentry kind="lib" path="C:/Program Files/OpenNI2/Tools/org.openni.jar"/>
-=======
-	<classpathentry kind="lib" path="C:/javacv-cppjars/ffmpeg-1.2-android-arm.jar"/>
-	<classpathentry kind="lib" path="C:/javacv-cppjars/ffmpeg-1.2-linux-x86.jar"/>
-	<classpathentry kind="lib" path="C:/javacv-cppjars/ffmpeg-1.2-linux-x86_64.jar"/>
-	<classpathentry kind="lib" path="C:/javacv-cppjars/ffmpeg-1.2-macosx-x86_64.jar"/>
-	<classpathentry kind="lib" path="C:/javacv-cppjars/ffmpeg-1.2-windows-x86.jar"/>
-	<classpathentry kind="lib" path="C:/javacv-cppjars/ffmpeg-1.2-windows-x86_64.jar"/>
-	<classpathentry kind="lib" path="C:/javacv-cppjars/opencv-2.4.5-android-arm.jar"/>
-	<classpathentry kind="lib" path="C:/javacv-cppjars/opencv-2.4.5-linux-x86.jar"/>
-	<classpathentry kind="lib" path="C:/javacv-cppjars/opencv-2.4.5-linux-x86_64.jar"/>
-	<classpathentry kind="lib" path="C:/javacv-cppjars/opencv-2.4.5-macosx-x86_64.jar"/>
-	<classpathentry kind="lib" path="C:/javacv-cppjars/opencv-2.4.5-windows-x86.jar"/>
-	<classpathentry kind="lib" path="C:/javacv-cppjars/opencv-2.4.5-windows-x86_64.jar"/>
-	<classpathentry kind="lib" path="C:/Program Files (x86)/OpenNI2/Tools/org.openni.jar"/>
-	<classpathentry kind="lib" path="C:/Program Files (x86)/OpenNI2/Redist/org.openni.jar"/>
->>>>>>> stupid git
 	<classpathentry kind="output" path="bin"/>
 </classpath>

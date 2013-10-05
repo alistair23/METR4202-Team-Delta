@@ -251,8 +251,9 @@ public class gridWindow extends JFrame {
             {	
             	if (rectifiedImage == null) {
             		con.append("Finding coins from captured image...");
-            		IplImage grabColorImage = kr.getColorFrame();
             		IplImage grabDepthImage = kr.getDepthFrame();
+            		IplImage grabColorImage = kr.getColorFrame();
+            		//IplImage grabColorImage = kr.getHighResImage();
             		IplImage threechannel = cvCreateImage(cvSize(grabColorImage.width(), grabColorImage.height()), IPL_DEPTH_8U, 3);
             	    cvCvtColor(grabColorImage, threechannel, CV_RGBA2RGB);
             	    
@@ -312,10 +313,9 @@ public class gridWindow extends JFrame {
     		// DEPTH PICKER AND RECTIFICATION
             public void actionPerformed(ActionEvent e)
             {	
-            	//IplImage depthImage = cvLoadImage("test_images/trialcount_depth.png");
-            	// 640 x 480
-            	colorImage = kr.getColorFrame();
             	depthImage = kr.getDepthFrame();
+            	colorImage = kr.getColorFrame();
+            	//colorImage = kr.getHighResImage();
             	
             	//colorImage = cvCreateImage(cvGetSize(colorImageRGB),8,3);
             	//depthImage = cvCreateImage(cvGetSize(depthImageInput),8,1);
@@ -358,11 +358,12 @@ public class gridWindow extends JFrame {
 
     	while(true){
     		
-    		IplImage colorframe = kr.getColorFrame();
     		IplImage depthframe = kr.getDepthFrame();
-    		cvAddWeighted(colorframe, 1.0, depthframe, 0.5, 0.0, Mainimage);
-    		gw.addPanel(PM, Mainimage, 1);
-    		
+    		IplImage colorframe = kr.getColorFrame();
+    		if (depthframe.width() == colorframe.width()) {
+	    		cvAddWeighted(colorframe, 1.0, depthframe, 0.5, 0.0, Mainimage);
+	    		gw.addPanel(PM, Mainimage, 1);
+    		}
     	}
     }
     

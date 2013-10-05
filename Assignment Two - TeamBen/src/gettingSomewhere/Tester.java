@@ -5,14 +5,12 @@ import static com.googlecode.javacv.cpp.opencv_highgui.cvLoadImage;
 import static com.googlecode.javacv.cpp.opencv_highgui.cvShowImage;
 import static com.googlecode.javacv.cpp.opencv_highgui.cvWaitKey;
 import static com.googlecode.javacv.cpp.opencv_imgproc.*;
-import static com.googlecode.javacv.cpp.opencv_imgproc.cvEqualizeHist;
-import static com.googlecode.javacv.cpp.opencv_imgproc.cvGetPerspectiveTransform;
-import static com.googlecode.javacv.cpp.opencv_imgproc.cvWarpPerspective;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
 
+import capture.KinectReader;
 import colorCalibration.*;
 import static com.googlecode.javacv.cpp.opencv_highgui.*;
 import static com.googlecode.javacv.cpp.opencv_imgproc.*;
@@ -34,7 +32,7 @@ public class Tester {
 	public static void main(String[] args) {
 		
 		
-		IplImage colorchartsourceRGB = cvLoadImage("test_images/chart.png");
+//		IplImage colorchartsourceRGB = cvLoadImage("test_images/chart.png");
 		//IplImage colorchartsourceRGB = cvLoadImage("test_images/colorchart.png");
 	//	cvShowImage("original", colorchartsourceRGB);
 		
@@ -58,9 +56,9 @@ public class Tester {
 		//IplImage toDisp = cvCreateImage(cvGetSize(colorchartsourceRGB), IPL_DEPTH_8U, 3);
 		//cvCvtColor(newImage, toDisp, CV_HSV2RGB);
 		
-		IplImage blackimg = cvLoadImage("test_images/black.png");
-    	BlackBalance blackBal = new BlackBalance(blackimg);
-    	CvScalar black = blackBal.getHsvValues();
+	//	IplImage blackimg = cvLoadImage("test_images/black.png");
+  //  	BlackBalance blackBal = new BlackBalance(blackimg);
+  //  	CvScalar black = blackBal.getHsvValues();
     //	System.out.print("BLACK:  "); System.out.println(black);
     	
 		//ColorChart chart = new ColorChart(colorchartsourceRGB, black);
@@ -85,7 +83,7 @@ public class Tester {
 	//	cvCvtColor(sourceImage, trialGray, CV_BGR2GRAY);
 	//	IplImage trial = blobFinder.SkewGrayImage(trialGray, Math.PI/4);
 	//	cvShowImage("skew", trial);
-    	
+ /**   	
     	IplImage trialimg = cvLoadImage("test_images/trialcount_img.png");
     	
     	CvMat mmat = cvCreateMat(3,3,CV_32FC1);
@@ -117,9 +115,23 @@ public class Tester {
 	    //cvShowImage("original", trialimg);
 		cvShowImage("linear", im_out);
 		cvWaitKey(0);
-		
+	*/	
 		//cvReleaseMat(mmat);
 		//cvReleaseImage(im_out);
+    	
+    	
+    	final KinectReader kr = new KinectReader();
+    	kr.Start();
+    	
+    	IplImage colorframe = kr.getColorFrame();
+    	IplImage hires = kr.getHighResImage();
+    	IplImage colorframe2 = kr.getColorFrame();
+    	
+    	cvShowImage("standard", colorframe);
+    	cvShowImage("high res", hires);
+    	cvShowImage("back to standard", colorframe2);
+    	
+		cvWaitKey(0);
 	}
 }
 

@@ -23,7 +23,7 @@ import com.googlecode.javacv.cpp.opencv_core.IplImage;
 public class ImageConverter {
 	
 	float mHistogram[];
-	VideoStream mVideoStream;
+	private VideoStream mVideoStream;
 	
 	public ImageConverter(){
 	}
@@ -83,36 +83,49 @@ public class ImageConverter {
 	public BufferedImage convertD(VideoFrameRef image, VideoStream stream){
 		//TODO read the data as little-endian to get a smooth image
 
-		  int[] packedPixels = new int[image.getWidth() * image.getHeight() * 3];
-			 
-		  ByteBuffer pixels = image.getData().order(ByteOrder.LITTLE_ENDIAN);
+			mVideoStream = stream;
+		  int[] packedPixels = new int[image.getWidth() * image.getHeight()];
+		  //ByteBuffer pixels = image.getData();
 		  
-  
-	        int bufferInd = 0;
-	        for (int row = 0; row <= image.getHeight() - 1; row++) {
-	            for (int col = 0; col < image.getWidth(); col++) {
-	            	
-	            
-	            	
-	            	//System.out.println(width+" "+height+" "+row+" "+col);
-	            	
-	                int L, M;
-
-	                M = pixels.get(bufferInd++);
-	                L = pixels.get(bufferInd++);
-	                
-	                int index = (row * image.getWidth() + col) *1;
-	                packedPixels[index] = M;
-	                packedPixels[index++] = L;
-
-	                
-	            }
+		  ByteBuffer frameData = image.getData().order(ByteOrder.LITTLE_ENDIAN);
+	        
+	        switch (image.getVideoMode().getPixelFormat())
+	        {
+	            case DEPTH_1_MM:
+	            case DEPTH_100_UM:
+	            case SHIFT_9_2:
+	            case SHIFT_9_3:
+	                calcHist(frameData);
+	                frameData.rewind();
+	                int pos = 0;
+	                while(frameData.remaining() > 0) {
+	                    int depth = (int)frameData.getShort() & 0xFFFF;
+	                    short pixel = (short)mHistogram[depth];
+	                    packedPixels[pos] = 0xFF000000 | (pixel << 16) | (pixel << 8);
+	                    pos++;
+	                }
+	                break;
+	            case RGB888:
+	                pos = 0;
+	                while (frameData.remaining() > 0) {
+	                    int red = (int)frameData.get() & 0xFF;
+	                    int green = (int)frameData.get() & 0xFF;
+	                    int blue = (int)frameData.get() & 0xFF;
+	                    packedPixels[pos] = 0xFF000000 | (red << 16) | (green << 8) | blue;
+	                    pos++;
+	                }
+	                break;
+	                default:
+	                // don't know how to draw
+	            	image.release();
+	            	//image = null;
 	        }
 	        
 	        BufferedImage img = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_RGB);
 	       // WritableRaster wr = img.getRaster();
 	        //wr.setPixels(0, 0, image.getWidth(), image.getHeight(), packedPixels);
 	        img.setRGB(0, 0, image.getWidth(), image.getHeight(), packedPixels, 0, image.getWidth());
+	        
 	        return img;
 		
 	}

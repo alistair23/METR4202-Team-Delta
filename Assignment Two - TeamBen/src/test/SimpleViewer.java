@@ -1,4 +1,4 @@
-package org.openni.Samples.SimpleViewer;
+package test;
 
 import java.awt.*;
 import java.awt.image.*;
