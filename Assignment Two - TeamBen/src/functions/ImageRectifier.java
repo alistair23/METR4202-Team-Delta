@@ -8,9 +8,6 @@ import static com.googlecode.javacv.cpp.opencv_core.cvGetSize;
 import static com.googlecode.javacv.cpp.opencv_core.cvLine;
 import static com.googlecode.javacv.cpp.opencv_highgui.cvShowImage;
 import static com.googlecode.javacv.cpp.opencv_highgui.cvWaitKey;
-import static com.googlecode.javacv.cpp.opencv_imgproc.CV_BGR2HSV;
-import static com.googlecode.javacv.cpp.opencv_imgproc.CV_RGB2HSV;
-import static com.googlecode.javacv.cpp.opencv_imgproc.CV_RGB2YCrCb;
 import static com.googlecode.javacv.cpp.opencv_imgproc.cvCvtColor;
 import static com.googlecode.javacv.cpp.opencv_core.*;
 import static com.googlecode.javacv.cpp.opencv_imgproc.*;
@@ -39,6 +36,10 @@ public class ImageRectifier {
 	private static CvPoint pt4;
 	
 	private static int pix0, pix1, delta;
+	
+	private CvMat mmat;
+	private CvPoint2D32f c1;
+	private CvPoint2D32f c2;
 	
 	public ImageRectifier(IplImage sourceImage, IplImage depthImage, ArrayList<Integer> depthPickerData) {
 		this.sourceImage = sourceImage;
@@ -141,9 +142,9 @@ public class ImageRectifier {
 		int imgwidth = sourceImage.width();
 		int imgheight = sourceImage.height();
 		
-		CvMat mmat = cvCreateMat(3,3,CV_32FC1);
-	    CvPoint2D32f c1 = new CvPoint2D32f(4);
-	    CvPoint2D32f c2 = new CvPoint2D32f(4);
+		mmat = cvCreateMat(3,3,CV_32FC1);
+	    c1 = new CvPoint2D32f(4);
+	    c2 = new CvPoint2D32f(4);
 
 	    //corner points of the parking place
 	    c1.position(0).put(pt1);
@@ -151,7 +152,8 @@ public class ImageRectifier {
 	    c1.position(2).put(pt3);
 	    c1.position(3).put(pt4);
 	    
-	    double wtoh = ((double)delta)/((double)imgwidth);
+	    //double wtoh = ((double)delta)/((double)imgwidth);
+	    double wtoh = (((double)delta)/1.5)/((double)imgwidth);
 	    int hdelta = (int) (wtoh*((double)imgheight));
 	    
 	    CvPoint topt1 = new CvPoint((int)(imgwidth/2-delta), pix0);
@@ -183,11 +185,35 @@ public class ImageRectifier {
 	    return threechannel;
 	}
 	
+	public IplImage transformDepthImage() {
+		int imgwidth = sourceImage.width();
+		int imgheight = sourceImage.height();
+	    
+	    IplImage im_out =  cvCreateImage(cvSize(imgwidth, imgheight), IPL_DEPTH_8U, depthImage.nChannels());
+	    
+	    cvWarpPerspective(depthImage, im_out, mmat, CV_INTER_LINEAR, CvScalar.ZERO);
+	    
+	    IplImage threechannel = cvCreateImage(cvSize(imgwidth, imgheight), IPL_DEPTH_8U, 3);
+	    cvCvtColor(im_out, threechannel, CV_RGBA2RGB);
+	    
+	    return threechannel;
+	}
+	
+	public IplImage reverseTransform(IplImage inImage)  {
+		int imgwidth = inImage.width();
+		int imgheight = inImage.height();
+		
+		CvMat invmat = cvCreateMat(3,3,CV_32FC1);
+		cvInv(mmat, invmat, CV_LU);
+		
+		IplImage im_out =  cvCreateImage(cvSize(imgwidth, imgheight), IPL_DEPTH_8U, inImage.nChannels());
+		cvWarpPerspective(inImage, im_out, invmat, CV_INTER_LINEAR, CvScalar.ZERO);
+		
+		return im_out;
+	}
+	
 	private static double getPixelValue(IplImage rgbImage, int x, int y) {
-		IplImage hsvImage = cvCreateImage(cvGetSize(rgbImage),8,3);
-		cvCvtColor(rgbImage, hsvImage, CV_RGB2HSV);
-
-		return cvGet2D(hsvImage, y, x).getVal(2);
+		return cvGet2D(rgbImage, y, x).getVal(2);
 	}
 	
 	private static ArrayList<Double> fitToData() {

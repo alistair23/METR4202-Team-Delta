@@ -94,7 +94,7 @@ public class ColorChart {
 		if (chartImage == null) {
 			return false;
 		}
-		cvShowImage("sub image", chartImage);
+		//cvShowImage("sub image", chartImage);
 		
 		ArrayList<CvScalar> goldData = getGoldData(chartImage, blobFinder);
 		if (goldData == null) {

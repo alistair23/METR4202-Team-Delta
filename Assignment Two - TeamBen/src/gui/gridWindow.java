@@ -1,12 +1,10 @@
 package gui;
 
-import static com.googlecode.javacv.cpp.opencv_core.cvCreateImage;
-import static com.googlecode.javacv.cpp.opencv_core.cvGetSize;
+import static com.googlecode.javacv.cpp.opencv_core.*;
 import static com.googlecode.javacv.cpp.opencv_highgui.cvLoadImage;
 import static com.googlecode.javacv.cpp.opencv_highgui.cvShowImage;
 import static com.googlecode.javacv.cpp.opencv_highgui.cvWaitKey;
 import static com.googlecode.javacv.cpp.opencv_imgproc.*;
-import static com.googlecode.javacv.cpp.opencv_imgproc.cvCvtColor;
 
 import java.awt.Component;
 import java.awt.Dimension;
@@ -52,7 +50,7 @@ public class gridWindow extends JFrame {
     GridBagConstraints gc = new GridBagConstraints();
     GridBagLayout g = new GridBagLayout();
     Dimension d = new Dimension(1200, 1000);
-    static boolean imgtype = true;
+//    static boolean imgtype = false;
     final static JTextArea con = new JTextArea();
     
  
@@ -60,7 +58,10 @@ public class gridWindow extends JFrame {
     private static IplImage colorImage;
     private static IplImage depthImage;
     private static CvScalar BLACK = null;
+    private static IplImage rectifiedDepth = null;
     private static IplImage rectifiedImage = null;
+    
+    private static ImageRectifier rectifier = null;
     
     public gridWindow(){
     	
@@ -174,7 +175,7 @@ public class gridWindow extends JFrame {
         				    }
         				    con.append("\n");
         				    
-        				    rectifyImage(gw, P02, P03, s);
+        				    rectifyImage(gw, P02, P03, P04, s);
         				    
         			    } else {
         			    	con.append("Bad selection.\n");
@@ -249,12 +250,34 @@ public class gridWindow extends JFrame {
             public void actionPerformed(ActionEvent e)
             {	
             	if (rectifiedImage == null) {
-            		con.append("Rectify image from depth first!");
-            	} else {
-	            	CoinFinder coinFinder = new CoinFinder(rectifiedImage);
+            		con.append("Finding coins from captured image...");
+            		IplImage grabColorImage = kr.getColorFrame();
+            		IplImage grabDepthImage = kr.getDepthFrame();
+            		IplImage threechannel = cvCreateImage(cvSize(grabColorImage.width(), grabColorImage.height()), IPL_DEPTH_8U, 3);
+            	    cvCvtColor(grabColorImage, threechannel, CV_RGBA2RGB);
+            	    
+            		CoinFinder coinFinder = new CoinFinder(threechannel, grabDepthImage);
 	            	coinFinder.find();
-	            	// ASSUMES THAT A PLATE IS BEING USED!
-	            	// CAN EASILY MODIFY TO BYPASS THIS
+	            	IplImage drawnCoins = coinFinder.getDrawnCoins();
+	            	gw.addPanel(P01, drawnCoins, s);
+	            	
+	            	cvShowImage("found", drawnCoins);  
+	        		cvWaitKey(0);
+            	} else {
+            		con.append("Finding coins from rectified image...");
+	            	CoinFinder coinFinder = new CoinFinder(rectifiedImage, depthImage);
+	            	coinFinder.find();
+	            	IplImage drawnCoins = coinFinder.getDrawnCoins();
+	            	gw.addPanel(P01, drawnCoins, s);
+	            	
+	            	IplImage reverseRect = reverseRectify(drawnCoins);
+	            	gw.addPanel(P09, reverseRect, s);
+	            	
+	            	cvShowImage("drawn", drawnCoins);
+	            	cvShowImage("reversed", reverseRect);
+	        		cvWaitKey(0);
+	            	
+	            	// ASSUMES THAT A WHITE PLATE IS BEING USED!
             	}
             }
         });      
@@ -333,13 +356,11 @@ public class gridWindow extends JFrame {
 			}
     	});
 
-    	while(1==1){
-    		if(imgtype == true){
-    		Mainimage = cc.FindChessboard(kr.getColorFrame());
-    		}else{
-    			Mainimage = kr.getDepthFrame();
-    		}
-    			
+    	while(true){
+    		
+    		IplImage colorframe = kr.getColorFrame();
+    		IplImage depthframe = kr.getDepthFrame();
+    		cvAddWeighted(colorframe, 1.0, depthframe, 0.5, 0.0, Mainimage);
     		gw.addPanel(PM, Mainimage, 1);
     		
     	}
@@ -433,7 +454,7 @@ public class gridWindow extends JFrame {
 		}
 	}
 
-    private static void rectifyImage(gridWindow gw, JPanel P02, JPanel P03, int s) {
+    private static void rectifyImage(gridWindow gw, JPanel P02, JPanel P03, JPanel P04, int s) {
     	
     	if (depthPickerData.isEmpty()) {
     		con.append("Pick a region first!\n");
@@ -442,16 +463,31 @@ public class gridWindow extends JFrame {
         	//IplImage colorImage = cvLoadImage("test_images/trialcount_img.png");
     		//IplImage depthImage = cvLoadImage("test_images/trialcount_depth.png");
         	
-        	ImageRectifier rectifyImage = new ImageRectifier(colorImage, depthImage, depthPickerData);
-    		IplImage trialTable = rectifyImage.drawTableLines();
+    		rectifier = new ImageRectifier(colorImage, depthImage, depthPickerData);
+    		IplImage trialTable = rectifier.drawTableLines();
     		gw.addPanel(P02, trialTable, s);
-    		con.append(rectifyImage.getDepthData().toString());
+    		con.append(rectifier.getDepthData().toString());
     		
-    		rectifiedImage = rectifyImage.transformImage();
+    		rectifiedImage = rectifier.transformImage();
     		gw.addPanel(P03, rectifiedImage, s);
+    		
+    		rectifiedDepth = rectifier.transformDepthImage();
+    		gw.addPanel(P04, rectifiedDepth, s);
     		
     		//cvWaitKey(0);
     	}
+    }
+    
+    private static IplImage reverseRectify(IplImage totrans) {
+    	IplImage reversed = null;
+    	
+    	if (rectifier == null) {
+    		con.append("Cannot reverse without initial rectification.\n");
+    	} else {
+    		reversed = rectifier.reverseTransform(totrans);
+    	}
+    	
+    	return reversed;
     }
 
 	public static BufferedImage resize(BufferedImage image, int width, int height) {

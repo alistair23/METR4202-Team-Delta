@@ -9,6 +9,7 @@ import static com.googlecode.javacv.cpp.opencv_highgui.cvShowImage;
 import static com.googlecode.javacv.cpp.opencv_highgui.cvWaitKey;
 
 import java.util.ArrayList;
+import java.util.TreeMap;
 
 import static com.googlecode.javacv.cpp.opencv_imgproc.*;
 
@@ -22,34 +23,26 @@ import functions.*;
 public class CoinFinder {
 	
 	private IplImage sourceImage;
+	private IplImage depthImage;
+	private IplImage coinsDrawn;
 	
-	public CoinFinder(IplImage sourceImage) {
+	private ArrayList<Float> plateCoord;
+	private ArrayList<Integer> plateRadius;
+	
+	TreeMap<Integer, CvPoint> goldCoinData = new TreeMap<Integer, CvPoint>();
+	TreeMap<Integer, CvPoint> silverCoinData = new TreeMap<Integer, CvPoint>();
+	
+	public CoinFinder(IplImage sourceImage, IplImage depthImage) {
 		this.sourceImage = sourceImage;
+		this.depthImage = depthImage;
 	}
 	
 	public void find() {
 		
-		//IplImage orgImg = sourceImage.clone();
-		//IplImage hsv = IplImage.create( orgImg.width(), orgImg.height(), orgImg.depth(), orgImg.nChannels() );
-		//IplImage hue = IplImage.create( orgImg.width(), orgImg.height(), orgImg.depth(), CV_8UC1 );
-		//IplImage sat = IplImage.create( orgImg.width(), orgImg.height(), orgImg.depth(), CV_8UC1 );
-		//IplImage val = IplImage.create( orgImg.width(), orgImg.height(), orgImg.depth(), CV_8UC1 );
-		//cvCvtColor( orgImg, hsv, CV_BGR2HLS );
-		//cvSplit( hsv, hue, sat, val, null );
-		//cvShowImage("blehhhhh", val);  
-		//cvWaitKey(0);
-		
-		//EdgesAndLines edgeTool = new EdgesAndLines(sourceImage);
-		//IplImage edges = edgeTool.getEdges();
-		//cvShowImage("Edges", edges);  
-		//cvWaitKey(0);
-		
-		
-		//sourceImage = IplImageUtils.equalizeHist(sourceImage,sourceImage);
 		HoughCircles plate = new HoughCircles(sourceImage.clone());
 		plate.runHoughCirclesRGBPlate();
-		ArrayList<Float> plateCoord = plate.getCircleDataList();
-		ArrayList<Integer> plateRadius = plate.getRadiusDataList();
+		plateCoord = plate.getCircleDataList();
+		plateRadius = plate.getRadiusDataList();
 		
 		HoughCircles circles = new HoughCircles(sourceImage.clone());
 		circles.runHoughCirclesRGBCoins();
@@ -82,17 +75,17 @@ public class CoinFinder {
 		}
 	//	System.out.println(coordList);
 		
-		cvShowImage("Identified Circles", tempImage);  
-		cvWaitKey(0);
+//		cvShowImage("Identified Circles", tempImage);  
+//		cvWaitKey(0);
 		
 		//printCoordinates(coordList);
 		//circles.display("Preliminary Circles");
 		
 		ColorDetector colorMod = new ColorDetector(sourceImage.clone());
-		tempImage = sourceImage.clone();
+		coinsDrawn = sourceImage.clone();
 	//	System.out.println("Check gold...");
 		colorMod.hsvThresholdGold();
-		colorMod.display();
+//		colorMod.display();
 		
 		Integer goldCount = 0;
 		int k=0;
@@ -105,11 +98,14 @@ public class CoinFinder {
 			if (isGold) {
 				goldCount++;
 				CvPoint center = cvPointFrom32f(new CvPoint2D32f(x, y));
-				cvCircle(tempImage, center, radius, CvScalar.YELLOW, 1, CV_AA, 0);
+				cvCircle(coinsDrawn, center, radius, CvScalar.YELLOW, 1, CV_AA, 0);
+				goldCoinData.put(radius, center);
 			}
 		}
 	//	System.out.println("Check silver...");
 		colorMod.hsvThresholdSilver();
+//		colorMod.display();
+		
 		Integer silverCount = 0;
 		k=0;
 		for (int i=0; i < radiusList.size(); i++) {
@@ -121,14 +117,41 @@ public class CoinFinder {
 			if (isSilver) {
 				silverCount++;
 				CvPoint center = cvPointFrom32f(new CvPoint2D32f(x, y));
-				cvCircle(tempImage, center, radius, CvScalar.WHITE, 1, CV_AA, 0);
+				cvCircle(coinsDrawn, center, radius, CvScalar.WHITE, 1, CV_AA, 0);
+				silverCoinData.put(radius, center);
 			}
 		}
-		cvShowImage("Coins Identified", tempImage);  
-		cvWaitKey(0);
+//		cvShowImage("Coins Identified", coinsDrawn);  
+//		cvWaitKey(0);
 		
-	//	System.out.print("Gold coins: "+goldCount.toString()+", ");
-	//	System.out.println("Silver coins: "+silverCount.toString());
+//		System.out.print("Gold coins: "+goldCount.toString()+", ");
+//		System.out.println("Silver coins: "+silverCount.toString());
+	}
+	
+	public void determineValues() {
+		
+		for (Integer radius : goldCoinData.keySet()) {
+			// use convertDepth on corresponding depth pixel to get physical distance
+			// transform radius back to original view WITH X ONLY SCALE FACTOR
+			// use physical distance to calculate single pixel distance
+			// calculate physical radius from number of pixels across
+		}
+	}
+	
+	public double convertDepth(double pixVal) {
+		return 1.0 / (pixVal * -0.0030711016 + 3.3309495161);
+	}
+	
+	public TreeMap<Integer, CvPoint> getGoldCoinData() {
+		return goldCoinData;
+	}
+	
+	public TreeMap<Integer, CvPoint> getSilverCoinData() {
+		return silverCoinData;
+	}
+	
+	public IplImage getDrawnCoins() {
+		return coinsDrawn.clone();
 	}
 	
 	private static void printCoordinates(ArrayList<Float> coordList) {
