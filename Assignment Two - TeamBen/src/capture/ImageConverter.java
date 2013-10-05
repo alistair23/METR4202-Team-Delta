@@ -4,38 +4,20 @@ import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import java.awt.image.WritableRaster;
 import java.io.File;
-<<<<<<< HEAD
-=======
 import java.io.FileInputStream;
->>>>>>> Depth Images and Gui revamp
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-<<<<<<< HEAD
-import java.nio.ShortBuffer;
 import java.nio.channels.FileChannel;
-import org.openni.*;
-=======
-import java.nio.channels.FileChannel;
-
->>>>>>> Depth Images and Gui revamp
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-
-import org.openni.PixelFormat;
 import org.openni.VideoFrameRef;
-<<<<<<< HEAD
-import static org.openni.PixelFormat.*;
-import java.awt.image.*;
-=======
 import org.openni.VideoStream;
->>>>>>> Depth Images and Gui revamp
-
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
 public class ImageConverter {
@@ -100,45 +82,7 @@ public class ImageConverter {
 	
 	public BufferedImage convertD(VideoFrameRef image, VideoStream stream){
 		//TODO read the data as little-endian to get a smooth image
-<<<<<<< HEAD
-		mVideoStream = stream;
-		  int[] packedPixels = new int[image.getWidth() * image.getHeight()];
-		  
-		  //ByteBuffer pixels = image.getData();
-		  
-		  ByteBuffer frameData = image.getData().order(ByteOrder.LITTLE_ENDIAN);
-	        
-	        switch (image.getVideoMode().getPixelFormat())
-	        {
-	            case DEPTH_1_MM:
-	            case DEPTH_100_UM:
-	            case SHIFT_9_2:
-	            case SHIFT_9_3:
-	                calcHist(frameData);
-	                frameData.rewind();
-	                int pos = 0;
-	                while(frameData.remaining() > 0) {
-	                    int depth = (int)frameData.getShort() & 0xFFFF;
-	                    short pixel = (short)mHistogram[depth];
-	                    packedPixels[pos] = 0xFF000000 | (pixel << 16) | (pixel << 8);
-	                    pos++;
-	                }
-	                break;
-	            case RGB888:
-	                pos = 0;
-	                while (frameData.remaining() > 0) {
-	                    int red = (int)frameData.get() & 0xFF;
-	                    int green = (int)frameData.get() & 0xFF;
-	                    int blue = (int)frameData.get() & 0xFF;
-	                    packedPixels[pos] = 0xFF000000 | (red << 16) | (green << 8) | blue;
-	                    pos++;
-	                }
-	                break;
-	            default:
-	                // don't know how to draw
-	            	image.release();
-	            	//image = null;
-=======
+
 		  int[] packedPixels = new int[image.getWidth() * image.getHeight() * 3];
 			 
 		  ByteBuffer pixels = image.getData().order(ByteOrder.LITTLE_ENDIAN);
@@ -163,7 +107,6 @@ public class ImageConverter {
 
 	                
 	            }
->>>>>>> Depth Images and Gui revamp
 	        }
 	        
 	        BufferedImage img = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_RGB);
@@ -174,7 +117,6 @@ public class ImageConverter {
 		
 	}
 	
-<<<<<<< HEAD
     private void calcHist(ByteBuffer depthBuffer) {
         // make sure we have enough room
         mHistogram = new float[mVideoStream.getMaxPixelValue()];
@@ -205,7 +147,6 @@ public class ImageConverter {
         }
     }
 	
-=======
 /**	public BufferedImage convertD(ByteBuffer image){
 		//TODO read the data as little-endian to get a smooth image
 		int width = 640;
@@ -243,7 +184,6 @@ public class ImageConverter {
 		
 	}
 	**/
->>>>>>> Depth Images and Gui revamp
 	public IplImage convertD(BufferedImage image){
 		return IplImage.createFrom(image);
 	}
