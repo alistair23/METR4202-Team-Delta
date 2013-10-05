@@ -167,11 +167,7 @@ public class mainWindow extends JFrame {
         tabbedPane.setMnemonicAt(0, KeyEvent.VK_1);
         
         
-        //TODO Populate the Camera calibration panel
-        //mainPanelCalibrator.add(new JLabel(new ImageIcon(resize(mainimg.getBufferedImage(),mainimg.width()/1,mainimg.height()/1))),gc);
-
-        
-        
+        //Populate the Camera calibration panel
         add(mainimg, source, 1);
         add(currentimg, mod, 1);
         
