@@ -76,6 +76,7 @@ tform = cp2tform([241.719226260258,272.387456037515;334.755568581477,270.1365767
 % Transform the grayscale image
 Igft = imtransform(imgrey, tform, 'XYScale', 1);
 Ift = imtransform(im, tform, 'XYScale', 1);
+Idft = imtransform(im_d, tform, 'XYScale', 1);
 
 %% Detect Circles
 min_radius = 11;
@@ -83,7 +84,6 @@ max_radius = 15;
 
 % Detect and show circles
 circles = houghcircles(Igft, min_radius, max_radius, 0.33, 12, 300, 800, 650, 800);
-houghcircles(Igft, min_radius, max_radius, 0.33, 12, 300, 800, 650, 800);
 
 %% Determine the colour of each circle
 for i=1:size(circles, 1)
@@ -106,6 +106,35 @@ for i=1:size(circles, 1)
     end
     circles_colour(i) = 'U';
 end
+
+%% Estimate the value of the money
+num_coins = [0, 0, 0, 0, 0, 0]; %($2, $1, 50c, 20c, 10c, 5c)
+total_value = 0;
+
+for i=1:size(circles, 1)
+    intensity = rgb2hsv(impixel(Idft, circles(i, 1), circles(i, 2)));
+    diameter_of_coin(i) = circles(i, 3) * intensity(3) * circles(i, 4);
+    diameter_of_coin(i) = round((0.000045)*(diameter_of_coin(i)^2) - 0.0897*diameter_of_coin(i) + 61.707);
+    
+    if diameter_of_coin(i) > 22 && diameter_of_coin(i) < 25 && circles_colour(i) == 'G'
+        % $2
+        num_coins(4) = num_coins(4) + 1;
+        total_value = total_value + 0.2;
+    elseif diameter_of_coin(i) > 17 && diameter_of_coin(i) < 22 && circles_colour(i) == 'G'
+        % $1
+        num_coins(2) = num_coins(2) + 1;
+        total_value = total_value + 1;
+    elseif diameter_of_coin(i) > 32 && circles_colour(i) == 'S'
+        % 50c
+        num_coins(3) = num_coins(3) + 1;
+        total_value = total_value + 0.5;
+    elseif diameter_of_coin(i) > 22 && diameter_of_coin(i) < 25 && circles_colour(i) == 'S'
+        % 20c
+        num_coins(4) = num_coins(4) + 1;
+        total_value = total_value + 0.2;
+    end
+end
+fprintf(1,'\nThe Total value of money is: %3.6f \n\n', total_value);
 
 %% Start SIFT
 % [f_im, d_im] = vl_sift(im_gray);
