@@ -59,11 +59,11 @@ function main()
 %% Capture the image of the scene
 %Get a picture from the kinect
 %[photo(:,:,:,i), depth(:,:,:,i)] = capture_image(false, true, 2);
-im = imread('Testing.png');
-im_d = imread('Testing_d.png');
+im = imread('Testing2.png');
+im_d = imread('Testing2_d.png');
 
 % Convert to grey scale
-imgrey = single(rgb2gray(im));
+imgrey = rgb2gray(im);
 
 %% Rectify the Image
 % Select four control points as shown in the figure,
@@ -71,7 +71,8 @@ imgrey = single(rgb2gray(im));
 %cpselect(imgrey, im_d);
 
 % Use the selected points to create a recover the projective transform
-tform = cp2tform([241.719226260258,272.387456037515;334.755568581477,270.136576787808;235.716881594373,342.164712778429;340.757913247362,346.666471277843], [250.722743259086,262.633645955451;330.253810082063,265.634818288394;251.473036342321,332.410902696366;333.254982415006,337.662954279015], 'projective');
+%tform = cp2tform([241.719226260258,272.387456037515;334.755568581477,270.136576787808;235.716881594373,342.164712778429;340.757913247362,346.666471277843], [250.722743259086,262.633645955451;330.253810082063,265.634818288394;251.473036342321,332.410902696366;333.254982415006,337.662954279015], 'projective');
+tform = cp2tform([242.469519343494,285.142438452521;441.297186400938,283.641852286049;452.551582649472,396.936107854631;235.716881594373,396.936107854631], [238.718053927315,288.143610785463;445.798944900352,289.644196951934;454.052168815944,388.682883939039;234.966588511137,390.933763188746], 'projective');
 
 % Transform the grayscale image
 Igft = imtransform(imgrey, tform, 'XYScale', 1);
@@ -79,29 +80,30 @@ Ift = imtransform(im, tform, 'XYScale', 1);
 Idft = imtransform(im_d, tform, 'XYScale', 1);
 
 %% Detect Circles
-min_radius = 11;
-max_radius = 15;
+min_radius = 10;
+max_radius = 35;
 
 % Detect and show circles
-circles = houghcircles(Igft, min_radius, max_radius, 0.33, 12, 300, 800, 650, 800);
+%circles = houghcircles(Igft, min_radius, max_radius, 0.33, 12, 300, 800, 650, 800);
+%houghcircles(Igft, min_radius, max_radius, 0.33, 12, 300, 800, 650, 800);
+
+circles = houghcircles(Igft, min_radius, max_radius, 0.33, 12, 350, 500, 300, 450);
+houghcircles(Igft, min_radius, max_radius, 0.33, 12, 350, 500, 300, 450);
 
 %% Determine the colour of each circle
 for i=1:size(circles, 1)
     circles_RGB(i, :) = impixel(Ift, circles(i, 1), circles(i, 2));
-    if circles_RGB(i, 1) > 40 && circles_RGB(i, 1) < 55
-        if circles_RGB(i, 2) > 30 && circles_RGB(i, 2) < 50
-            if circles_RGB(i, 3) > 15 && circles_RGB(i, 3) < 30
+    circles_hsv(i, :) = rgb2hsv(circles_RGB(i, 1:3));
+    if circles_hsv(i, 1) > 0.05 && circles_hsv(i, 1) < 0.15
+        if circles_hsv(i, 2) > 0.3 && circles_hsv(i, 2) < 0.6
                 circles_colour(i) = 'S';
                 continue;
-            end
         end
     end
-    if circles_RGB(i, 1) > 45 && circles_RGB(i, 1) < 60
-        if circles_RGB(i, 2) > 30 && circles_RGB(i, 2) < 50
-            if circles_RGB(i, 3) > 0 && circles_RGB(i, 3) < 15
+    if circles_hsv(i, 1) > 0.09 && circles_hsv(i, 1) < 0.15
+        if circles_hsv(i, 2) > 0.55 && circles_hsv(i, 2) < 0.93
                 circles_colour(i) = 'G';
                 continue;
-            end
         end
     end
     circles_colour(i) = 'U';
