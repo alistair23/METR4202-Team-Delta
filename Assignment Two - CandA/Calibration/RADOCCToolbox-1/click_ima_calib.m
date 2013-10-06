@@ -1,9 +1,5 @@
 % Cleaned-up version of init_calib.m
 
-
-
-fprintf(1,'\nProcessing image %d...\n',kk);
-
 eval(['I = I_' num2str(kk) ';']);
 
 
@@ -52,7 +48,6 @@ sus=autocrnrst.suspicious;
 if sus
     fprintf('Suspicious...\n');
 else
-    fprintf('Success!!\n');
 end
 wintx=autocrnrst.win;
 winty=autocrnrst.win;

@@ -83,9 +83,6 @@ est_fc = double(~~est_fc);
 est_aspect_ratio = double(~~est_aspect_ratio);
 
 
-
-fprintf(1,'\n');
-
 if ~exist('nx')&~exist('ny'),
     fprintf(1,'WARNING: No image size (nx,ny) available. Setting nx=640 and ny=480. If these are not the right values, change values manually.\n');
     nx = 640;
@@ -141,7 +138,6 @@ if ~est_aspect_ratio,
     fprintf(1,'Aspect ratio not optimized (est_aspect_ratio = 0) -> fc(1)=fc(2). Set est_aspect_ratio to 1 for estimating aspect ratio.\n');
 else
     if isequal(est_fc,[1;1]),
-        fprintf(1,'Aspect ratio optimized (est_aspect_ratio = 1) -> both components of fc are estimated (DEFAULT).\n');
     end;
 end;
 
@@ -167,7 +163,6 @@ if ~center_optim, % In the case where the principal point is not estimated, keep
         fprintf(1,'Note: to set it in the middle of the image, clear variable cc, and run calibration again.\n');
     end;
 else
-    fprintf(1,'Principal point optimized (center_optim=1) - (DEFAULT). To reject principal point, set center_optim=0\n');
 end;
 
 
@@ -177,7 +172,6 @@ if ~center_optim & (est_alpha),
 end;
 
 if ~est_alpha,
-    fprintf(1,'Skew not optimized (est_alpha=0) - (DEFAULT)\n');
     alpha_c = 0;
 else
     fprintf(1,'Skew optimized (est_alpha=1). To disable skew estimation, set est_alpha=0.\n');
@@ -185,18 +179,13 @@ end;
 
 
 if ~prod(double(est_dist)),
-    fprintf(1,'Distortion not fully estimated (defined by the variable est_dist):\n');
     if ~est_dist(1),
-        fprintf(1,'     Second order distortion not estimated (est_dist(1)=0).\n');
     end;
     if ~est_dist(2),
-        fprintf(1,'     Fourth order distortion not estimated (est_dist(2)=0).\n');
     end;
     if ~est_dist(5),
-        fprintf(1,'     Sixth order distortion not estimated (est_dist(5)=0) - (DEFAULT) .\n');
     end;
     if ~prod(double(est_dist(3:4))),
-        fprintf(1,'     Tangential distortion not estimated (est_dist(3:4)~=[1;1]).\n');
     end;
 end;
 
@@ -228,7 +217,6 @@ thresh_cond = 1e6;
 % Initialization of the intrinsic parameters (if necessary)
 
 if ~exist('cc'),
-    fprintf(1,'Initialization of the principal point at the center of the image.\n');
     cc = [(nx-1)/2;(ny-1)/2];
     alpha_smooth = 0.1; % slow convergence
 end;
@@ -260,7 +248,6 @@ end;
 
 if ~exist('fc'),
     % Initialization of the intrinsic parameters:
-    fprintf(1,'Initialization of the intrinsic parameters using the vanishing points of planar patterns.\n')
     init_intrinsic_param; % The right way to go (if quick_init is not active)!
     alpha_smooth = 0.1; % slow convergence
     est_fc = [1;1];
@@ -308,22 +295,15 @@ end;
 
 %-------------------- Main Optimization:
 
-fprintf(1,'\nMain calibration optimization procedure - Number of images: %d\n',length(ind_active));
-
-
 param = init_param;
 change = 1;
 
 iter = 0;
 
-fprintf(1,'Gradient descent iterations: ');
-
 param_list = param;
 
 
 while (change > 1e-9)&(iter < MaxIter),
-    
-    fprintf(1,'%d...',iter+1);
     
     % To speed up: pre-allocate the memory for the Jacobian JJ3.
     % For that, need to compute the total number of points.
@@ -490,14 +470,7 @@ while (change > 1e-9)&(iter < MaxIter),
     
 end;
 
-fprintf(1,'done\n');
-
-
-
 %%%--------------------------- Computation of the error of estimation:
-
-fprintf(1,'Estimation of uncertainties...');
-
 
 check_active_images;
 
@@ -592,16 +565,12 @@ end;
 
 extract_parameters;
 
-fprintf(1,'done\n');
-
-
-fprintf(1,'\n\nCalibration results after optimization (with uncertainties):\n\n');
+fprintf(1,'\nCalibration results after optimization (with uncertainties):\n\n');
 fprintf(1,'Focal Length:          fc = [ %3.5f   %3.5f ] ± [ %3.5f   %3.5f ]\n',[fc;fc_error]);
 fprintf(1,'Principal point:       cc = [ %3.5f   %3.5f ] ± [ %3.5f   %3.5f ]\n',[cc;cc_error]);
 fprintf(1,'Skew:             alpha_c = [ %3.5f ] ± [ %3.5f  ]   => angle of pixel axes = %3.5f ± %3.5f degrees\n',[alpha_c;alpha_c_error],90 - atan(alpha_c)*180/pi,atan(alpha_c_error)*180/pi);
 fprintf(1,'Distortion:            kc = [ %3.5f   %3.5f   %3.5f   %3.5f  %5.5f ] ± [ %3.5f   %3.5f   %3.5f   %3.5f  %5.5f ]\n',[kc;kc_error]);   
 fprintf(1,'Pixel error:          err = [ %3.5f   %3.5f ]\n\n',err_std); 
-fprintf(1,'Note: The numerical errors are approximately three times the standard deviations (for reference).\n\n\n')
 %fprintf(1,'      For accurate (and stable) error estimates, it is recommended to run Calibration once again.\n\n\n')
 
 

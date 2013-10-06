@@ -44,10 +44,6 @@ if ~exist(['x_' num2str(ind_active(1)) ]),
     click_calib;
 end;
 
-
-fprintf(1,'\nInitialization of the intrinsic parameters - Number of images: %d\n',length(ind_active));
-
-
 % Initialize the homographies:
 
 for kk = 1:n_ima,
@@ -180,8 +176,8 @@ kc = k_init;
 alpha_c = alpha_init;
 
 
-fprintf(1,'\n\nCalibration parameters after initialization:\n\n');
-fprintf(1,'Focal Length:          fc = [ %3.5f   %3.5f ]\n',fc);
-fprintf(1,'Principal point:       cc = [ %3.5f   %3.5f ]\n',cc);
-fprintf(1,'Skew:             alpha_c = [ %3.5f ]   => angle of pixel = %3.5f degrees\n',alpha_c,90 - atan(alpha_c)*180/pi);
-fprintf(1,'Distortion:            kc = [ %3.5f   %3.5f   %3.5f   %3.5f   %5.5f ]\n',kc);   
+% fprintf(1,'\n\nCalibration parameters after initialization:\n\n');
+% fprintf(1,'Focal Length:          fc = [ %3.5f   %3.5f ]\n',fc);
+% fprintf(1,'Principal point:       cc = [ %3.5f   %3.5f ]\n',cc);
+% fprintf(1,'Skew:             alpha_c = [ %3.5f ]   => angle of pixel = %3.5f degrees\n',alpha_c,90 - atan(alpha_c)*180/pi);
+% fprintf(1,'Distortion:            kc = [ %3.5f   %3.5f   %3.5f   %3.5f   %5.5f ]\n',kc);   

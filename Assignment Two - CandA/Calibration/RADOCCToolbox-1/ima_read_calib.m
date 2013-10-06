@@ -48,13 +48,7 @@ while (i <= n_ima), % & (~no_image_file),
    	
       ima_name = [calib_name  number_ext '.' format_image];
       
-      if i == ind_active(1),
-         fprintf(1,'Loading image ');
-      end;
-      
       if exist(ima_name),
-         
-         fprintf(1,'%d...',i);
          
          if strcmp(format_image,'pgm')
              Ii = double(loadpgm(ima_name));
@@ -113,9 +107,6 @@ else
         %fprintf(1,'WARNING! Some images were not read properly\n');
      
    end;
-     
-   
-   fprintf(1,'\n');
 
    if size(I_1,1)~=480,
    	small_calib_image = 1;
@@ -134,8 +125,6 @@ else
 	%string_save = 'save calib_data n_ima type_numbering N_slots image_numbers format_image calib_name Hcal Wcal nx ny map small_calib_image';
 
 	%eval(string_save);
-
-	disp('done');
 	%click_calib;
 
 end;

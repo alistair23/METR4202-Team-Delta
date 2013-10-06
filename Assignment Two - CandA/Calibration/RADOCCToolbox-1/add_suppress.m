@@ -30,24 +30,12 @@ ind_active = find(active_images);
    if ~isempty(ind_active),
       
       if length(ind_active) > 2,
-      
-   		for ii = 1:length(ind_active)-2,
-      		
-         	fprintf(1,'%d, ',ind_active(ii));
-         	
-      	end;
-      	
-      	fprintf(1,'%d and %d.',ind_active(end-1),ind_active(end));
          
       else
          
          if length(ind_active) == 2,
             
-            fprintf(1,'%d and %d.',ind_active(end-1),ind_active(end));
-            
          else
-            
-            fprintf(1,'%d.',ind_active(end));
             
          end;
          
@@ -55,16 +43,12 @@ ind_active = find(active_images);
       end;
       
    end;
-      
-      
-   fprintf(1,'\n');
    
    if length(ind_active)==0,
       fprintf(1,'\nYou probably want to add images\n');
       choice = 1;
    else
       if length(ind_active)==n_ima,
-         fprintf(1,'\nYou probably want to suppress images\n');
          choice = 0;
       else
          choice = 2;
@@ -118,21 +102,15 @@ end;
       
    		for ii = 1:length(ind_active)-2,
       		
-         	fprintf(1,'%d, ',ind_active(ii));
          	
       	end;
-      	
-      	fprintf(1,'%d and %d.',ind_active(end-1),ind_active(end));
          
       else
          
          if length(ind_active) == 2,
             
-            fprintf(1,'%d and %d.',ind_active(end-1),ind_active(end));
-            
          else
-            
-            fprintf(1,'%d.',ind_active(end));
+
             
          end;
          
@@ -140,9 +118,6 @@ end;
       end;
       
    end;
-      
-   
-   fprintf(1,'\n\nYou may now run ''Calibration'' to recalibrate based on this new set of images.\n');
    
    
    

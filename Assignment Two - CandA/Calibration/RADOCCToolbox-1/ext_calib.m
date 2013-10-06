@@ -75,25 +75,8 @@ if ishandle(4),
 	figure(4);
    [a,b] = view;
 else
-   figure(4);
    a = 50;
    b = 20;
-end;
-
-
-if show_camera,
-    figure(4);
-    plot3(BASE(1,:),BASE(3,:),-BASE(2,:),'b-','linewidth',2);
-    hold on;
-    plot3(IP(1,:),IP(3,:),-IP(2,:),'r-','linewidth',2);
-    text(6*dX,0,0,'X_c');
-    text(-dX,5*dX,0,'Z_c');
-    text(0,0,-6*dX,'Y_c');
-    text(-dX,-dX,dX,'O_c');
-else
-    figure(4);
-    clf;
-    hold on;
 end;
 
 
@@ -149,16 +132,8 @@ for kk = 1:n_ima,
 		  
 		  %keyboard;
 		  
-		  figure(4);
-		  hhh= mesh(YYx,YYz,-YYy);
-		  set(hhh,'edgecolor',colors(rem(kk-1,6)+1),'linewidth',1); %,'facecolor','none');
 		  %plot3(YY_kk(1,:),YY_kk(3,:),-YY_kk(2,:),['o' colors(rem(kk-1,6)+1)]);
-		  text(uu(1),uu(3),-uu(2),num2str(kk),'fontsize',14,'color',colors(rem(kk-1,6)+1));
-	       else
-		  
-		  figure(4);
-		  plot3(YY_kk(1,:),YY_kk(3,:),-YY_kk(2,:),['.' colors(rem(kk-1,6)+1)]);
-		  text(uu(1),uu(3),-uu(2),num2str(kk),'fontsize',14,'color',colors(rem(kk-1,6)+1));
+           else
 		  
 	       end;
             
@@ -172,24 +147,6 @@ for kk = 1:n_ima,
    
 end;
 
-figure(4);rotate3d on;
-axis('equal');
-title('Extrinsic parameters (camera-centered)');
-%view(60,30);
-view(a,b);
-grid on;
-hold off;
-axis vis3d;
-axis tight;
-set(4,'color',[1 1 1]);
-if ~show_camera,
-    xlabel('X_c');
-    ylabel('Z_c');
-    zlabel('<-- Y_c');
-end;
-
-set(4,'Name','3D','NumberTitle','off');
-
 %fprintf(1,'To generate the complete movie associated to the optimization loop, try: check_convergence;\n');
 
 
@@ -199,26 +156,8 @@ if exist('h_switch2')==1,
     end;
 end;
 
-if n_ima ~= 0,
-    if show_camera,
-        h_switch2 = uicontrol('Parent',4,'Units','normalized', 'Callback','show_camera=0;ext_calib;', 'Position',[1-.30 0.04  .30  .04],'String','Remove camera reference frame','fontsize',8,'fontname','clean','Tag','Pushbutton1');
-    else
-        h_switch2 = uicontrol('Parent',4,'Units','normalized', 'Callback','show_camera=1;ext_calib;', 'Position',[1-.30 0.04  .30  .04],'String','Add camera reference frame','fontsize',8,'fontname','clean','Tag','Pushbutton1');
-    end;
-end;
-
-
-
-
 if exist('h_switch')==1,
     if ishandle(h_switch),
         delete(h_switch);
     end;
 end;
-
-if n_ima ~= 0,
-h_switch = uicontrol('Parent',4,'Units','normalized', 'Callback','ext_calib2', 'Position',[1-.30 0  .30  .04],'String','Switch to world-centered view','fontsize',8,'fontname','clean','Tag','Pushbutton1');
-end;
-
-figure(4);
-rotate3d on;
