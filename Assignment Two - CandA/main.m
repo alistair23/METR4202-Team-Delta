@@ -1,5 +1,5 @@
 function main()
-% %% Start Colour Calibration
+%% Start Colour Calibration
 % 
 % %Get a picture from the kinect
 % %[photo(:,:,:,i), depth(:,:,:,i)] = capture_image(false, true, 1);
@@ -56,29 +56,61 @@ function main()
 % fprintf(1,'                               %3.6f \t %3.6f \t %3.6f\n',Rckk(2,:)');
 % fprintf(1,'                               %3.6f \t %3.6f \t %3.6f ]\n',Rckk(3,:)');
 
-
 %% Capture the image of the scene
 %Get a picture from the kinect
 %[photo(:,:,:,i), depth(:,:,:,i)] = capture_image(false, true, 2);
 im = imread('Testing.png');
 im_d = imread('Testing_d.png');
 
-% im = single(rgb2gray(im));
-% [f_im, d_im] = vl_sift(im);
-% 
-% %% Rectify the Image
-% offset = 0;
-% 
-% for i=1:48
-%    image_depth(i - offset) = im_d(60, i*10);
-%    if image_depth(i - offset) < 100
-%        offset = offset + 1;
-%    end
-% end
-% 
-% gradient = (image_depth(48 - offset) - image_depth(1))/(48 - offset);
+% Convert to grey scale
+imgrey = single(rgb2gray(im));
 
-% %% Check for $2 coin
+%% Rectify the Image
+% Select four control points as shown in the figure,
+% then select File > Export Points to Workspace
+%cpselect(imgrey, im_d);
+
+% Use the selected points to create a recover the projective transform
+tform = cp2tform([241.719226260258,272.387456037515;334.755568581477,270.136576787808;235.716881594373,342.164712778429;340.757913247362,346.666471277843], [250.722743259086,262.633645955451;330.253810082063,265.634818288394;251.473036342321,332.410902696366;333.254982415006,337.662954279015], 'projective');
+
+% Transform the grayscale image
+Igft = imtransform(imgrey, tform, 'XYScale', 1);
+Ift = imtransform(im, tform, 'XYScale', 1);
+
+%% Detect Circles
+min_radius = 11;
+max_radius = 15;
+
+% Detect and show circles
+circles = houghcircles(Igft, min_radius, max_radius, 0.33, 12, 300, 800, 650, 800);
+houghcircles(Igft, min_radius, max_radius, 0.33, 12, 300, 800, 650, 800);
+
+%% Determine the colour of each circle
+for i=1:size(circles, 1)
+    circles_RGB(i, :) = impixel(Ift, circles(i, 1), circles(i, 2));
+    if circles_RGB(i, 1) > 40 && circles_RGB(i, 1) < 55
+        if circles_RGB(i, 2) > 30 && circles_RGB(i, 2) < 50
+            if circles_RGB(i, 3) > 15 && circles_RGB(i, 3) < 30
+                circles_colour(i) = 'S';
+                continue;
+            end
+        end
+    end
+    if circles_RGB(i, 1) > 45 && circles_RGB(i, 1) < 60
+        if circles_RGB(i, 2) > 30 && circles_RGB(i, 2) < 50
+            if circles_RGB(i, 3) > 0 && circles_RGB(i, 3) < 15
+                circles_colour(i) = 'G';
+                continue;
+            end
+        end
+    end
+    circles_colour(i) = 'U';
+end
+
+%% Start SIFT
+% [f_im, d_im] = vl_sift(im_gray);
+
+%% Check for $2 coin
 % [CF_2, CF_2_f, CF_2_d] = sift_training('NoteCalibration/2_C_Front.jpg');
 % [CB_2, CB_2_f, CB_2_d] = sift_training('NoteCalibration/2_C_Back.jpg');
 % 
@@ -90,25 +122,5 @@ im_d = imread('Testing_d.png');
 % [matches, scores] = vl_ubcmatch(d_im, squeeze(CB_2_d), 1.8);
 % [coin_input_points(2,:,:), coin_base_points(2,:,:)] = visualise_sift_matches(im, squeeze(CB_2), f_im, squeeze(CB_2_f), matches );
 
-%%
-
-% Convert to grey scale
-imgrey = rgb2gray(im);
-
-% Select four control points as shown in the figure,
-% then select File > Export Points to Workspace
-cpselect(imgrey, checkerboard);
-
-% Use the selected points to create a recover the projective transform
-tform = cp2tform([0,0; 60,0; 60,60; 0,60], [0,0; 10,0; 10,10; 0,10], 'projective');
-
-% Transform the grayscale image
-Igft = imtransform(imgrey, tform, 'XYScale', 1);
-
-min_radius = 15;
-max_radius = 20;
-
-% Detect and show circles
-houghcircles(Igft, min_radius, max_radius);
 end
 

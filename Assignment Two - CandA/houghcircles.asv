@@ -1,4 +1,4 @@
-function circles = houghcircles(im, minR, maxR, thresh, delta, xmin, xmax, ymin, ymax)
+function circles = houghcircles(im, minR, maxR, thresh, delta)
 %
 % HOUGHCIRCLES detects multiple disks (coins) in an image using Hough
 % Transform. The image contains separating, touching, or overlapping
@@ -110,6 +110,20 @@ for radius = minR:maxR   % Loop from minimal to maximal radius
   circles = [circles; [x-maxR, y-maxR, radius*ones(length(x),1), count/twoPiR]];
 end
 
+for i=1:size(circles, 1)
+    %Iterate through the x
+    if circles(i, 1) < 300 || circles(i, 1) > 800
+            circles(i, :) = [];
+    end
+end
+
+for i=1:size(circles, 1)
+    %Iterate through the x
+    if circles(i, 1) < 300 || circles(i, 1) > 800
+            circles(i, :) = [];
+    end
+end
+
 % Delete similar circles
 circles = sortrows(circles,-4);  % Descending sort according to ratio
 i = 1;
@@ -125,24 +139,6 @@ while i<size(circles,1)
   i = i+1;
 end
 
-%Iterate through the x
-offset = 0;
-for i=1:size(circles, 1)
-    if circles(i - offset, 1) < xmin || circles(i - offset, 1) > xmax
-            circles(i - offset, :) = [];
-            offset = offset + 1;
-    end
-end
-
-%Iterate through the y
-offset = 0;
-for i=1:size(circles, 1)
-    if circles(i - offset, 2) < ymin || circles(i - offset, 2) > ymax
-            circles(i - offset, :) = [];
-            offset = offset + 1;
-    end
-end
-
 if nargout==0   % Draw circles
   figure, imshow(origim), hold on;
   for i = 1:size(circles,1)
@@ -153,3 +149,5 @@ if nargout==0   % Draw circles
   end
   hold off;
 end
+
+
