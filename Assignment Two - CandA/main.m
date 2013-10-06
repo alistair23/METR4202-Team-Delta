@@ -88,10 +88,7 @@ max_radius = 35;
 
 % Detect and show circles
 %circles = houghcircles(Igft, min_radius, max_radius, 0.33, 12, 300, 800, 650, 800);
-%houghcircles(Igft, min_radius, max_radius, 0.33, 12, 300, 800, 650, 800);
-
 circles = houghcircles(Igft, min_radius, max_radius, 0.33, 12, 350, 500, 300, 450);
-houghcircles(Igft, min_radius, max_radius, 0.33, 12, 350, 500, 300, 450);
 
 %% Determine the colour of each circle
 for i=1:size(circles, 1)
@@ -109,6 +106,7 @@ for i=1:size(circles, 1)
                 continue;
         end
     end
+    %Can't identify the coin colour
     circles_colour(i) = 'U';
 end
 
@@ -137,6 +135,25 @@ for i=1:size(circles, 1)
         % 20c
         num_coins(4) = num_coins(4) + 1;
         total_value = total_value + 0.2;
+    elseif diameter_of_coin(i) > 14 && diameter_of_coin(i) < 20 && circles_colour(i) == 'S'
+        % 10c
+        num_coins(5) = num_coins(5) + 1;
+        total_value = total_value + 0.1;
+    elseif diameter_of_coin(i) > 10 && diameter_of_coin(i) < 15 && circles_colour(i) == 'S'
+        % 5c
+        num_coins(6) = num_coins(6) + 1;
+        total_value = total_value + 0.05;
+    elseif circles_colour(i) == 'G'
+        % Guess $1 as that seems to be common
+        num_coins(2) = num_coins(2) + 1;
+        total_value = total_value + 1;
+    elseif circles_colour(i) == 'S'
+        % Guess 50c as that seems to be common
+        num_coins(3) = num_coins(3) + 1;
+        total_value = total_value + 0.5;
+    else
+        % Just screwed!
+        printf(1, '\nUnidentified Coin!\n');
     end
 end
 fprintf(1,'\nThe Total value of money is: %3.6f \n\n', total_value);
