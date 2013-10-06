@@ -68,11 +68,12 @@ imgrey = rgb2gray(im);
 %% Rectify the Image
 % Select four control points as shown in the figure,
 % then select File > Export Points to Workspace
-%cpselect(imgrey, im_d);
+%[input_points, output_points] = cpselect(imgrey, im_d, 'Wait', true);
 
 % Use the selected points to create a recover the projective transform
 %tform = cp2tform([241.719226260258,272.387456037515;334.755568581477,270.136576787808;235.716881594373,342.164712778429;340.757913247362,346.666471277843], [250.722743259086,262.633645955451;330.253810082063,265.634818288394;251.473036342321,332.410902696366;333.254982415006,337.662954279015], 'projective');
 tform = cp2tform([242.469519343494,285.142438452521;441.297186400938,283.641852286049;452.551582649472,396.936107854631;235.716881594373,396.936107854631], [238.718053927315,288.143610785463;445.798944900352,289.644196951934;454.052168815944,388.682883939039;234.966588511137,390.933763188746], 'projective');
+%tform = cp2tform(input_points, output_points, 'projective');
 
 % Transform the grayscale image
 Igft = imtransform(imgrey, tform, 'XYScale', 1);
@@ -115,22 +116,22 @@ total_value = 0;
 
 for i=1:size(circles, 1)
     intensity = rgb2hsv(impixel(Idft, circles(i, 1), circles(i, 2)));
-    diameter_of_coin(i) = circles(i, 3) * intensity(3) * circles(i, 4);
-    diameter_of_coin(i) = round((0.000045)*(diameter_of_coin(i)^2) - 0.0897*diameter_of_coin(i) + 61.707);
+    diameter_of_coin(i) = circles(i, 3) * intensity(3);
+    diameter_of_coin(i) = round(6.792 * exp(0.0006 * diameter_of_coin(i)));
     
-    if diameter_of_coin(i) > 22 && diameter_of_coin(i) < 25 && circles_colour(i) == 'G'
+    if diameter_of_coin(i) < 20 && circles_colour(i) == 'G'
         % $2
-        num_coins(4) = num_coins(4) + 1;
-        total_value = total_value + 0.2;
-    elseif diameter_of_coin(i) > 17 && diameter_of_coin(i) < 22 && circles_colour(i) == 'G'
+        num_coins(1) = num_coins(1) + 1;
+        total_value = total_value + 2;
+    elseif diameter_of_coin(i) > 19 && circles_colour(i) == 'G'
         % $1
         num_coins(2) = num_coins(2) + 1;
         total_value = total_value + 1;
-    elseif diameter_of_coin(i) > 32 && circles_colour(i) == 'S'
+    elseif diameter_of_coin(i) > 29 && circles_colour(i) == 'S'
         % 50c
         num_coins(3) = num_coins(3) + 1;
         total_value = total_value + 0.5;
-    elseif diameter_of_coin(i) > 22 && diameter_of_coin(i) < 25 && circles_colour(i) == 'S'
+    elseif diameter_of_coin(i) > 24 && diameter_of_coin(i) < 29 && circles_colour(i) == 'S'
         % 20c
         num_coins(4) = num_coins(4) + 1;
         total_value = total_value + 0.2;
