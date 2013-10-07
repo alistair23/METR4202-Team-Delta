@@ -1,4 +1,4 @@
-function [ RGB, HSV, lab ] = ColourCalibration( picture )
+function [ RGB, HSV, lab ] = ColourCalibrationGold( picture )
 im = imread(picture);
 
 %Crop the region of the colourchecker

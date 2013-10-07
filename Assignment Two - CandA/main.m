@@ -1,6 +1,5 @@
 function main()
 %% Start Colour Calibration
-
 % %Get a picture from the kinect
 % %[photo(:,:,:,i), depth(:,:,:,i)] = capture_image(false, true, 30);
 % %im = imread('ColourPhoto.png');
@@ -60,7 +59,7 @@ function main()
 
 %% Capture the image of the scene
 %Get a picture from the kinect
-%[photo(:,:,:,i), depth(:,:,:,i)] = capture_image(false, true, 2);
+%[photo(:,:,:,i), depth(:,:,:,i)] = capture_image(false, true, 40);
 im = imread('Testing2.png');
 im_d = imread('Testing2_d.png');
 
