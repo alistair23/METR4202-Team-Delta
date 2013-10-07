@@ -62,9 +62,11 @@ public class gridWindow extends JFrame {
     private static IplImage rectifiedImage = null;
     
     private static ImageRectifier rectifier = null;
-    
+    final static KinectReader kr = new KinectReader();
+	
     public gridWindow(){
-    	
+
+
     	this.setLayout(g);
         this.setVisible(true);
         this.setSize(d);
@@ -72,9 +74,7 @@ public class gridWindow extends JFrame {
     
     public static void main(String[] args) {
     	final gridWindow gw = new gridWindow();
-        final KinectReader kr = new KinectReader();
-    	
-    	kr.Start();
+
 		
 		IplImage Mainimage = kr.getColorFrame();
 		IplImage image = cvLoadImage("test_images/ti.png");
@@ -189,6 +189,7 @@ public class gridWindow extends JFrame {
     			//for(int i = 0; cc.SampleAt < cc.Samples; i++){
     				IplImage image = kr.getColorFrame();
     				cc.addToCalibration(image);
+    				
     				
     				
     				//gw.addPanel(PM, cc.FindChessboard(image), 1);

@@ -42,8 +42,8 @@ public class ImageRectifier {
 	private CvPoint2D32f c2;
 	
 	public ImageRectifier(IplImage sourceImage, IplImage depthImage, ArrayList<Integer> depthPickerData) {
-		this.sourceImage = sourceImage;
-		this.depthImage = depthImage;
+		this.sourceImage = sourceImage.clone();
+		this.depthImage = depthImage.clone();
 		this.depthPickerData = depthPickerData;
 		
 		//IplImage depthImageHSV = cvCreateImage(cvGetSize(depthImage),8,3);
@@ -67,7 +67,7 @@ public class ImageRectifier {
 		return depthData;
 	}
 	
-	public static IplImage drawTableLines() {
+	public  IplImage drawTableLines() {
 		
 		int xMin = depthPickerData.get(0); int width = depthPickerData.get(2);
 		int yMin = depthPickerData.get(1); int height = depthPickerData.get(3);

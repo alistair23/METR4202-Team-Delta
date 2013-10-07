@@ -11,8 +11,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
-import static com.googlecode.javacv.cpp.opencv_highgui.cvShowImage;
-import static com.googlecode.javacv.cpp.opencv_highgui.cvWaitKey;
+import junk.SimpleViewer;
 import static org.openni.PixelFormat.*;
 
 import org.openni.Device;
@@ -55,7 +54,7 @@ import com.googlecode.javacv.cpp.opencv_core.IplImage;
  
  */
 
-public class KinectReader implements KeyListener {
+public class KinectReader {
 
 	private Device device;
 	private VideoStream Cstream;
@@ -67,11 +66,14 @@ public class KinectReader implements KeyListener {
 	BufferedImage DBuffer;
 	VideoFrameRef Cframe;
 	VideoFrameRef Dframe;
-	private SimpleViewer viewer;
-	private SimpleViewer viewer2;
+
 	int imageindex = 0;
 	
 	ImageConverter ic = new ImageConverter();
+	
+	public KinectReader(){
+		this.Start();
+	}
 	
 	public void Start(){
 		System.out.println("Starting Kinect");
@@ -102,18 +104,18 @@ public class KinectReader implements KeyListener {
         Cstream.start();
         Dstream.start();
         
-        windowFrame = new JFrame("Lab2 Frame Viewer");
-        windowFrame.setLayout(new GridLayout(0,2));
-        windowFrame.addKeyListener(this);
+        //windowFrame = new JFrame("Lab2 Frame Viewer");
+        //windowFrame.setLayout(new GridLayout(0,2));
+        //windowFrame.addKeyListener(this);
         
-        windowFrame.getContentPane().add(CPanel);
-		windowFrame.getContentPane().add(DPanel);
+        //windowFrame.getContentPane().add(CPanel);
+		//windowFrame.getContentPane().add(DPanel);
   
-		CBuffer = ic.convertRGB(Cstream.readFrame());
-		DBuffer = ic.convertD(Dstream.readFrame(), Dstream);
+		//CBuffer = ic.convertRGB(Cstream.readFrame());
+		//DBuffer = ic.convertD(Dstream.readFrame(), Dstream);
 		
-		CPanel.add(new JLabel(new ImageIcon(CBuffer)));
-		DPanel.add(new JLabel(new ImageIcon(DBuffer)));
+		//CPanel.add(new JLabel(new ImageIcon(CBuffer)));
+		//DPanel.add(new JLabel(new ImageIcon(DBuffer)));
 	
 	}
 	
@@ -156,72 +158,14 @@ public class KinectReader implements KeyListener {
 		return ii;
 	}
 	
-	public void showStreams(){
-		System.out.println("Showing Streams");
-		
-		viewer = new SimpleViewer();
-		viewer.setSize(Cframe.getWidth(),Cframe.getHeight());
-		
-		viewer2 = new SimpleViewer();
-		viewer2.setSize(Dframe.getWidth(),Dframe.getHeight());
-		
-		windowFrame.add(viewer2,0);
-		
-		windowFrame.add(viewer,0);
-		
-		windowFrame.setVisible(true);
-		windowFrame.setSize(1920, 1200);
-		
-		viewer.setStream(Cstream);
-		viewer2.setStream(Dstream);
-		
-		windowFrame.addWindowListener(new java.awt.event.WindowAdapter() {
-		    @Override
-		    public void windowClosing(java.awt.event.WindowEvent windowEvent) {
-		     
-		    	System.out.println("Closing");
-		    	Stop();
-		    	
-		    	System.exit(0);
-		    }
-		});
-	}
+
 	
 	public void getFrames(){
 		getColorFrame();
 		getDepthFrame();
 	}
 	
-	   public void keyPressed(KeyEvent event) {
-	    /**	
-			if(event.getKeyChar() == 'a'){
-	    		getFrames();
-	    		windowFrame.revalidate();
-	    	}else if(event.getKeyChar() == 's'){
-	    		getFrames();
-	    		windowFrame.revalidate();
-	    		ic.savePNG("img-"+imageindex+"-C", Cframe);
-	    		ic.savePNG("img-"+imageindex+"-D", Dframe);
-	    		imageindex++;
-	    	}else if(event.getKeyChar() == 's'){
-				ic.savePNG("img-"+imageindex+"-C", Cframe);
-				ic.savePNG("img-"+imageindex+"-D", Dframe);
-				imageindex++;
-	    	}
-	    	*/
-		}
-
-		
-
-	@Override
-	public void keyReleased(KeyEvent e) {
-		// TODO Auto-generated method stub
-	}
-
-	@Override
-	public void keyTyped(KeyEvent e) {
-		// TODO Auto-generated method stub
-	}
+	
 	
 	public IplImage getHighResImage(){
 		Cstream.destroy();

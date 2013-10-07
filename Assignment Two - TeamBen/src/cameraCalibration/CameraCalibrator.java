@@ -1,7 +1,5 @@
 package cameraCalibration;
 
-import static com.googlecode.javacv.cpp.opencv_highgui.cvLoadImage;
-import static com.googlecode.javacv.cpp.opencv_highgui.cvWaitKey;
 import static com.googlecode.javacv.cpp.opencv_calib3d.CV_CALIB_CB_ADAPTIVE_THRESH;
 import static com.googlecode.javacv.cpp.opencv_calib3d.CV_CALIB_CB_NORMALIZE_IMAGE;
 import static com.googlecode.javacv.cpp.opencv_calib3d.cvCalibrateCamera2;
@@ -11,15 +9,9 @@ import static com.googlecode.javacv.cpp.opencv_core.CV_32SC1;
 import static com.googlecode.javacv.cpp.opencv_core.cvCreateMat;
 import static com.googlecode.javacv.cpp.opencv_core.cvReleaseMat;
 
-import java.io.File;
-
-import capture.KinectReader;
-import colorCalibration.FindCorners;
-
 import com.googlecode.javacv.cpp.opencv_core.CvMat;
 import com.googlecode.javacv.cpp.opencv_core.*;
 
-import static com.googlecode.javacv.cpp.opencv_highgui.cvShowImage;
 import static com.googlecode.javacv.cpp.opencv_imgproc.CV_INTER_LINEAR;
 import static com.googlecode.javacv.cpp.opencv_imgproc.cvInitUndistortMap;
 import static com.googlecode.javacv.cpp.opencv_imgproc.cvRemap;
@@ -44,30 +36,34 @@ import static com.googlecode.javacv.cpp.opencv_core.CV_32FC1;
 public class CameraCalibrator {
 
 	 CvPoint2D32f corners; // stores the position of the checkerboard corners in pixels
-	 CvSize boardSize = new CvSize(7,7);
+	 public CvSize boardSize = new CvSize(5,4);
 	 int pointNumber = boardSize.width()*boardSize.height();
 	 
 	 public int Samples = 13;
 	 public int SampleAt = 0;
 	 
-	 CvMat objectPoints = CvMat.create(pointNumber*Samples,3);
-	 CvMat imagePoints = CvMat.create(pointNumber*Samples,2);
+	 public	 CvMat objectPoints = CvMat.create(pointNumber*Samples,3);
+	 public	 CvMat imagePoints = CvMat.create(pointNumber*Samples,2);
 	 
 	 
-	 CvMat cameraMatrix = CvMat.create(3,3);	
-	 CvMat distCoeffs = CvMat.create(5,1);
-	 CvMat rotVectors = CvMat.create(Samples,3);
-	 CvMat transVectors = CvMat.create(Samples,3);
+public	 CvMat cameraMatrix = CvMat.create(3,3);	
+public	 CvMat distCoeffs = CvMat.create(5,1);
+public	 CvMat rotVectors = CvMat.create(Samples,3);
+public	 CvMat transVectors = CvMat.create(Samples,3);
 			 
-	 CvSize Resolution = new CvSize(640, 480);
-	 CvMat mapx = CvMat.create(Resolution.height(), Resolution.width(), CV_32FC1);
-	 CvMat mapy = CvMat.create(Resolution.height(), Resolution.width(), CV_32FC1);
+public	 CvSize Resolution = new CvSize(640, 480);
+	 public	 CvMat mapx = CvMat.create(Resolution.height(), Resolution.width(), CV_32FC1);
+	 public	 CvMat mapy = CvMat.create(Resolution.height(), Resolution.width(), CV_32FC1);
 
-	Double error;
+	public Double error;
 	public int patternFound;
 		
+	public CameraCalibrator(){
+		setup();
+	}
+	
 	public static void main(String[] args) {
-		
+		/**
 		//Setup the kinect reader
 		KinectReader kr = new KinectReader();
 		kr.Start();
@@ -90,7 +86,7 @@ public class CameraCalibrator {
 		
 		cvShowImage("undistorted", cc.remap(kr.getColorFrame())); 
 		cvWaitKey(0);
-		
+		**/
 		//cc.FindChessboard(image);
 	}
 
@@ -175,7 +171,7 @@ public class CameraCalibrator {
 		
 		
 		System.out.println("Calibrating");
-		double error = cvCalibrateCamera2(objectPoints,imagePoints,	pointCount,	Resolution,cameraMatrix, distCoeffs, null, null, 0);
+		double error = cvCalibrateCamera2(objectPoints,imagePoints,	pointCount,	Resolution,cameraMatrix, distCoeffs, rotVectors, transVectors, 0);
 		cvReleaseMat(pointCount);
 		cvInitUndistortMap(cameraMatrix, distCoeffs, mapx, mapy);
 		this.error = error;
