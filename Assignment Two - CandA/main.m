@@ -58,7 +58,7 @@ function main()
 
 %% Capture the image of the scene
 %Get a picture from the kinect
-capture_image(false, true, 40);
+%capture_image(false, true, 40);
 
 im = imread('CoinPhoto_c.png');
 im_d = imread('CoinPhoto_d.png');
@@ -76,20 +76,24 @@ im_c = imread('Test.png');
 output_circle = houghcircles(im_c, 110, 120, 0.33, 12, 350, 500, 300, 450);
 output_points = [output_circle(1) - output_circle(3), output_circle(2); output_circle(1), output_circle(2) + output_circle(3); output_circle(1) + output_circle(3), output_circle(2); output_circle(1), output_circle(2) - output_circle(3)];
 
-% input_circle = houghcircles(imgrey, 110, 160, 0.2, 30, 350, 500, 300, 450);
-% if size(input_circle, 1) == 1
-%     input_points = [input_circle(1, 1) - input_circle(1, 3), input_circle(1, 2);
-%         input_circle(1, 1), input_circle(1, 2) + input_circle(1, 3);
-%         input_circle(1, 1) + input_circle(1, 3), input_circle(1, 2);
-%         input_circle(1, 1), input_circle(1, 2) - input_circle(1, 3)];
-% else
-%     input_points = [min(input_circle(1, 1), input_circle(2, 1)) - input_circle(1, 3), min(input_circle(1, 2), input_circle(2, 2));
-%         mean(input_circle(1, 1), input_circle(2, 1)), max(input_circle(1, 2) + input_circle(1, 3), input_circle(2, 2) + input_circle(2, 3));
-%         max(input_circle(1, 1) + input_circle(1, 3),input_circle(2, 1) + input_circle(2, 3)), input_circle(1, 2);
-%         mean(input_circle(1, 1), input_circle(2, 1)), min(input_circle(1, 2) - input_circle(1, 3), input_circle(2, 2) - input_circle(2, 3))];
-% end
+input_circle = houghcircles(imgrey, 130, 160, 0.2, 30, 350, 500, 300, 450);
+input_circle = sortrows(input_circle, -3);
+if size(input_circle, 1) ~= 1
+    input_points = [input_circle(1, 1) - input_circle(1, 3), input_circle(1, 2);
+        input_circle(1, 1), input_circle(1, 2) + input_circle(1, 3);
+        input_circle(1, 1) + input_circle(1, 3), input_circle(1, 2);
+        input_circle(1, 1), input_circle(1, 2) - input_circle(1, 3)];
+elseif size(input_circle, 1) == 0
+    input_circle = houghcircles(imgrey, 110, 160, 0.2, 30, 350, 500, 300, 450);
+    input_circle = sortrows(input_circle, -3);
+else
+    input_points = [min(input_circle(1, 1), input_circle(2, 1)) - input_circle(1, 3), min(input_circle(1, 2), input_circle(2, 2));
+        mean(input_circle(1, 1), input_circle(2, 1)), max(input_circle(1, 2) + input_circle(1, 3), input_circle(2, 2) + input_circle(2, 3));
+        max(input_circle(1, 1) + input_circle(1, 3),input_circle(2, 1) + input_circle(2, 3)), input_circle(1, 2);
+        mean(input_circle(1, 1), input_circle(2, 1)), min(input_circle(1, 2) - input_circle(1, 3), input_circle(2, 2) - input_circle(2, 3))];
+end
 
-tform = cp2tform(output_points, output_points, 'projective');
+tform = cp2tform(input_points, output_points, 'projective');
 
 % Transform the grayscale image
 Igft = imtransform(imgrey, tform, 'XYScale', 1);
@@ -97,8 +101,8 @@ Ift = imtransform(im, tform, 'XYScale', 1);
 Idft = imtransform(im_d, tform, 'XYScale', 1);
 
 %% Detect Circles
-min_radius = 10;
-max_radius = 35;
+min_radius = 8;
+max_radius = 20;
 
 % Detect and show circles
 circles = houghcircles(Igft, min_radius, max_radius, 0.4, 30, 350, 500, 300, 450);
@@ -107,15 +111,15 @@ circles = houghcircles(Igft, min_radius, max_radius, 0.4, 30, 350, 500, 300, 450
 for i=1:size(circles, 1)
     circles_RGB(i, :) = impixel(Ift, circles(i, 1), circles(i, 2));
     circles_hsv(i, :) = rgb2hsv(circles_RGB(i, 1:3));
-    if circles_hsv(i, 1) > 0.05 && circles_hsv(i, 1) < 0.15
-        if circles_hsv(i, 2) > 0.3 && circles_hsv(i, 2) < 0.6
-                circles_colour(i) = 'S';
+    if circles_hsv(i, 1) > 0.04 && circles_hsv(i, 1) < 0.17
+        if circles_hsv(i, 2) > 0.28 && circles_hsv(i, 2) < 0.63
+                circles_colour(i) = 'G';
                 continue;
         end
     end
-    if circles_hsv(i, 1) > (0.1484*0.8) && circles_hsv(i, 1) < (0.1484*1.2)
-        if circles_hsv(i, 2) > (0.5079*0.8) && circles_hsv(i, 2) < (0.5079*1.2)
-                circles_colour(i) = 'G';
+    if circles_hsv(i, 1) > (0.1484*0.5) && circles_hsv(i, 1) < (0.1484*1.5)
+        if circles_hsv(i, 2) > (0.5079*0.01) && circles_hsv(i, 2) < (0.5079*0.7)
+                circles_colour(i) = 'S';
                 continue;
         end
     end
@@ -130,7 +134,7 @@ total_value = 0;
 for i=1:size(circles, 1)
     intensity = rgb2hsv(impixel(Idft, circles(i, 1), circles(i, 2)));
     diameter_of_coin(i) = circles(i, 3) * intensity(3);
-    diameter_of_coin(i) = round(6.792 * exp(0.0006 * diameter_of_coin(i)));
+    diameter_of_coin(i) = round((0.0113*diameter_of_coin(i)) - 32.023);
     
     if diameter_of_coin(i) < 20 && circles_colour(i) == 'G'
         % $2
@@ -140,15 +144,15 @@ for i=1:size(circles, 1)
         % $1
         num_coins(2) = num_coins(2) + 1;
         total_value = total_value + 1;
-    elseif diameter_of_coin(i) > 29 && circles_colour(i) == 'S'
+    elseif diameter_of_coin(i) > 31 && circles_colour(i) == 'S'
         % 50c
         num_coins(3) = num_coins(3) + 1;
         total_value = total_value + 0.5;
-    elseif diameter_of_coin(i) > 24 && diameter_of_coin(i) < 29 && circles_colour(i) == 'S'
+    elseif diameter_of_coin(i) > 21 && diameter_of_coin(i) < 32 && circles_colour(i) == 'S'
         % 20c
         num_coins(4) = num_coins(4) + 1;
         total_value = total_value + 0.2;
-    elseif diameter_of_coin(i) > 14 && diameter_of_coin(i) < 20 && circles_colour(i) == 'S'
+    elseif diameter_of_coin(i) > 14 && diameter_of_coin(i) < 22 && circles_colour(i) == 'S'
         % 10c
         num_coins(5) = num_coins(5) + 1;
         total_value = total_value + 0.1;
