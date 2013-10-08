@@ -130,7 +130,47 @@ public class CoinFinder {
 	
 	public void determineValues() {
 		
+		double k1 = 1.1863;
+        double k2 = 2842.5;
+        double k3 = 0.1236;
+		double[] depth_lookup = new double[2048];
+		for (int i=0; i<2048; i++)
+		{
+		        double depth = k3 * Math.tan(i/k2 + k1);
+		        depth_lookup[i] = depth;
+		}
+		
 		for (Integer radius : goldCoinData.keySet()) {
+			CvPoint point = goldCoinData.get(radius);
+			
+			int platerad = plateRadius.get(0);
+			int pointx = point.x(); int pointy = point.y();
+			int avgpix = 0;
+			for (int i = -platerad; i < platerad; i++) {
+				int x = pointx+i;
+				Double pixelInfo = getPixelColor(depthImage, x, pointy).get(2);
+				if (pixelInfo != 0.0) {
+					avgpix += pixelInfo;
+				}
+			}
+			avgpix = (int) (((double)avgpix)/((double)(2*platerad)));
+			
+			System.out.println("Radius: "+radius);
+			System.out.println("Point: "+point.toString());
+			System.out.println("Depth: "+avgpix);
+			//double physicalD = convertDepth(avgpix);
+			//System.out.println("Physical Depth: "+physicalD);
+			double physDepth = depth_lookup[avgpix*2]*1000+40;
+			System.out.println("Physical Depth (mm): "+physDepth);
+			
+			// tan 57/2 = (physwidth/2)/physdepth
+			// pix width = physwidth/imgwidth --> mm/pix
+			
+			double physWidth = 2.0*physDepth*Math.tan(28.5*(Math.PI/180.0));
+			double pixWidth = physWidth/((double)sourceImage.width());
+			System.out.println("Coin diameter (mm): "+pixWidth*radius.doubleValue()*2.0);
+			
+			System.out.println();
 			// use convertDepth on corresponding depth pixel to get physical distance
 			// transform radius back to original view WITH X ONLY SCALE FACTOR
 			// use physical distance to calculate single pixel distance
@@ -140,6 +180,8 @@ public class CoinFinder {
 	
 	public double convertDepth(double pixVal) {
 		return 1.0 / (pixVal * -0.0030711016 + 3.3309495161);
+		//double scaled = (pixVal/255.0)*2047;
+		//return 1.0 / (scaled * -0.0030711016 + 3.3309495161);
 	}
 	
 	public TreeMap<Integer, CvPoint> getGoldCoinData() {
@@ -184,8 +226,8 @@ public class CoinFinder {
 		return whitePixels.compareTo(blackPixels) > 0;
 	}
 	
-	private static ArrayList<Double> getPixelColor(IplImage hsvImage, int x, int y) {
-		CvScalar s=cvGet2D(hsvImage, y, x);                
+	private static ArrayList<Double> getPixelColor(IplImage image, int x, int y) {
+		CvScalar s=cvGet2D(image, y, x);                
 		//System.out.println( "H:"+ s.val(0) + " S:" + s.val(1) + " V:" + s.val(2));//Print values
 		
 		ArrayList<Double> values = new ArrayList<Double>();

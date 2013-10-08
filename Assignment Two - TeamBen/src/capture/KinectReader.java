@@ -168,13 +168,13 @@ public class KinectReader {
 	
 	
 	public IplImage getHighResImage(){
-		Cstream.destroy();
-		Cstream = VideoStream.create(device, SensorType.COLOR);
+		Cstream.stop();
+		//Cstream = VideoStream.create(device, SensorType.COLOR);
 		Cstream.setVideoMode(Cstream.getSensorInfo().getSupportedVideoModes().get(0));
 		Cstream.start();
 		IplImage hires = getColorFrame();
-		Cstream.destroy();
-		Cstream = VideoStream.create(device, SensorType.COLOR);
+		Cstream.stop();
+		//Cstream = VideoStream.create(device, SensorType.COLOR);
 		Cstream.setVideoMode(Cstream.getSensorInfo().getSupportedVideoModes().get(1));
 		Cstream.start();
 		return hires;

@@ -14,7 +14,7 @@ public class PixelColorVisualiser{
 	
 	public static void main (String[] args){
 		
-		final IplImage src = cvLoadImage("test_images/inlab.png");//Images 'test.png' located under resource folder
+		final IplImage src = cvLoadImage("test_images/trialcount_depth.png");
 		cvNamedWindow("Image",CV_WINDOW_AUTOSIZE);
 		final IplImage hsv = cvCreateImage(cvGetSize(src), 8, 3);
 	    cvCvtColor(src, hsv, CV_BGR2HSV);

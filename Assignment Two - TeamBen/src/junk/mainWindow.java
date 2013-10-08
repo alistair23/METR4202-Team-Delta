@@ -78,8 +78,17 @@ public class mainWindow extends JFrame {
     CameraCalibrator cc;
     
     
+<<<<<<< HEAD:Assignment Two - TeamBen/src/junk/mainWindow.java
+=======
+    ConsolePanel con = new ConsolePanel();
+    final KinectReader kr = new KinectReader();
+    CameraCalibrator cc = new CameraCalibrator();
+    
+>>>>>>> coinfinder mod:Assignment Two - TeamBen/src/gui/mainWindow.java
     public mainWindow(){
+    	kr.Start();
     	
+<<<<<<< HEAD:Assignment Two - TeamBen/src/junk/mainWindow.java
 		//try{
 		kr.Start();
 		//} catch (UnsatisfiedLinkError nfe) {
@@ -87,6 +96,9 @@ public class mainWindow extends JFrame {
 		//	haveReader = false;
 		//}
     	
+=======
+    	cc.setup();
+>>>>>>> coinfinder mod:Assignment Two - TeamBen/src/gui/mainWindow.java
     	
     	//set layout
     	this.setLayout(g);
@@ -117,6 +129,10 @@ public class mainWindow extends JFrame {
     		 
             public void actionPerformed(ActionEvent e)
             {
+<<<<<<< HEAD:Assignment Two - TeamBen/src/junk/mainWindow.java
+=======
+            	setImage(kr.getDepthFrame()); 
+>>>>>>> coinfinder mod:Assignment Two - TeamBen/src/gui/mainWindow.java
             	
             	setImage(kr.getColorFrame()); 
             	

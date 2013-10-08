@@ -261,10 +261,13 @@ public class gridWindow extends JFrame {
             		CoinFinder coinFinder = new CoinFinder(threechannel, grabDepthImage);
 	            	coinFinder.find();
 	            	IplImage drawnCoins = coinFinder.getDrawnCoins();
-	            	gw.addPanel(P01, drawnCoins, s);
+	            	//gw.addPanel(P01, drawnCoins, s);
+	            	gw.addPanel(PM, drawnCoins, 1);
 	            	
-	            	cvShowImage("found", drawnCoins);  
-	        		cvWaitKey(0);
+	            	coinFinder.determineValues();
+	            	
+	            	//cvShowImage("found", drawnCoins);  
+	        		//cvWaitKey(0);
             	} else {
             		con.append("Finding coins from rectified image...");
 	            	CoinFinder coinFinder = new CoinFinder(rectifiedImage, depthImage);
@@ -363,7 +366,8 @@ public class gridWindow extends JFrame {
     		IplImage colorframe = kr.getColorFrame();
     		if (depthframe.width() == colorframe.width()) {
 	    		cvAddWeighted(colorframe, 1.0, depthframe, 0.5, 0.0, Mainimage);
-	    		gw.addPanel(PM, Mainimage, 1);
+	    		//gw.addPanel(PM, Mainimage, 1);
+	    		gw.addPanel(P01, Mainimage, s);
     		}
     	}
     }

@@ -120,18 +120,26 @@ public class Tester {
 		//cvReleaseImage(im_out);
     	
     	
-    	final KinectReader kr = new KinectReader();
-    	kr.Start();
-    	
-    	IplImage colorframe = kr.getColorFrame();
-    	IplImage hires = kr.getHighResImage();
-    	IplImage colorframe2 = kr.getColorFrame();
-    	
-    	cvShowImage("standard", colorframe);
-    	cvShowImage("high res", hires);
-    	cvShowImage("back to standard", colorframe2);
-    	
-		cvWaitKey(0);
+		double k1 = 1.1863;
+        double k2 = 2842.5;
+        double k3 = 0.1236;
+        
+		double[] depth_lookup = new double[2048];
+		for (int i=0; i<2048; i++)
+		{
+		        double depth = k3 * Math.tan(i/k2 + k1);
+		        depth_lookup[i] = depth;
+		}
+		
+		double val = 170;
+		int conv = (int) ((val/255.0)*2048.0);
+		System.out.println(conv);
+		System.out.println(depth_lookup[0]);
+		System.out.println(depth_lookup[(int)(val*2)]);
+		
+		// 57 deg hor, 43 vert
+		
+		
 	}
 }
 
