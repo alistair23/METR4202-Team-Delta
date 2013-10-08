@@ -55,7 +55,7 @@ public class BoxNyAR extends JFrame
     super("Box NyARToolkit Example");
 
     // Preload the opencv_objdetect module to work around a known bug.
-    Loader.load(opencv_objdetect.class);
+  //  Loader.load(opencv_objdetect.class);
     
     cameraParams = readCameraParams(PARAMS_FNM);
 
@@ -77,7 +77,7 @@ public class BoxNyAR extends JFrame
         System.exit(0);
       }
     });
-
+    
     setResizable(false);
     pack();  
     setLocationRelativeTo(null);

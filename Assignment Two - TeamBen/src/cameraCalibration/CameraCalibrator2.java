@@ -222,7 +222,7 @@ import com.googlecode.javacv.cpp.opencv_core.IplImage;
 		//
 		int n_boards = 1; // Will be set by input list
 		int board_dt = 90; // Wait 90 frames per chessboard view
-		int board_w = 8;
-		int board_h = 8;
+		int board_w = 5;
+		int board_h = 4;
 	}
 

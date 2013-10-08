@@ -41,10 +41,11 @@ public class ImageRectifier {
 	private CvPoint2D32f c1;
 	private CvPoint2D32f c2;
 	
-	public ImageRectifier(IplImage sourceImage, IplImage depthImage, ArrayList<Integer> depthPickerData) {
+	//public ImageRectifier(IplImage sourceImage, IplImage depthImage, ArrayList<Integer> depthPickerData) {
+	public ImageRectifier(IplImage sourceImage, IplImage depthImage) {
 		this.sourceImage = sourceImage.clone();
 		this.depthImage = depthImage.clone();
-		this.depthPickerData = depthPickerData;
+//		this.depthPickerData = depthPickerData;
 		
 		//IplImage depthImageHSV = cvCreateImage(cvGetSize(depthImage),8,3);
 		//cvCvtColor(depthImage, depthImageHSV, CV_RGB2HSV);
@@ -61,6 +62,25 @@ public class ImageRectifier {
 		
 		//System.out.println(depthImage.nChannels());
 		//System.out.println(depthImage.depth());
+		
+		int gap = 0;
+		int x = 0; int y = 0;
+		for (x = depthImage.width()/2; x < depthImage.width(); x++) {
+			gap = 0;
+			for (y=100; y < depthImage.height(); y++) {
+				if (getPixelValue(depthImage, x, y)==0) {
+					break;
+				}
+				gap++;
+			}
+			if (gap >= 150) {
+				ArrayList<Integer> coords = new ArrayList<Integer>();
+				coords.add(x-10); coords.add(100);
+				coords.add(20); coords.add(y-100);
+				this.depthPickerData = coords;
+				break;
+			}
+		}
 	}
 	
 	public TreeMap<Integer, Integer> getDepthData() {
@@ -188,7 +208,7 @@ public class ImageRectifier {
 	public IplImage transformDepthImage() {
 		int imgwidth = sourceImage.width();
 		int imgheight = sourceImage.height();
-	    
+		
 	    IplImage im_out =  cvCreateImage(cvSize(imgwidth, imgheight), IPL_DEPTH_8U, depthImage.nChannels());
 	    
 	    cvWarpPerspective(depthImage, im_out, mmat, CV_INTER_LINEAR, CvScalar.ZERO);
@@ -236,5 +256,9 @@ public class ImageRectifier {
         //System.out.println(fit);
         
 		return fit;
+	}
+	
+	public CvMat getMatrix() {
+		return mmat;
 	}
 }

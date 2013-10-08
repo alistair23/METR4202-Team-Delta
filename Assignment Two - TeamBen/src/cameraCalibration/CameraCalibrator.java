@@ -39,7 +39,7 @@ public class CameraCalibrator {
 	 public CvSize boardSize = new CvSize(5,4);
 	 int pointNumber = boardSize.width()*boardSize.height();
 	 
-	 public int Samples = 13;
+	 public int Samples = 10;
 	 public int SampleAt = 0;
 	 
 	 public	 CvMat objectPoints = CvMat.create(pointNumber*Samples,3);
@@ -173,6 +173,7 @@ public	 CvSize Resolution = new CvSize(640, 480);
 		System.out.println("Calibrating");
 		double error = cvCalibrateCamera2(objectPoints,imagePoints,	pointCount,	Resolution,cameraMatrix, distCoeffs, rotVectors, transVectors, 0);
 		cvReleaseMat(pointCount);
+		
 		cvInitUndistortMap(cameraMatrix, distCoeffs, mapx, mapy);
 		this.error = error;
 		return error;

@@ -28,7 +28,7 @@ public class AxisLocator {
 
 	  private final String CARCODE_FILE = "patt.kanji";
 
-	  private final double MARKER_SIZE = 0.035; // 35 mm width and height in Java 3D world units
+	  private final double MARKER_SIZE = 0.025; // 32 mm width and height in Java 3D world units
 	  private J3dNyARParam cameraParams;
 	  private final String PARAMS_FNM = "camera_para.dat";
 	  
@@ -48,13 +48,9 @@ public class AxisLocator {
 	    {  System.out.println("Could not read camera parameters from " + PARAMS_FNM);
 	       System.exit(1);
 	    }
-
-		
 		 
 			      try {
 					raster = new NyARBufferedImageRaster(image.getBufferedImage());
-
-
 			      
 			      NyARCode markerInfo = NyARCode.createFromARPattFile(new FileInputStream(CARCODE_FILE),16, 16);
 			      detector = NyARSingleDetectMarker.createInstance(cameraParams, markerInfo, MARKER_SIZE);
@@ -69,24 +65,25 @@ public class AxisLocator {
 		
 	}
 	
-	public static void main(String[] args) {
-		IplImage image = cvLoadImage("test_images/ax.png");
-		AxisLocator al = new AxisLocator(image);
-		al.findAxis(image);
-	}
+//	public static void main(String[] args) {
+//		IplImage image = cvLoadImage("test_images/ax.png");
+//		AxisLocator al = new AxisLocator(image);
+//		al.findAxis(image);
+//	}
 	
 	public void setImage(IplImage image){
 		this.image = image;
 	}
 		
 		
-		 public void findAxis(IplImage img){
+		 public CvMat findAxis(IplImage img){
 		  /* use the detector to update the colored cube's position on the markers */
 		      try {
 				raster.wrapImage(image.getBufferedImage());
 				if (raster.hasBuffer()) {
 
-					boolean foundMarker = detector.detectMarkerLite(raster, 120);
+					boolean foundMarker = detector.detectMarkerLite(raster, 120)
+							&& ((Double)detector.getConfidence()).compareTo(0.4) > 0;
 					
 					if (foundMarker) {
 						detector.getTransmat(transMat);
@@ -112,9 +109,9 @@ public class AxisLocator {
 						matrix.put(1, 3, -transMat.m13);
 						matrix.put(2, 3, transMat.m23);
 						matrix.put(3, 3, 1);
-
-		
+						
 						System.out.println(matrix.toString());
+						return matrix;
 
 					}else{
 						System.out.println("No Marker Found!");
@@ -123,7 +120,8 @@ public class AxisLocator {
 			} catch (NyARException e) {
 				e.printStackTrace();
 			}
-      
+		      
+		      return null;
 		 }  // end of processStimulus()
 	
 

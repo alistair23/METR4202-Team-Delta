@@ -12,5 +12,9 @@
 	<classpathentry kind="lib" path="C:/javacv-bin/javacv-windows-x86_64.jar"/>
 	<classpathentry kind="lib" path="C:/Program Files/OpenNI2/Redist/org.openni.jar"/>
 	<classpathentry kind="lib" path="C:/Program Files/OpenNI2/Tools/org.openni.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Ben/Documents/GitHub/METR4202---Team-Delta/Assignment Two - TeamBen/NyARToolkit.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Ben/Documents/GitHub/METR4202---Team-Delta/Assignment Two - TeamBen/j3d-jre/lib/ext/j3dcore.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Ben/Documents/GitHub/METR4202---Team-Delta/Assignment Two - TeamBen/j3d-jre/lib/ext/j3dutils.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Ben/Documents/GitHub/METR4202---Team-Delta/Assignment Two - TeamBen/j3d-jre/lib/ext/vecmath.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

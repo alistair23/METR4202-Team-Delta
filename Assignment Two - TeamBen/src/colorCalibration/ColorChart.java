@@ -94,7 +94,8 @@ public class ColorChart {
 		if (chartImage == null) {
 			return false;
 		}
-		//cvShowImage("sub image", chartImage);
+	//	cvShowImage("sub image", chartImage);
+	//	cvWaitKey(0);
 		
 		ArrayList<CvScalar> goldData = getGoldData(chartImage, blobFinder);
 		if (goldData == null) {
@@ -173,7 +174,9 @@ public class ColorChart {
 		
 		ArrayList<Integer> blobCent = blobFinder.getCentres();
 		
-		int deltax = chartImage.width()/6;
+		//int deltax = chartImage.width()/6;
+		int xoff = chartImage.roi().xOffset();
+		int deltax = (int) (((double)chartImage.roi().width())/4.0);
 		for (int i=0; i < blobCent.size(); i+=2) {
 			int x = blobCent.get(i);
 			if (x > deltax) {
@@ -217,10 +220,12 @@ public class ColorChart {
 		
 		ArrayList<Integer> blobCent = blobFinder.getCentres();
 		
-		int deltay = chartImage.height()/4;
+	//	int deltay = 2*chartImage.height()/4;
+		int yoff = chartImage.roi().yOffset();
+		int deltay = (int) (3*(((double)chartImage.roi().height())/4.0));
 		for (int i=0; i < blobCent.size(); i+=2) {
 			int y = blobCent.get(i+1);
-			if (y < 2*deltay) {
+			if (y < deltay) {
 				blobCent.remove(i);
 				blobCent.remove(i);
 				i -= 2;

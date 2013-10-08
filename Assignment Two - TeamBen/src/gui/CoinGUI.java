@@ -1,10 +1,6 @@
 package gui;
 
-import static com.googlecode.javacv.cpp.opencv_core.CV_32FC1;
-import static com.googlecode.javacv.cpp.opencv_core.IPL_DEPTH_8U;
-import static com.googlecode.javacv.cpp.opencv_core.cvAddWeighted;
-import static com.googlecode.javacv.cpp.opencv_core.cvCreateImage;
-import static com.googlecode.javacv.cpp.opencv_core.cvSize;
+import static com.googlecode.javacv.cpp.opencv_core.*;
 import static com.googlecode.javacv.cpp.opencv_highgui.cvLoadImage;
 import static com.googlecode.javacv.cpp.opencv_highgui.cvShowImage;
 import static com.googlecode.javacv.cpp.opencv_highgui.cvWaitKey;
@@ -26,6 +22,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.TreeMap;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -90,6 +87,8 @@ public class CoinGUI extends JFrame{
     static IplImage defC;
     static IplImage defD;
     
+    private static CvMat axisMatrix = null;
+    
     
     public CoinGUI(){
   
@@ -100,8 +99,8 @@ public class CoinGUI extends JFrame{
 		
 		final KinectReader kr = new KinectReader();
 		
-		defC = cvLoadImage("test_images/trialcount_img.png");
-		defD = cvLoadImage("test_images/trialcount_depth.png");
+		defC = cvLoadImage("test_images/NOCONTENT.png");
+		defD = cvLoadImage("test_images/NOCONTENT.png");
 		
 		mainI = kr.getColorFrame();
 		currentI = defC;
@@ -162,7 +161,7 @@ public class CoinGUI extends JFrame{
 		w.add(findchess,3,1,1,1,0,0);
 		findchess.setBackground(Color.CYAN);
 		
-		JButton getdepth = new JButton("Pick Depth Data");
+		JButton getdepth = new JButton("NULL");
 		getdepth.setMinimumSize(new Dimension(200,30));
 		w.add(getdepth,4,1,1,1,0,0);
 		getdepth.setBackground(Color.ORANGE);
@@ -172,7 +171,7 @@ public class CoinGUI extends JFrame{
 		w.add(getcoins,5,1,1,1,0,0);
 		getcoins.setBackground(Color.ORANGE);
 		
-		JButton findcoins = new JButton("Find Coins");
+		JButton findcoins = new JButton("NULL");
 		findcoins.setMinimumSize(new Dimension(200,30));
 		w.add(findcoins,0,2,1,1,0,0);
 		findcoins.setBackground(Color.ORANGE);
@@ -291,7 +290,13 @@ public class CoinGUI extends JFrame{
 	    colcal.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e){
         		
-        		if (BLACK != null) {
+            	if (BLACK == null) {
+            		IplImage blkimg = cvLoadImage("test_images/black.png");
+            		BlackBalance blackBal = new BlackBalance(blkimg);
+                	BLACK = blackBal.getHsvValues();
+            	}
+            	
+   //     		if (BLACK != null) {
         			samples.removeAll();
             		samples.add(w.ImagePanel(currentI, 2));
 	        		ColorChart chart = new ColorChart(currentI, BLACK);
@@ -304,17 +309,20 @@ public class CoinGUI extends JFrame{
 		        		con.addln(chart.getColorData());
 	        		}
 	        		w.revalidate();
-        		}
-        		else {
-        			con.addln("Set black first!");
-        		}
+   //     		}
+   //     		else {
+   //     			con.addln("Set black first!");
+   //     		}
             }});   
 
 	    
 	    
 	    camcal.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e){
-            	//currentI = kr.getColorFrame();
+    //			cc.SampleAt = 0;
+    //        	while(cc.SampleAt < cc.Samples) {
+            	
+            	currentI = kr.getColorFrame();
             	
              	 Resolution = cc.Resolution;
             	 
@@ -361,6 +369,8 @@ public class CoinGUI extends JFrame{
 	            	con.addln("Error = "+error);
 	            	cc.SampleAt = 0;
             	}
+            	
+      //      	}
             }});   
 
 	    
@@ -380,12 +390,15 @@ public class CoinGUI extends JFrame{
     
 	    getdepth.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e){
+            	
+            	// ALL DONE AUTO INSIDE RECTIFIER!  =D
+            	
             //	IplImage overlayed = null;
         	//	if (currentDI.width() == currentI.width()) {
     	    //		cvAddWeighted(currentI, 1.0, currentDI, 0.5, 0.0, overlayed);
     	    //		w.ImagePanelUpdate(mainP, overlayed, 1);
         	//	}
- 
+ /**
             	depthPicker.setImage(currentDI);
             	depthPicker.setVisible(true);
             	
@@ -393,12 +406,13 @@ public class CoinGUI extends JFrame{
             	w.setEnabled(false);
             	
             	// RECTIFICATION INITIATED ON WINDOW CLOSE
+*/
             }});   
     
 	    getcoins.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e){
             	if (rectifiedImage == null) {
-            		samples.removeAll();
+       /**     		samples.removeAll();
             		con.add("Finding coins from captured image...");
             		IplImage threechannel = cvCreateImage(cvSize(currentI.width(), currentI.height()), IPL_DEPTH_8U, 3);
             	    cvCvtColor(currentI, threechannel, CV_RGBA2RGB);
@@ -406,18 +420,69 @@ public class CoinGUI extends JFrame{
             		CoinFinder coinFinder = new CoinFinder(threechannel, currentDI);
 	            	coinFinder.find();
 	            	IplImage drawnCoins = coinFinder.getDrawnCoins();
-	            	samples.add(w.ImagePanel(drawnCoins, 4));
-
+	            	//samples.add(w.ImagePanel(drawnCoins, 4));
+	            	w.ImagePanelUpdate(currentP, drawnCoins, 1);
+	            	coinFinder.determineValues();
+		*/			System.out.println("only implemented for rectified image!");
+            		
             	} else {
-            		con.add("Finding coins from rectified image...");
-	            	CoinFinder coinFinder = new CoinFinder(rectifiedImage, depthImage);
+            		con.add("Finding coins from rectified image...\n");
+	            	CoinFinder coinFinder = new CoinFinder(rectifiedImage, depthImage, rectifier.getMatrix());
 	            	coinFinder.find();
 	            	IplImage drawnCoins = coinFinder.getDrawnCoins();
-	            	samples.add(w.ImagePanel(drawnCoins, 2));
-	            	IplImage reverseRect = reverseRectify(drawnCoins);
-	            	samples.add(w.ImagePanel(reverseRect, 2));
+	            	samples.add(w.ImagePanel(drawnCoins, 4));
 	            	
-	            	// ASSUMES THAT A WHITE PLATE IS BEING USED!
+	            	IplImage reverseRect = reverseRectify(drawnCoins);
+	            	w.ImagePanelUpdate(currentP, reverseRect, 1);
+	            	coinFinder.determineValues();
+	            	con.add(coinFinder.getValues().toString()+"\n");
+	            	con.add("Total value: $"+coinFinder.getTotalValue().toString()+"\n");
+	            	
+	            	double relx = axisMatrix.get(0, 3)*1000, rely = axisMatrix.get(1, 3)*1000, relz = axisMatrix.get(2, 3)*1000;
+	            	
+	            	for (TreeMap<Double, ArrayList<Double>> thismap : coinFinder.getCoinLocationData()) {
+	            		Double value = thismap.firstKey();
+	            		System.out.println("Value: "+value);
+	            		ArrayList<Double> trans = thismap.get(value);
+	            		double tx = trans.get(0), ty = trans.get(1), tz = trans.get(2);
+	          //  		System.out.println("Trans wrt camera: ("+tx+", "+ty+", "+tz);
+	            		
+	          //  		System.out.println("Trans wrt origin: ("+(relx+tx)+", "+(rely+ty)+", "+(relz-tz));
+	            	/**	
+	            		CvMat datmat = cvCreateMat(4,1,axisMatrix.type());
+	            		datmat.put(0, tx/100); datmat.put(1, ty/100);
+	            		datmat.put(2, tz/100); datmat.put(3, 0.0);
+	            		System.out.println(datmat);
+	            		
+	            		CvMat outmat = cvCreateMat(4,1,axisMatrix.type());
+	            		outmat.put(0, 0.0); outmat.put(1, 0.0);
+	            		outmat.put(2, 0.0); outmat.put(3, 0.0);
+	            //		System.out.println(outmat);
+	            		
+	            		cvMatMul(axisMatrix, datmat, outmat);
+	            		
+	            		System.out.println(outmat);
+	            	*/
+	            		
+	            		CvMat datmat = cvCreateMat(3,1,axisMatrix.type());
+	            		datmat.put(0, -relx-tx); datmat.put(1, rely-ty); datmat.put(2, relz-tz);
+	            		
+	            		CvMat outmat = cvCreateMat(3,1,axisMatrix.type());
+	            		outmat.put(0, 0.0); outmat.put(1, 0.0); outmat.put(2, 0.0);
+	            //		System.out.println(outmat);
+	            		
+	            		CvMat rotmat = cvCreateMat(3,3,axisMatrix.type());
+	            		for (int i=0; i < 3; i++) {
+	            			for (int k=0; k < 3; k++) {
+	            				rotmat.put(i*3+k, axisMatrix.get(i*4+k));
+	            			}
+	            		}
+	            		
+	            		cvMatMul(rotmat, datmat, outmat);
+	            		System.out.println(relx+", "+rely+", "+relz);
+	            		System.out.println(tx+", "+ty+", "+tz);
+	            	//	System.out.println(outmat);
+	            	}
             	}
             }});   
     
@@ -446,7 +511,7 @@ public class CoinGUI extends JFrame{
 	    
 	    findcoins.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e){
-            		con.add("Finding coins from captured image...");
+     /**       		con.add("Finding coins from captured image...\n");
             		IplImage threechannel = cvCreateImage(cvSize(currentI.width(), currentI.height()), IPL_DEPTH_8U, 3);
             	    cvCvtColor(currentI, threechannel, CV_RGBA2RGB);
             	    
@@ -455,6 +520,7 @@ public class CoinGUI extends JFrame{
 	            	IplImage drawnCoins = coinFinder.getDrawnCoins();
 	            	samples.add(w.ImagePanel(drawnCoins, 4));
 	              	w.ImagePanelUpdate(currentP, drawnCoins, 1);
+	  */            	
             }});   
 
 	    remap.addActionListener(new ActionListener() {
@@ -467,7 +533,13 @@ public class CoinGUI extends JFrame{
 	    findAxis.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e){
             	AxisLocator al = new AxisLocator(currentI);
-            	al.findAxis(currentI);
+            	axisMatrix = al.findAxis(currentI);
+            	if (axisMatrix != null) {
+            		con.add("Axis Matrix:\n");
+            		con.add(axisMatrix.toString());
+            	} else {
+            		con.add("No marker found!\n");
+            	}
             }});   
 	    
 	    w.addWindowListener(new WindowAdapter() {
@@ -485,7 +557,7 @@ public class CoinGUI extends JFrame{
 			
 			mainI = colorframe;
 			
-			//AxisLocator al = new AxisLocator(colorframe);
+		//	AxisLocator al = new AxisLocator(colorframe);
 		//	al.findAxis(colorframe);
 			
     		if (depthframe.width() == colorframe.width()) {
@@ -498,18 +570,19 @@ public class CoinGUI extends JFrame{
 	}
 	
 	   private static void rectifyImage() {
-	    	if (depthPickerData.isEmpty()) {
-	    		con.add("Pick a region first!\n");
-	    	} else {
+	    //	if (depthPickerData.isEmpty()) {
+	    //		con.add("Pick a region first!\n");
+	    //	} else {
 	    		colorImage = currentI;
 	    		depthImage = currentDI;
 	    		
-	    		rectifier = new ImageRectifier(currentI, currentDI, depthPickerData);
+	    		rectifier = new ImageRectifier(currentI, currentDI);
 	    		trialTable = rectifier.drawTableLines();
-	    		con.add(rectifier.getDepthData().toString());
+	//    		con.add(rectifier.getDepthData().toString());
 	    		rectifiedImage = rectifier.transformImage();
 	    		rectifiedDepth = rectifier.transformDepthImage();
-	    	}
+	    		
+	    //	}
 	    }
 	    
 	    private static IplImage reverseRectify(IplImage totrans) {

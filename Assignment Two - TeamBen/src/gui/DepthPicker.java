@@ -1,5 +1,11 @@
 package gui;
 
+import static com.googlecode.javacv.cpp.opencv_core.cvCreateImage;
+import static com.googlecode.javacv.cpp.opencv_core.cvGet2D;
+import static com.googlecode.javacv.cpp.opencv_core.cvGetSize;
+import static com.googlecode.javacv.cpp.opencv_imgproc.cvCanny;
+import static com.googlecode.javacv.cpp.opencv_highgui.*;
+
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -14,10 +20,13 @@ import java.util.List;
 
 import javax.swing.*;
 
+import com.googlecode.javacv.cpp.opencv_core.CvMat;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
 public class DepthPicker extends JFrame	{
 	private Squares squares;
+	private IplImage canny;
+	private IplImage depthImage;
 	
 	public DepthPicker() {
       super("Pick Depth Data Region");
@@ -31,6 +40,10 @@ public class DepthPicker extends JFrame	{
    }
 	
 	public void setImage(IplImage depthImage) {
+		this.depthImage = depthImage;
+		canny = cvCreateImage(cvGetSize(depthImage), depthImage.depth(), 1);
+		cvCanny(depthImage, canny, 30, 100, 3);
+		
 		squares.depthImage = depthImage.getBufferedImage();
 		this.setSize(depthImage.width(), depthImage.height());
 	}
@@ -40,6 +53,7 @@ public class DepthPicker extends JFrame	{
    //}
    
    public ArrayList<Integer> getCoords() {
+	   /**
 	   if (squares.x == 0 || squares.y == 0 ||
 			   squares.width == 0 || squares.height == 0) {
 		   return null;
@@ -49,7 +63,32 @@ public class DepthPicker extends JFrame	{
 		   coords.add(squares.width); coords.add(squares.height);
 		   return coords;
 	   }
+	   */
+	   
+	   int gap = 0;
+	   int x = 0; int y = 0;
+	   for (x = depthImage.width()/2; x < depthImage.width(); x++) {
+		   gap = 0;
+		   for (y=100; y < depthImage.height(); y++) {
+			   if (getPixelValue(depthImage, x, y)==0) {
+				   break;
+			   }
+			   gap++;
+		   }
+		   if (gap >= 100) {
+			   ArrayList<Integer> coords = new ArrayList<Integer>();
+			   coords.add(x-10); coords.add(100);
+			   coords.add(20); coords.add(y-100);
+			   return coords;
+		   }
+	   }
+	   
+	   return null;
    }
+   
+   private static double getPixelValue(IplImage rgbImage, int x, int y) {
+		return cvGet2D(rgbImage, y, x).getVal(2);
+	}
 }
 
 class Squares extends JPanel implements MouseListener{
@@ -132,7 +171,6 @@ class Squares extends JPanel implements MouseListener{
    	}
    	
    	drawRectangle(x, y, width, height);
-   	
    	
    }
 }
