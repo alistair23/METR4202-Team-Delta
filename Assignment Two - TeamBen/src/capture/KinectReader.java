@@ -11,7 +11,6 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
-import junk.SimpleViewer;
 import static org.openni.PixelFormat.*;
 
 import org.openni.Device;

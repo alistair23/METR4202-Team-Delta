@@ -80,7 +80,7 @@ public class Tester {
 		
 		// to rotate image:
 	//	IplImage trialGray = cvCreateImage(cvGetSize(sourceImage), IPL_DEPTH_8U, 1);
-		cvCvtColor(sourceImage, trialGray, CV_BGR2GRAY);
+//		cvCvtColor(sourceImage, trialGray, CV_BGR2GRAY);
 	//	IplImage trial = blobFinder.SkewGrayImage(trialGray, Math.PI/4);
 	//	cvShowImage("skew", trial);
  /**   	

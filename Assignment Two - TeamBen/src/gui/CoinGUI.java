@@ -470,7 +470,11 @@ public class CoinGUI extends JFrame{
             	al.findAxis(currentI);
             }});   
 	    
-
+	    w.addWindowListener(new WindowAdapter() {
+			public void windowClosing(WindowEvent e) {
+				w.exit();
+			}
+    	});
 	    
 		
 
