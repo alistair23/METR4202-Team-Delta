@@ -125,23 +125,23 @@ while i<size(circles,1)
   i = i+1;
 end
 
-%Iterate through the x
-offset = 0;
-for i=1:size(circles, 1)
-    if circles(i - offset, 1) < xmin || circles(i - offset, 1) > xmax
-            circles(i - offset, :) = [];
-            offset = offset + 1;
-    end
-end
-
-%Iterate through the y
-offset = 0;
-for i=1:size(circles, 1)
-    if circles(i - offset, 2) < ymin || circles(i - offset, 2) > ymax
-            circles(i - offset, :) = [];
-            offset = offset + 1;
-    end
-end
+% %Iterate through the x
+% offset = 0;
+% for i=1:size(circles, 1)
+%     if circles(i - offset, 1) < xmin || circles(i - offset, 1) > xmax
+%             circles(i - offset, :) = [];
+%             offset = offset + 1;
+%     end
+% end
+% 
+% %Iterate through the y
+% offset = 0;
+% for i=1:size(circles, 1)
+%     if circles(i - offset, 2) < ymin || circles(i - offset, 2) > ymax
+%             circles(i - offset, :) = [];
+%             offset = offset + 1;
+%     end
+% end
 
 if nargout==0   % Draw circles
   figure, imshow(origim), hold on;
