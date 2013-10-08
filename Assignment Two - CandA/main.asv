@@ -219,7 +219,7 @@ fprintf(1,'\nThe frame pose is: %3i degrees\n\n', round(pose));
 mapped_coins(1, :) = [];
 for i=1:size(mapped_coins)
     mapped_coins(i, 1) = -(mapped_coins(i, 1) + (x_distance/x_scale))*x_scale;
-    mapped_coins(i, 2) = -(mapped_coins(i, 2) + (y_distance/y_scale))*y_scale;
+    mapped_coins(i, 2) = -(mapped_coins(i, 2)  (y_distance/y_scale))*y_scale;
 end
 
 end
