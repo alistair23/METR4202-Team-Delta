@@ -76,18 +76,18 @@ im_c = imread('Test.png');
 output_circle = houghcircles(im_c, 110, 120, 0.33, 12, 350, 500, 300, 450);
 output_points = [output_circle(1) - output_circle(3), output_circle(2); output_circle(1), output_circle(2) + output_circle(3); output_circle(1) + output_circle(3), output_circle(2); output_circle(1), output_circle(2) - output_circle(3)];
 
-input_circle = houghcircles(imgrey, 110, 160, 0.2, 30, 350, 500, 300, 450);
-if size(input_circle, 1) == 1
-    input_points = [input_circle(1, 1) - input_circle(1, 3), input_circle(1, 2);
-        input_circle(1, 1), input_circle(1, 2) + input_circle(1, 3);
-        input_circle(1, 1) + input_circle(1, 3), input_circle(1, 2);
-        input_circle(1, 1), input_circle(1, 2) - input_circle(1, 3)];
-else
-    input_points = [min(input_circle(1, 1), input_circle(2, 1)) - input_circle(1, 3), min(input_circle(1, 2), input_circle(2, 2));
-        mean(input_circle(1, 1), input_circle(2, 1)), max(input_circle(1, 2) + input_circle(1, 3), input_circle(2, 2) + input_circle(2, 3));
-        max(input_circle(1, 1) + input_circle(1, 3),input_circle(2, 1) + input_circle(2, 3)), input_circle(1, 2);
-        mean(input_circle(1, 1), input_circle(2, 1)), min(input_circle(1, 2) - input_circle(1, 3), input_circle(2, 2) - input_circle(2, 3))];
-end
+% input_circle = houghcircles(imgrey, 110, 160, 0.2, 30, 350, 500, 300, 450);
+% if size(input_circle, 1) == 1
+%     input_points = [input_circle(1, 1) - input_circle(1, 3), input_circle(1, 2);
+%         input_circle(1, 1), input_circle(1, 2) + input_circle(1, 3);
+%         input_circle(1, 1) + input_circle(1, 3), input_circle(1, 2);
+%         input_circle(1, 1), input_circle(1, 2) - input_circle(1, 3)];
+% else
+%     input_points = [min(input_circle(1, 1), input_circle(2, 1)) - input_circle(1, 3), min(input_circle(1, 2), input_circle(2, 2));
+%         mean(input_circle(1, 1), input_circle(2, 1)), max(input_circle(1, 2) + input_circle(1, 3), input_circle(2, 2) + input_circle(2, 3));
+%         max(input_circle(1, 1) + input_circle(1, 3),input_circle(2, 1) + input_circle(2, 3)), input_circle(1, 2);
+%         mean(input_circle(1, 1), input_circle(2, 1)), min(input_circle(1, 2) - input_circle(1, 3), input_circle(2, 2) - input_circle(2, 3))];
+% end
 
 tform = cp2tform(output_points, output_points, 'projective');
 
@@ -101,7 +101,7 @@ min_radius = 10;
 max_radius = 35;
 
 % Detect and show circles
-circles = houghcircles(Igft, min_radius, max_radius, 0.33, 12, 350, 500, 300, 450);
+circles = houghcircles(Igft, min_radius, max_radius, 0.4, 30, 350, 500, 300, 450);
 
 %% Determine the colour of each circle
 for i=1:size(circles, 1)
@@ -113,8 +113,8 @@ for i=1:size(circles, 1)
                 continue;
         end
     end
-    if circles_hsv(i, 1) > 0.09 && circles_hsv(i, 1) < 0.15
-        if circles_hsv(i, 2) > 0.55 && circles_hsv(i, 2) < 0.93
+    if circles_hsv(i, 1) > (0.1484*0.8) && circles_hsv(i, 1) < (0.1484*1.2)
+        if circles_hsv(i, 2) > (0.5079*0.8) && circles_hsv(i, 2) < (0.5079*1.2)
                 circles_colour(i) = 'G';
                 continue;
         end
