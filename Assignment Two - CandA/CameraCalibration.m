@@ -1,4 +1,9 @@
 function [ fc, cc, alpha_c, kc, err, transformMat ] = CameraCalibration()
+for i=1:7
+    %Get pictures from the kinect
+    capture_image(false, true, i);
+end
+
 ima_read_calib();
 add_suppress();
 click_calib();

@@ -1,35 +1,13 @@
 function main()
 %% Start Colour Calibration
 %Get a picture from the kinect
-capture_image(false, true, 30);
+%capture_image(false, true, 30);
 im = imread('ColourPhoto.png');
 
-%Crop the region of the colourchecker
-[squaresIm, cropRect] = imcrop(im);
-close;
+[X, C] = CCFind(im);
 
-% Convert chart image to black and white
-gray = rgb2gray(squaresIm);     % Convert to grayscale
-J = histeq(gray);               % Equalize the histogram
-threshold = graythresh(J);      % Threshold
-bw = im2bw(J, threshold);       % Convert to B&W
-
-% Remove white pixels along the border, then dilate and erode to fill in
-% solids.
-bw2 = imclearborder(bw);
-se = strel('square', 25);
-bw2 = imopen(bw2, se);
-
-% Automatically find the centroid of all unique objects in the image.
-labeled = bwlabel(bw2);
-s = regionprops(labeled,'Centroid');
-centroids = cat(1, s.Centroid);
-
-% Use custom algorithm to find missing squares on the chart.
-squareLocations = findAllChartSquares(centroids, squaresIm);
-
-RGB_Yellow = impixel(squaresIm, round(squareLocations{2}(6, 1)), round(squareLocations{2}(6, 2)));
-RGB_Silver = impixel(squaresIm, round(squareLocations{4}(3, 1)), round(squareLocations{4}(3, 2)));
+RGB_Yellow = impixel(im, X(12, 2), X(12, 1));
+RGB_Silver = impixel(im, X(21, 2), X(21, 1));
 
 YCbCr_Yellow = rgb2ycbcr(RGB_Yellow);
 YCbCr_Silver = rgb2ycbcr(RGB_Silver);
@@ -68,10 +46,6 @@ imgrey = rgb2gray(im);
 im_c = imread('Test.png');
  
 %% Rectify the Image
-% Select four control points as shown in the figure,
-% then select File > Export Points to Workspace
-%[input_points, output_points] = cpselect(imgrey, im_c, 'Wait', true);
-
 output_circle = houghcircles(im_c, 110, 120, 0.33, 12, 0, 640, 0, 460);
 output_points = [output_circle(1) - output_circle(3), output_circle(2); output_circle(1), output_circle(2) + output_circle(3); output_circle(1) + output_circle(3), output_circle(2); output_circle(1), output_circle(2) - output_circle(3)];
 
@@ -94,7 +68,7 @@ end
 
 tform = cp2tform(input_points, output_points, 'projective');
 
-% Transform the grayscale image
+% Transform the images
 Igft = imtransform(imgrey, tform, 'XYScale', 1);
 Ift = imtransform(im, tform, 'XYScale', 1);
 Idft = imtransform(im_d, tform, 'XYScale', 1);
@@ -193,7 +167,7 @@ end
 fprintf(1,'\nThe Total value of money is: %3.6f \n\n', total_value);
 
 %% Detect the CalTag
-[wPt, iPt] = caltag( im, 'output1.mat', false );
+[wPt, iPt] = caltag( im, 'CalTag.mat', false );
 intensity = 2048*rgb2hsv(impixel(im_d, iPt(1, 2), iPt(1, 1)))/65535;
 
 for i=1:(size(wPt, 1) - 1)
