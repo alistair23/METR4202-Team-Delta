@@ -52,8 +52,8 @@ public	 CvMat rotVectors = CvMat.create(Samples,3);
 public	 CvMat transVectors = CvMat.create(Samples,3);
 			 
 public	 CvSize Resolution = new CvSize(640, 480);
-	 public	 CvMat mapx = CvMat.create(Resolution.height(), Resolution.width(), CV_32FC1);
-	 public	 CvMat mapy = CvMat.create(Resolution.height(), Resolution.width(), CV_32FC1);
+	 public	 CvMat mapx;// = CvMat.create(Resolution.height(), Resolution.width(), CV_32FC1);
+	 public	 CvMat mapy;// = CvMat.create(Resolution.height(), Resolution.width(), CV_32FC1);
 
 	public Double error;
 	public int patternFound;
@@ -176,6 +176,11 @@ public	 CvSize Resolution = new CvSize(640, 480);
 		
 		cvInitUndistortMap(cameraMatrix, distCoeffs, mapx, mapy);
 		this.error = error;
+		double fx = cameraMatrix.get(0,0);
+		double cx = cameraMatrix.get(2,0);
+		double fy = cameraMatrix.get(1,1);
+		double cy = cameraMatrix.get(2,1);
+		
 		return error;
 	}
 	

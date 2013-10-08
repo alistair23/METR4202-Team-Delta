@@ -448,10 +448,10 @@ public class CoinGUI extends JFrame{
 	          //  		System.out.println("Trans wrt camera: ("+tx+", "+ty+", "+tz);
 	            		
 	          //  		System.out.println("Trans wrt origin: ("+(relx+tx)+", "+(rely+ty)+", "+(relz-tz));
-	            	/**	
+	            		
 	            		CvMat datmat = cvCreateMat(4,1,axisMatrix.type());
-	            		datmat.put(0, tx/100); datmat.put(1, ty/100);
-	            		datmat.put(2, tz/100); datmat.put(3, 0.0);
+	            		datmat.put(0, tx); datmat.put(1, ty);
+	            		datmat.put(2, tz); datmat.put(3, 0.0);
 	            		System.out.println(datmat);
 	            		
 	            		CvMat outmat = cvCreateMat(4,1,axisMatrix.type());
@@ -460,10 +460,13 @@ public class CoinGUI extends JFrame{
 	            //		System.out.println(outmat);
 	            		
 	            		cvMatMul(axisMatrix, datmat, outmat);
+	            		outmat.put(0, outmat.get(0)+tx);
+	            		outmat.put(1, outmat.get(1)+ty);
+	            		outmat.put(2, outmat.get(2)+tz);
 	            		
 	            		System.out.println(outmat);
-	            	*/
-	            		
+	            	
+	            /**		
 	            		CvMat datmat = cvCreateMat(3,1,axisMatrix.type());
 	            		datmat.put(0, -relx-tx); datmat.put(1, rely-ty); datmat.put(2, relz-tz);
 	            		
@@ -479,9 +482,10 @@ public class CoinGUI extends JFrame{
 	            		}
 	            		
 	            		cvMatMul(rotmat, datmat, outmat);
-	            		System.out.println(relx+", "+rely+", "+relz);
-	            		System.out.println(tx+", "+ty+", "+tz);
-	            	//	System.out.println(outmat);
+	            	//	System.out.println(relx+", "+rely+", "+relz);
+	            	//	System.out.println(tx+", "+ty+", "+tz);
+	            		System.out.println(outmat);
+	            */
 	            	}
             	}
             }});   
