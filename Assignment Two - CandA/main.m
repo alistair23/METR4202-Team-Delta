@@ -126,6 +126,7 @@ end
 %% Estimate the value of the money
 num_coins = [0, 0, 0, 0, 0, 0]; %($2, $1, 50c, 20c, 10c, 5c)
 total_value = 0;
+mapped_coins = [0, 0, 0, 0, 0];
 
 for i=1:size(circles, 1)
     intensity = rgb2hsv(impixel(Idft, circles(i, 1), circles(i, 2)));
@@ -136,34 +137,42 @@ for i=1:size(circles, 1)
         % $2
         num_coins(1) = num_coins(1) + 1;
         total_value = total_value + 2;
+        mapped_coins = [mapped_coins, [circles(i, :), 2]];
     elseif diameter_of_coin(i) > 19 && circles_colour(i) == 'G'
         % $1
         num_coins(2) = num_coins(2) + 1;
         total_value = total_value + 1;
+        mapped_coins = [mapped_coins, [circles(i, :), 1]];
     elseif diameter_of_coin(i) > 31 && circles_colour(i) == 'S'
         % 50c
         num_coins(3) = num_coins(3) + 1;
         total_value = total_value + 0.5;
+        mapped_coins = [mapped_coins, [circles(i, :), 0.5]];
     elseif diameter_of_coin(i) > 21 && diameter_of_coin(i) < 32 && circles_colour(i) == 'S'
         % 20c
         num_coins(4) = num_coins(4) + 1;
         total_value = total_value + 0.2;
+        mapped_coins = [mapped_coins, [circles(i, :), 0.2]];
     elseif diameter_of_coin(i) > 14 && diameter_of_coin(i) < 22 && circles_colour(i) == 'S'
         % 10c
         num_coins(5) = num_coins(5) + 1;
         total_value = total_value + 0.1;
+        mapped_coins = [mapped_coins, [circles(i, :), 0.1]];
     elseif diameter_of_coin(i) > 10 && diameter_of_coin(i) < 15 && circles_colour(i) == 'S'
         % 5c
         num_coins(6) = num_coins(6) + 1;
         total_value = total_value + 0.05;
+        mapped_coins = [mapped_coins, [circles(i, :), 0.05]];
     elseif circles_colour(i) == 'G'
         % Guess $1 as that seems to be common
         num_coins(2) = num_coins(2) + 1;
         total_value = total_value + 1;
+        mapped_coins = [mapped_coins, [circles(i, :), 1]];
     elseif circles_colour(i) == 'S'
         % Guess 50c as that seems to be common
         num_coins(3) = num_coins(3) + 1;
         total_value = total_value + 0.5;
+        mapped_coins = [mapped_coins, [circles(i, :), 0.5]];
     else
         % Not a coin
     end
@@ -199,4 +208,12 @@ y_length = -(iPt(13, 1) - iPt(1, 1))*y_scale;
 pose = (acos(5*26/y_length)) * (180/pi())/2;
 
 fprintf(1,'\nThe frame pose is: %3i degrees\n\n', round(pose));
+
+%% Mappying the currency
+% Update the relative locations and convert to metric units
+for i=1:size(mapped_coins)
+    mapped_coins(i, 1) = (mapped_coins(i, 1) - x_distance)*x_scale;
+    mapped_coins(i, 2) = (mapped_coins(i, 2) - y_distance)*y_scale;
+end
+
 end
