@@ -220,6 +220,8 @@ mapped_coins(1, :) = [];
 for i=1:size(mapped_coins)
     mapped_coins(i, 1) = -(mapped_coins(i, 1) + (x_distance/x_scale))*x_scale;
     mapped_coins(i, 2) = -(mapped_coins(i, 2) + (y_distance/y_scale))*y_scale;
+    
+    fprintf(1,'\nThe $%4.2f coin is located at (%3i, %3i)', mapped_coins(i, 5), round(mapped_coins(i, 1)), round(mapped_coins(i, 2)));
 end
 
 end
