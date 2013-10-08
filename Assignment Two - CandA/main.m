@@ -59,6 +59,10 @@ if size(input_circle, 1) ~= 2 && size(input_circle, 1) ~= 0
 elseif size(input_circle, 1) == 0
     input_circle = houghcircles(imgrey, 110, 170, 0.2, 30, 0, 640, 0, 460);
     input_circle = sortrows(input_circle, -3);
+    input_points = [input_circle(1, 1) - input_circle(1, 3), input_circle(1, 2);
+        input_circle(1, 1), input_circle(1, 2) + input_circle(1, 3);
+        input_circle(1, 1) + input_circle(1, 3), input_circle(1, 2);
+        input_circle(1, 1), input_circle(1, 2) - input_circle(1, 3)];
 else
     input_points = [min(input_circle(1, 1), input_circle(2, 1)) - input_circle(1, 3), min(input_circle(1, 2), input_circle(2, 2));
         mean(input_circle(1, 1), input_circle(2, 1)), max(input_circle(1, 2) + input_circle(1, 3), input_circle(2, 2) + input_circle(2, 3));
@@ -189,4 +193,10 @@ y_distance = -(iPt(1, 1) - 240)*y_scale;
 z_distance = -123.6 * tan(intensity(3)/2842.5 +  1.1863) * 2;
 
 fprintf(1,'\nThe camera is: %3i, %3i, %3imm relative to the frame\n\n', round(x_distance), round(y_distance), round(z_distance));
+
+y_length = -(iPt(13, 1) - iPt(1, 1))*y_scale;
+
+pose = (acos(5*26/y_length)) * (180/pi())/2;
+
+fprintf(1,'\nThe frame pose is: %3i degrees\n\n', round(pose));
 end
