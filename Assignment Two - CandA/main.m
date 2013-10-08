@@ -71,17 +71,17 @@ im_c = imread('Test.png');
 %% Rectify the Image
 % Select four control points as shown in the figure,
 % then select File > Export Points to Workspace
-%[input_points, output_points] = cpselect(imgrey, im_c, 'Wait', true);
+[input_points, output_points] = cpselect(imgrey, im_c, 'Wait', true);
 
 % Use the selected points to create a recover the projective transform
 %tform = cp2tform([241.719226260258,272.387456037515;334.755568581477,270.136576787808;235.716881594373,342.164712778429;340.757913247362,346.666471277843], [250.722743259086,262.633645955451;330.253810082063,265.634818288394;251.473036342321,332.410902696366;333.254982415006,337.662954279015], 'projective');
 %tform = cp2tform([242.469519343494,285.142438452521;441.297186400938,283.641852286049;452.551582649472,396.936107854631;235.716881594373,396.936107854631], [238.718053927315,288.143610785463;445.798944900352,289.644196951934;454.052168815944,388.682883939039;234.966588511137,390.933763188746], 'projective');
 
-output_circle = houghcircles(im_c, 110, 120, 0.33, 12, 350, 500, 300, 450);
-output_points = [output_circle(1) - output_circle(3), output_circle(2); output_circle(1), output_circle(2) + output_circle(3); output_circle(1) + output_circle(3), output_circle(2); output_circle(1), output_circle(2) - output_circle(3)];
+%output_circle = houghcircles(im_c, 110, 120, 0.33, 12, 350, 500, 300, 450);
+%output_points = [output_circle(1) - output_circle(3), output_circle(2); output_circle(1), output_circle(2) + output_circle(3); output_circle(1) + output_circle(3), output_circle(2); output_circle(1), output_circle(2) - output_circle(3)];
 
-input_circle = houghcircles(im, 120, 140, 0.33, 12, 350, 500, 300, 450);
-input_points = [input_circle(1) - input_circle(3), input_circle(2); input_circle(1), input_circle(2) + input_circle(3); input_circle(1) + input_circle(3), input_circle(2); input_circle(1), input_circle(2) - input_circle(3)];
+%input_circle = houghcircles(imgrey, 110, 160, 0.2, 30, 350, 500, 300, 450);
+%input_points = [input_circle(1, 1) - input_circle(1, 3), input_circle(1, 2); input_circle(1, 1), input_circle(1, 2) + input_circle(1, 3); input_circle(1, 1) + input_circle(1, 3), input_circle(1, 2); input_circle(1, 1), input_circle(1, 2) - input_circle(1, 3)];
 
 tform = cp2tform(input_points, output_points, 'projective');
 
@@ -95,7 +95,6 @@ min_radius = 10;
 max_radius = 35;
 
 % Detect and show circles
-%circles = houghcircles(Igft, min_radius, max_radius, 0.33, 12, 300, 800, 650, 800);
 circles = houghcircles(Igft, min_radius, max_radius, 0.33, 12, 350, 500, 300, 450);
 
 %% Determine the colour of each circle
@@ -114,7 +113,7 @@ for i=1:size(circles, 1)
                 continue;
         end
     end
-    %Can't identify the coin colour
+    % Can't identify the coin colour
     circles_colour(i) = 'U';
 end
 

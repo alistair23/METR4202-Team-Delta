@@ -78,8 +78,10 @@ im_c = imread('Test.png');
 %tform = cp2tform([242.469519343494,285.142438452521;441.297186400938,283.641852286049;452.551582649472,396.936107854631;235.716881594373,396.936107854631], [238.718053927315,288.143610785463;445.798944900352,289.644196951934;454.052168815944,388.682883939039;234.966588511137,390.933763188746], 'projective');
 
 output_circle = houghcircles(im_c, 110, 120, 0.33, 12, 350, 500, 300, 450);
-output_points = [output_circle(1) - output_circle(3), output_circle
+output_points = [output_circle(1) - output_circle(3), output_circle(2); output_circle(1), output_circle(2) + output_circle(3); output_circle(1) + output_circle(3), output_circle(2); output_circle(1), output_circle(2) - output_circle(3)];
 
+input_circle = houghcircles(imgrey, 110, 160, 0.2, 30, 350, 500, 300, 450);
+input_points = [input_circle(1, 1) - input_circle(1, 3), input_circle(1, 2); input_circle(1, 1), input_circle(1, 2) + input_circle(1, 3); input_circle(1, 1) + input_circle(1, 3), input_circle(1, 2); input_circle(1, 1), input_circle(1, 2) - input_circle(1, 3)];
 
 tform = cp2tform(input_points, output_points, 'projective');
 
@@ -159,7 +161,7 @@ for i=1:size(circles, 1)
         total_value = total_value + 0.5;
     else
         % Just screwed!
-        printf(1, '\nUnidentified Coin!\n');
+        fprintf(1, '\nUnidentified Coin!\n');
     end
 end
 fprintf(1,'\nThe Total value of money is: %3.6f \n\n', total_value);
