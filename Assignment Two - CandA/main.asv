@@ -58,7 +58,7 @@ function main()
 
 %% Capture the image of the scene
 %Get a picture from the kinect
-capture_image(false, true, 40);
+%capture_image(false, true, 40);
  
 im = imread('CoinPhoto_c.png');
 im_d = imread('CoinPhoto_d.png');
@@ -176,5 +176,5 @@ im_c = imread('Test.png');
 
 %% Detect the CalTag
 [wPt, iPt] = caltag( im, 'caltag.mat', false );
-end
+imend
 
