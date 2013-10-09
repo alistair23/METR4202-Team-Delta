@@ -50,7 +50,8 @@ fprintf(1,'                               %3.6f \t %3.6f \t %3.6f ]\n',Rckk(3,:)
 
 % Undistort the image using the camera intrinsics
 [im] = undistort_image_color('CoinPhoto_c', fc, cc, kc, alpha_c);
-[im_d] = undistort_image_color('CoinPhoto_d', fc, cc, kc, alpha_c);
+%[im_d] = undistort_image_color('CoinPhoto_d', fc, cc, kc, alpha_c);
+im_d = imread('CoinPhoto_d.png')';
 
 % Convert to grey scale
 imgrey = rgb2gray(im);
@@ -96,25 +97,25 @@ Idft = imtransform(im_d, tform, 'XYScale', 1);
 %% Detect Circles
 % Set the minimum and maximum radius
 min_radius = 8;
-max_radius = 20;
+max_radius = 18;
 
 % Narrow down the x and y region that is searched
-x_min = min([input_points(1, 1), input_points(2, 1), input_points(3, 1), input_points(4, 1)]) - 50;
+x_min = min([input_points(1, 1), input_points(2, 1), input_points(3, 1), input_points(4, 1)]) - 30;
 if x_min < 0
     x_min = 0;
 end
 
-x_max = max([input_points(1, 1), input_points(2, 1), input_points(3, 1), input_points(4, 1)]) + 50;
+x_max = max([input_points(1, 1), input_points(2, 1), input_points(3, 1), input_points(4, 1)]) + 30;
 if x_max > 640
     x_max = 640;
 end
 
-y_min = min([input_points(1, 2), input_points(2, 2), input_points(3, 2), input_points(4, 2)]) - 50;
+y_min = min([input_points(1, 2), input_points(2, 2), input_points(3, 2), input_points(4, 2)]) - 30;
 if y_min < 0
     y_min = 0;
 end
 
-y_max = max([input_points(1, 2), input_points(2, 2), input_points(3, 2), input_points(4, 2)]) + 50;
+y_max = max([input_points(1, 2), input_points(2, 2), input_points(3, 2), input_points(4, 2)]) + 30;
 if y_max > 480
     y_max = 480;
 end
@@ -131,18 +132,22 @@ for i=1:size(circles, 1)
     circles_hsv(i, :) = rgb2hsv(circles_RGB(i, 1:3));
     
     % Detect silver coins
-    if circles_hsv(i, 1) > 0.04 && circles_hsv(i, 1) < 0.17
-        if circles_hsv(i, 2) > 0.28 && circles_hsv(i, 2) < 0.63
+    if circles_hsv(i, 1) > 0.02 && circles_hsv(i, 1) < 0.99
+        if circles_hsv(i, 2) > 0.28 && circles_hsv(i, 2) < 0.83
+            if circles_hsv(i, 3) < 110
                 circles_colour(i) = 'S';
                 continue;
+            end
         end
     end
     
     % Detect gold coins
-    if circles_hsv(i, 1) > 0.05 && circles_hsv(i, 1) < (0.1484*1.5)
-        if circles_hsv(i, 2) > (0.5079*0.01) && circles_hsv(i, 2) < (0.5079*0.7)
+    if circles_hsv(i, 1) > 0.02 && circles_hsv(i, 1) < 0.25
+        if circles_hsv(i, 2) > (0.8*0.4) && circles_hsv(i, 2) < 0.93
+            if circles_hsv(i, 3) > 109
                 circles_colour(i) = 'G';
                 continue;
+            end
         end
     end
     
@@ -162,7 +167,7 @@ for i=1:size(circles, 1)
     % Use the intensity to determine the diameter of the coin
     diameter_of_coin(i) = circles(i, 3) * intensity(3);
     % The following formula converts the value to mm
-    diameter_of_coin(i) = round((0.0113*diameter_of_coin(i)) - 32.023);
+    diameter_of_coin(i) = round((0.006*diameter_of_coin(i)) + 0.6314); %round((0.0113*diameter_of_coin(i)) - 32.023);
     
     % Check each coin using diameter and colour
     if diameter_of_coin(i) < 20 && circles_colour(i) == 'G'
@@ -175,17 +180,17 @@ for i=1:size(circles, 1)
         num_coins(2) = num_coins(2) + 1;
         total_value = total_value + 1;
         mapped_coins = [mapped_coins; [circles(i, :), 1]];
-    elseif diameter_of_coin(i) > 31 && circles_colour(i) == 'S'
+    elseif diameter_of_coin(i) > 32 && circles_colour(i) == 'S'
         % 50c
         num_coins(3) = num_coins(3) + 1;
         total_value = total_value + 0.5;
         mapped_coins = [mapped_coins; [circles(i, :), 0.5]];
-    elseif diameter_of_coin(i) > 21 && diameter_of_coin(i) < 32 && circles_colour(i) == 'S'
+    elseif diameter_of_coin(i) > 22 && diameter_of_coin(i) < 33 && circles_colour(i) == 'S'
         % 20c
         num_coins(4) = num_coins(4) + 1;
         total_value = total_value + 0.2;
         mapped_coins = [mapped_coins; [circles(i, :), 0.2]];
-    elseif diameter_of_coin(i) > 14 && diameter_of_coin(i) < 22 && circles_colour(i) == 'S'
+    elseif diameter_of_coin(i) > 14 && diameter_of_coin(i) < 23 && circles_colour(i) == 'S'
         % 10c
         num_coins(5) = num_coins(5) + 1;
         total_value = total_value + 0.1;
@@ -215,7 +220,7 @@ fprintf(1,'\nThe Total value of money is: %3.2f \n\n', total_value);
 % Use the CalTag toolbox to find the tag
 [wPt, iPt] = caltag( im, 'CalTag.mat', false );
 % Make sure a tag was detected
-if wPt == []
+if size(wPt, 1) == 0
     fprintf(1, '\nCan not find the tag\n\n');
     return;
 end
@@ -243,7 +248,7 @@ end
 y_distance = -(iPt(1, 1) - 240)*y_scale;
 
 % Use the depth data and a pre-determined formula to find z distance
-z_distance = -123.6 * tan(intensity(3)/2842.5 +  1.1863) * 2;
+z_distance = 123.6 * tan(intensity(3)/2842.5 +  1.1863) * 2;
 
 fprintf(1,'\nThe camera is: %3i, %3i, %3imm relative to the frame\n\n', round(x_distance), round(y_distance), round(z_distance));
 
