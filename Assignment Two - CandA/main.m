@@ -5,7 +5,7 @@
 function main()
 %% Start Colour Calibration
 %Get a picture from the kinect
-%capture_image(false, true, 30);
+capture_image(false, true, 30);
 im = imread('ColourPhoto.png');
 
 % Find the center coords of the colour chart squares
@@ -23,10 +23,12 @@ YCbCr_Silver = rgb2ycbcr(RGB_Silver);
 HSV_Yellow = rgb2hsv(RGB_Yellow);
 HSV_Silver = rgb2hsv(RGB_Silver);
 
+save('variable_backup');
+
 %% Start Intrisic Calibration
 % Get pictures from the kinect
 for i=1:7
-    %capture_image(false, true, i);
+    capture_image(false, true, i);
 end
 
 % Run the RADOCCToolkit to determine the intrisic and extrinsic
@@ -44,9 +46,11 @@ fprintf(1,'Rotation matrix:    Rc_ext = [ %3.6f \t %3.6f \t %3.6f\n',Rckk(1,:)')
 fprintf(1,'                               %3.6f \t %3.6f \t %3.6f\n',Rckk(2,:)');
 fprintf(1,'                               %3.6f \t %3.6f \t %3.6f ]\n',Rckk(3,:)');
 
+save('variable_backup');
+
 %% Capture the image of the scene
 %Get a picture from the kinect
-%capture_image(false, true, 40);
+capture_image(false, true, 40);
 
 % Undistort the image using the camera intrinsics
 [im] = undistort_image_color('CoinPhoto_c', fc, cc, kc, alpha_c);
