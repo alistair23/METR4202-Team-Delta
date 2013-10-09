@@ -16,7 +16,7 @@ public class ColorDetector {
 	// halogen-ish
 	//private static int GOLDCUTOFF = 50;
 	// fluro-ish
-	private static int GOLDCUTOFF = 50;
+	private static int GOLDCUTOFF = 25;
 	
 	public ColorDetector(IplImage sourceImage) {
 		this.sourceImage = sourceImage;
@@ -59,7 +59,8 @@ public class ColorDetector {
 			imgThreshold = cvCreateImage(cvGetSize(sourceImage), 8, 1);
 			// cvScalar : ( H , S , V, A)
 
-			cvInRangeS(imgHSV, cvScalar(5, 50, 0, 0), cvScalar(GOLDCUTOFF, 255, 200, 0), imgThreshold);
+			//cvInRangeS(imgHSV, cvScalar(0, 30, 0, 0), cvScalar(GOLDCUTOFF, 255, 230, 0), imgThreshold);
+			cvInRangeS(imgHSV, cvScalar(0, 70, 0, 0), cvScalar(GOLDCUTOFF, 255, 230, 0), imgThreshold);
 			
 			cvReleaseImage(imgHSV);
 			cvSmooth(imgThreshold, imgThreshold, CV_MEDIAN, 1);
@@ -75,7 +76,8 @@ public class ColorDetector {
 			imgThreshold = cvCreateImage(cvGetSize(sourceImage), 8, 1);
 			// cvScalar : ( H , S , V, A)
 
-			cvInRangeS(imgHSV, cvScalar(0, 0, 0, 0), cvScalar(255, 50, 200, 0), imgThreshold);
+			//cvInRangeS(imgHSV, cvScalar(GOLDCUTOFF, 0, 10, 0), cvScalar(255, 60, 230, 0), imgThreshold);
+			cvInRangeS(imgHSV, cvScalar(0, 0, 0, 0), cvScalar(255, 80, 190, 0), imgThreshold);
 			
 			cvReleaseImage(imgHSV);
 			cvSmooth(imgThreshold, imgThreshold, CV_MEDIAN, 1);

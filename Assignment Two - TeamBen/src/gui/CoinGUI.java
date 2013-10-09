@@ -119,7 +119,7 @@ public class CoinGUI extends JFrame{
 		w.add(run,0,0,1,1,1,0);
 		run.setBackground(Color.GREEN);
 		
-		JButton capc = new JButton("Snap Color!");
+		final JButton capc = new JButton("Snap Color!");
 		capc.setMinimumSize(new Dimension(200,30));
 		w.add(capc,1,0,1,1,1,0);
 		capc.setBackground(Color.GREEN.darker());
@@ -285,13 +285,15 @@ public class CoinGUI extends JFrame{
     
 	    black.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e){
-              	BlackBalance blackBal = new BlackBalance(currentI);
+   /**           	BlackBalance blackBal = new BlackBalance(currentI);
             	BLACK = blackBal.getHsvValues();
             	con.addln("Black Set.");
+    */
             }});   
 
 	    colcal.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e){
+        		capc.doClick();
         		
             	if (BLACK == null) {
             		IplImage blkimg = cvLoadImage("test_images/black.png");
@@ -458,8 +460,13 @@ public class CoinGUI extends JFrame{
 		*/			System.out.println("only implemented for rectified image!");
             		
             	} else {
-            		con.add("Finding coins from rectified image...\n");
+            		con.addln("Finding coins from rectified image...");
 	            	CoinFinder coinFinder = new CoinFinder(rectifiedImage, depthImage, rectifier.getMatrix());
+	            	
+	            	con.add("Coin rotation matrix: ");
+	            	con.addln(rectifier.getMatrix().toString());
+	            	con.newln();
+	            	
 	            	coinFinder.find();
 	            	IplImage drawnCoins = coinFinder.getDrawnCoins();
 	            	samples.add(w.ImagePanel(drawnCoins, 4));
@@ -467,14 +474,16 @@ public class CoinGUI extends JFrame{
 	            	IplImage reverseRect = reverseRectify(drawnCoins);
 	            	w.ImagePanelUpdate(currentP, reverseRect, 1);
 	            	coinFinder.determineValues();
-	            	con.add(coinFinder.getValues().toString()+"\n");
-	            	con.add("Total value: $"+coinFinder.getTotalValue().toString()+"\n");
+	            	con.add("{5c, 10c, 20c, 50c, 1aud, 2aud} : ");
+	            	con.addln(coinFinder.getValues().toString());
+	            	con.addln("Total value: $"+coinFinder.getTotalValue().toString());
+	            	con.newln();
 	            	
 	            	double relx = axisMatrix.get(0, 3)*1000, rely = axisMatrix.get(1, 3)*1000, relz = axisMatrix.get(2, 3)*1000;
 	            	
 	            	for (TreeMap<Double, ArrayList<Double>> thismap : coinFinder.getCoinLocationData()) {
 	            		Double value = thismap.firstKey();
-	            		System.out.println("Value: "+value);
+	            		
 	            		ArrayList<Double> trans = thismap.get(value);
 	            		double tx = trans.get(0), ty = trans.get(1), tz = trans.get(2);
 	          //  		System.out.println("Trans wrt camera: ("+tx+", "+ty+", "+tz);
@@ -482,9 +491,9 @@ public class CoinGUI extends JFrame{
 	          //  		System.out.println("Trans wrt origin: ("+(relx+tx)+", "+(rely+ty)+", "+(relz-tz));
 	            		
 	            		CvMat datmat = cvCreateMat(4,1,axisMatrix.type());
-	            		datmat.put(0, tx); datmat.put(1, ty);
+	            		datmat.put(0, -tx); datmat.put(1, ty);
 	            		datmat.put(2, tz); datmat.put(3, 0.0);
-	            		System.out.println(datmat);
+	            		//System.out.println(datmat);
 	            		
 	            		CvMat outmat = cvCreateMat(4,1,axisMatrix.type());
 	            		outmat.put(0, 0.0); outmat.put(1, 0.0);
@@ -492,11 +501,14 @@ public class CoinGUI extends JFrame{
 	            //		System.out.println(outmat);
 	            		
 	            		cvMatMul(axisMatrix, datmat, outmat);
-	            		outmat.put(0, outmat.get(0)+tx);
+	            		outmat.put(0, outmat.get(0)-tx);
 	            		outmat.put(1, outmat.get(1)+ty);
 	            		outmat.put(2, outmat.get(2)+tz);
 	            		
-	            		System.out.println(outmat);
+	            		//System.out.println(outmat);
+	            		con.add("Value: "+value+",  Coords: ");
+	            		con.addln(outmat.toString());
+	            		
 	            	
 	            /**		
 	            		CvMat datmat = cvCreateMat(3,1,axisMatrix.type());
@@ -571,8 +583,9 @@ public class CoinGUI extends JFrame{
             	AxisLocator al = new AxisLocator(currentI);
             	axisMatrix = al.findAxis(currentI);
             	if (axisMatrix != null) {
-            		con.add("Axis Matrix:\n");
-            		con.add(axisMatrix.toString());
+            		con.add("Axis Matrix:   ");
+            		con.addln(axisMatrix.toString());
+            		con.newln();
             	} else {
             		con.add("No marker found!\n");
             	}
@@ -597,7 +610,7 @@ public class CoinGUI extends JFrame{
 		//	al.findAxis(colorframe);
 			
     		if (depthframe.width() == colorframe.width()) {
-	    		cvAddWeighted(colorframe, 1.0, depthframe, 0.5, 0.0, overlayed);
+	    		cvAddWeighted(colorframe, 1.0, depthframe, 0.2, 0.0, overlayed);
 	    		w.ImagePanelUpdate(mainP, overlayed, 1);
     		}
     		
@@ -624,7 +637,7 @@ public class CoinGUI extends JFrame{
 	    private static IplImage reverseRectify(IplImage totrans) {
 	    	IplImage reversed = null;
 	    	if (rectifier == null) {
-	    		con.add("Cannot reverse without initial rectification.\n");
+	    		con.addln("Cannot reverse without initial rectification.");
 	    	} else {
 	    		reversed = rectifier.reverseTransform(totrans);
 	    	}

@@ -83,7 +83,7 @@ public class AxisLocator {
 				if (raster.hasBuffer()) {
 
 					boolean foundMarker = detector.detectMarkerLite(raster, 120)
-							&& ((Double)detector.getConfidence()).compareTo(0.4) > 0;
+							&& ((Double)detector.getConfidence()).compareTo(0.3) > 0;
 					
 					if (foundMarker) {
 						detector.getTransmat(transMat);
