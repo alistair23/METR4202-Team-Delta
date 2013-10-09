@@ -166,7 +166,7 @@ public class ColorChart {
 		
 		gold = blobFinder.findBlobs(chartImage.clone(),
 				cvScalar(10, 0, 100, 0),
-				cvScalar(90, 255, 255, 0), 2000);
+				cvScalar(70, 255, 255, 0), 2000);
 		
 		// 25 100 150
 		//cvShowImage("gold", gold);
@@ -174,9 +174,9 @@ public class ColorChart {
 		
 		ArrayList<Integer> blobCent = blobFinder.getCentres();
 		
-		//int deltax = chartImage.width()/6;
-		int xoff = chartImage.roi().xOffset();
-		int deltax = (int) (((double)chartImage.roi().width())/4.0);
+		int deltax = chartImage.width()/6;
+	//	int xoff = chartImage.roi().xOffset();
+	//	int deltax = (int) (((double)chartImage.roi().width())/4.0);
 		for (int i=0; i < blobCent.size(); i+=2) {
 			int x = blobCent.get(i);
 			if (x > deltax) {
@@ -212,7 +212,7 @@ public class ColorChart {
 		//		cvScalar(200, 255, 200, 0), 2000);
 		
 		silver = blobFinder.findBlobs(chartImage.clone(),
-				cvScalar(100, 120, 60, 0),
+				cvScalar(100, 120, 100, 0),
 				cvScalar(200, 255, 200, 0), 2000);
 		// 120 30 130
 		//cvShowImage("silver", silver);
@@ -220,9 +220,9 @@ public class ColorChart {
 		
 		ArrayList<Integer> blobCent = blobFinder.getCentres();
 		
-	//	int deltay = 2*chartImage.height()/4;
-		int yoff = chartImage.roi().yOffset();
-		int deltay = (int) (3*(((double)chartImage.roi().height())/4.0));
+		int deltay = 2*chartImage.height()/4;
+	//	int yoff = chartImage.roi().yOffset();
+	//	int deltay = (int) (3*(((double)chartImage.roi().height())/4.0));
 		for (int i=0; i < blobCent.size(); i+=2) {
 			int y = blobCent.get(i+1);
 			if (y < deltay) {

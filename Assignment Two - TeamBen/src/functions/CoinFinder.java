@@ -142,7 +142,7 @@ public class CoinFinder {
 		coinsDrawn = sourceImage.clone();
 	//	System.out.println("Check gold...");
 		colorMod.hsvThresholdGold();
-//		colorMod.display();
+	//	colorMod.display();
 		
 		Integer goldCount = 0;
 		int k=0;
@@ -163,7 +163,7 @@ public class CoinFinder {
 		}
 	//	System.out.println("Check silver...");
 		colorMod.hsvThresholdSilver();
-//		colorMod.display();
+	//	colorMod.display();
 		
 		Integer silverCount = 0;
 		k=0;
@@ -266,7 +266,7 @@ public class CoinFinder {
 		} else {
 			for (ArrayList<Object> thislist : goldCoinsMm) {
 				Double radiusmm = (Double)thislist.get(0);
-				if (radiusmm.compareTo(22.0) > 0 || radiusmm.compareTo(22.0) == 0) {
+				if (radiusmm.compareTo(20.0) > 0 || radiusmm.compareTo(20.0) == 0) {
 					values.set(4, values.get(4)+1);
 					CvPoint transPoint = transformBack((CvPoint)thislist.get(2));
 					addNewData(1.0, (transPoint.x()-320)*(double)thislist.get(3),
