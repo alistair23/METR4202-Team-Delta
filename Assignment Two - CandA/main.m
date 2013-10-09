@@ -5,7 +5,7 @@
 function main()
 %% Start Colour Calibration
 %Get a picture from the kinect
-capture_image(false, true, 30);
+%capture_image(false, true, 30);
 im = imread('ColourPhoto.png');
 
 % Find the center coords of the colour chart squares
@@ -28,7 +28,7 @@ save('variable_backup');
 %% Start Intrisic Calibration
 % Get pictures from the kinect
 for i=1:7
-    capture_image(false, true, i);
+    %capture_image(false, true, i);
 end
 
 % Run the RADOCCToolkit to determine the intrisic and extrinsic
