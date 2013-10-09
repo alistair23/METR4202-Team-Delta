@@ -70,6 +70,8 @@ public class CoinGUI extends JFrame{
  	static CvMat mapy;
  	static Double error;
 	
+ 	static int wait = 300;
+ 	static int numsamples = 20;
 	//Color Calibration
 	private static CvScalar BLACK = null;
 	
@@ -89,26 +91,27 @@ public class CoinGUI extends JFrame{
     
     private static CvMat axisMatrix = null;
     
-    
+    static KinectReader kr;
     public CoinGUI(){
   
     }
     
 	public static void main(String[] args) {
 		final Window w = new Window(new Dimension(1350,750));
+		w.setExtendedState(JFrame.MAXIMIZED_BOTH);
+		kr = new KinectReader();
 		
-		final KinectReader kr = new KinectReader();
-		
-		defC = cvLoadImage("test_images/NOCONTENT.png");
-		defD = cvLoadImage("test_images/NOCONTENT.png");
+		defC = cvLoadImage("test_images/axonscene.png");
+		defD = cvLoadImage("test_images/axonscene.png");
 		
 		mainI = kr.getColorFrame();
 		currentI = defC;
 		currentDI = defD;
 		
 		final CameraCalibrator cc = new CameraCalibrator();
-		cc.boardSize = new CvSize(4,5);
-		
+		cc.boardSize = new CvSize(5,4);
+		cc.Samples=numsamples;
+		cc.setup();
 
 		
 		JButton run = new JButton("Run All");
@@ -143,57 +146,57 @@ public class CoinGUI extends JFrame{
 		
 		JButton black = new JButton("Set Black");
 		black.setMinimumSize(new Dimension(200,30));
-		w.add(black,0,1,1,1,0,0);
+		//w.add(black,0,1,1,1,0,0);
 		black.setBackground(Color.BLUE);
 		
 		JButton colcal = new JButton("Calibrate Color");
 		colcal.setMinimumSize(new Dimension(200,30));
-		w.add(colcal,1,1,1,1,0,0);
-		colcal.setBackground(Color.BLUE);
+		w.add(colcal,0,2,1,1,0,0);
+		colcal.setBackground(Color.BLUE.brighter());
 		
 		JButton camcal = new JButton("Calibrate Camera");
 		camcal.setMinimumSize(new Dimension(200,30));
-		w.add(camcal,2,1,1,1,0,0);
+		w.add(camcal,1,1,1,1,0,0);
 		camcal.setBackground(Color.CYAN);
 		
 		JButton findchess = new JButton("Find CheckerBoard");
 		findchess.setMinimumSize(new Dimension(200,30));
-		w.add(findchess,3,1,1,1,0,0);
-		findchess.setBackground(Color.CYAN);
+		w.add(findchess,0,1,1,1,0,0);
+		findchess.setBackground(Color.CYAN.darker());
 		
 		JButton getdepth = new JButton("NULL");
 		getdepth.setMinimumSize(new Dimension(200,30));
-		w.add(getdepth,4,1,1,1,0,0);
+		//w.add(getdepth,4,1,1,1,0,0);
 		getdepth.setBackground(Color.ORANGE);
 		
 		JButton getcoins = new JButton("Run Coin Finder");
 		getcoins.setMinimumSize(new Dimension(200,30));
-		w.add(getcoins,5,1,1,1,0,0);
+		w.add(getcoins,3,1,1,1,0,0);
 		getcoins.setBackground(Color.ORANGE);
 		
 		JButton findcoins = new JButton("NULL");
 		findcoins.setMinimumSize(new Dimension(200,30));
-		w.add(findcoins,0,2,1,1,0,0);
+		//w.add(findcoins,0,2,1,1,0,0);
 		findcoins.setBackground(Color.ORANGE);
 		
 		JButton rectify = new JButton("Rectify");
 		rectify.setMinimumSize(new Dimension(200,30));
-		w.add(rectify,1,2,1,1,0,0);
-		rectify.setBackground(Color.ORANGE);
+		w.add(rectify,4,1,1,1,0,0);
+		rectify.setBackground(Color.ORANGE.darker());
 		
 		JButton rrectify = new JButton("Reverse Rectify");
 		rrectify.setMinimumSize(new Dimension(200,30));
-		w.add(rrectify,2,2,1,1,0,0);
-		rrectify.setBackground(Color.ORANGE);
+		w.add(rrectify,5,1,1,1,0,0);
+		rrectify.setBackground(Color.ORANGE.darker());
 	
 		JButton remap = new JButton("Remap from Calibration");
 		remap.setMinimumSize(new Dimension(200,30));
-		w.add(remap,3,2,1,1,0,0);
+		w.add(remap,2,1,1,1,0,0);
 		remap.setBackground(Color.CYAN);
 	
 		JButton findAxis = new JButton("Find Axis");
 		findAxis.setMinimumSize(new Dimension(200,30));
-		w.add(findAxis,4,2,1,1,0,0);
+		w.add(findAxis,5,2,1,1,0,0);
 		findAxis.setBackground(Color.magenta);
 	
 	    final JPanel mainP = w.ImagePanel(mainI, 1);
@@ -270,7 +273,7 @@ public class CoinGUI extends JFrame{
             	con.addln("Loading Image From: "+path);
             	currentI = cvLoadImage(path);
             	if(currentI.height() > w.getHeight()-500){
-            		currentI = w.scale(currentI, 2);
+            		currentI = w.scale(currentI, 1);
             	}
             	w.ImagePanelUpdate(currentP, currentI, 1);
             }});   
@@ -320,9 +323,17 @@ public class CoinGUI extends JFrame{
 	    camcal.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e){
     //			cc.SampleAt = 0;
-    //        	while(cc.SampleAt < cc.Samples) {
+           	while(cc.SampleAt < cc.Samples) {
             	
+           		try {
+           		    Thread.sleep(wait);
+           		} catch(InterruptedException ex) {
+           		    Thread.currentThread().interrupt();
+           		}
+           		
+           		
             	currentI = kr.getColorFrame();
+            	w.ImagePanelUpdate(currentP, currentI, 1);
             	
              	 Resolution = cc.Resolution;
             	 
@@ -353,24 +364,45 @@ public class CoinGUI extends JFrame{
 	            	
             	
             	}else{
-	            	con.add("Performing Calibration on "+cc.Samples+" Samples...");
-	            	error = cc.calibrate();
-	             	 mapx = cc.mapx;
-	             	 mapy = cc.mapy;
-	             	 cameraMatrix = cc.cameraMatrix;	
-	             	 distCoeffs = cc.distCoeffs;
-	             	 rotVectors = cc.rotVectors;
-	             	 transVectors = cc.transVectors;
+	            	con.addln("Performing Calibration on "+cc.Samples+" Samples...");
+	             	 cc.calibrate();
+	            	con.addln("Error = "+cc.error);
+	            	con.add("Focal X: "+cc.fx);
+	            	con.addln(" | Focal Y: "+cc.fy);
+	            	con.add("center X: "+cc.cx);
+	            	con.addln(" | center Y: "+cc.cy);
+	            	con.add("radial dist 1: "+cc.k1);
+	            	con.add(" | radial dist 2: "+cc.k2);
+	            	con.addln(" | radial dist 3: "+cc.k3);
+	            	con.add("tangentail dist 1: "+cc.p1);
+	            	con.addln(" | tangentail dist 2: "+cc.p2);
+	            	 
+	            	
+	            
 	             	 
-	             	 System.out.print(rotVectors.toString());
-	             	 System.out.print(transVectors.toString());
+	             	// System.out.print(rotVectors.toString());
+	             	// System.out.print(transVectors.toString());
 
 
-	            	con.addln("Error = "+error);
+	            	
 	            	cc.SampleAt = 0;
             	}
             	
-      //      	}
+            	}
+           	
+				con.addln("Performing Calibration on "+cc.Samples+" Samples...");
+				cc.calibrate();
+				con.addln("Error = "+cc.error);
+				con.add("Focal X: "+cc.fx);
+				con.addln(" | Focal Y: "+cc.fy);
+				con.add("center X: "+cc.cx);
+				con.addln(" | center Y: "+cc.cy);
+				con.add("radial dist 1: "+cc.k1);
+				con.add(" | radial dist 2: "+cc.k2);
+				con.addln(" | radial dist 3: "+cc.k3);
+				con.add("tangentail dist 1: "+cc.p1);
+				con.addln(" | tangentail dist 2: "+cc.p2);
+				cc.SampleAt = 0;
             }});   
 
 	    

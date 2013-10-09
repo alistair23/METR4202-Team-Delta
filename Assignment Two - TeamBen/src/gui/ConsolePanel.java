@@ -71,18 +71,25 @@ public class ConsolePanel extends JPanel{
     
     public void addln(String str){
     	con.append(str+"\n");
+    	con.setCaretPosition(con.getDocument().getLength());
     }
 
     public void add(String str){
     	con.append(str);
+    	con.setCaretPosition(con.getDocument().getLength());
+
     }
     
     public void newln(){
     	con.append("\n");
+    	con.setCaretPosition(con.getDocument().getLength());
+
     }
     
     public void wipe(){
     	con.setText("");
+    	con.setCaretPosition(con.getDocument().getLength());
+
     }
     
 

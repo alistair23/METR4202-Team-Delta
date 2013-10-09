@@ -68,10 +68,13 @@ public class KinectReader {
 
 	int imageindex = 0;
 	
+	public int frames;
+	
 	ImageConverter ic = new ImageConverter();
 	
 	public KinectReader(){
 		this.Start();
+		frames = 0;
 	}
 	
 	public void Start(){
@@ -128,7 +131,7 @@ public class KinectReader {
 	}
 	
 	public IplImage getColorFrame(){
-
+		
 		//System.out.println("Getting Frames: Color");
 		Cframe = Cstream.readFrame();
 		
@@ -138,8 +141,9 @@ public class KinectReader {
 		CPanel.add(new JLabel(new ImageIcon(CBuffer)));
 		
 		IplImage ii = IplImage.createFrom(CBuffer);
-
+		frames++;
 		return ii;
+		
 	}
 	
 	public IplImage getDepthFrame(){

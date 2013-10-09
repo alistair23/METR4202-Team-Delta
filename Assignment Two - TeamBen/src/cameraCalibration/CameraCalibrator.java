@@ -8,6 +8,7 @@ import static com.googlecode.javacv.cpp.opencv_calib3d.cvDrawChessboardCorners;
 import static com.googlecode.javacv.cpp.opencv_core.CV_32SC1;
 import static com.googlecode.javacv.cpp.opencv_core.cvCreateMat;
 import static com.googlecode.javacv.cpp.opencv_core.cvReleaseMat;
+import static com.googlecode.javacv.cpp.opencv_core.*;
 
 import com.googlecode.javacv.cpp.opencv_core.CvMat;
 import com.googlecode.javacv.cpp.opencv_core.*;
@@ -45,6 +46,17 @@ public class CameraCalibrator {
 	 public	 CvMat objectPoints = CvMat.create(pointNumber*Samples,3);
 	 public	 CvMat imagePoints = CvMat.create(pointNumber*Samples,2);
 	 
+		public double fx; //focal points
+		public double fy; 
+		public double cx; //principat point coordinates
+		public double cy;
+		
+		public double k1; //coeffs of radial distortion
+		public double k2;
+		public double k3;
+		public double p1; //coeffs of tangential distortion
+		public double p2;
+	 
 	 
 public	 CvMat cameraMatrix = CvMat.create(3,3);	
 public	 CvMat distCoeffs = CvMat.create(5,1);
@@ -52,8 +64,8 @@ public	 CvMat rotVectors = CvMat.create(Samples,3);
 public	 CvMat transVectors = CvMat.create(Samples,3);
 			 
 public	 CvSize Resolution = new CvSize(640, 480);
-	 public	 CvMat mapx;// = CvMat.create(Resolution.height(), Resolution.width(), CV_32FC1);
-	 public	 CvMat mapy;// = CvMat.create(Resolution.height(), Resolution.width(), CV_32FC1);
+	 public	 CvMat mapx = CvMat.create(Resolution.height(), Resolution.width(), CV_32FC1);
+	 public	 CvMat mapy = CvMat.create(Resolution.height(), Resolution.width(), CV_32FC1);
 
 	public Double error;
 	public int patternFound;
@@ -94,6 +106,12 @@ public	 CvSize Resolution = new CvSize(640, 480);
 	
 	public void setup(){
 		//set up object points
+		 objectPoints = CvMat.create(pointNumber*Samples,3);
+		 imagePoints = CvMat.create(pointNumber*Samples,2);
+		 rotVectors = CvMat.create(Samples,3);
+		 transVectors = CvMat.create(Samples,3);
+
+		
 		int idx = 0;
 		
 		for(int f=0; f<Samples; f++){
@@ -176,15 +194,32 @@ public	 CvSize Resolution = new CvSize(640, 480);
 		
 		cvInitUndistortMap(cameraMatrix, distCoeffs, mapx, mapy);
 		this.error = error;
-		double fx = cameraMatrix.get(0,0);
-		double cx = cameraMatrix.get(2,0);
-		double fy = cameraMatrix.get(1,1);
-		double cy = cameraMatrix.get(2,1);
+		 fx = cameraMatrix.get(0,0); //focal points
+		 fy = cameraMatrix.get(1,1); 
+		 cx = cameraMatrix.get(0,2); //principat point coordinates
+		 cy = cameraMatrix.get(1,2);
+		
+		 k1 = distCoeffs.get(0); //coeffs of radial distortion
+		 k2 = distCoeffs.get(1);
+		 k3 = distCoeffs.get(4);
+		 p1 = distCoeffs.get(2); //coeffs of tangential distortion
+		 p2 = distCoeffs.get(3);
 		
 		return error;
 	}
 	
 	public IplImage remap(final IplImage image){
+		cvInitUndistortMap(cameraMatrix, distCoeffs, mapx, mapy);
+
+		IplImage undistortedImage = image.clone();
+		cvRemap(undistortedImage, undistortedImage, mapx, mapy, CV_INTER_LINEAR, CvScalar.ZERO);
+		//cvShowImage("image", image);  
+		//cvShowImage("undistorted", undistortedImage);  
+		//cvWaitKey(0);
+		return undistortedImage;
+	}
+	
+	public IplImage remap2(final IplImage image){
 		IplImage undistortedImage = image.clone();
 		cvRemap(image, undistortedImage, mapx, mapy, CV_INTER_LINEAR, CvScalar.ZERO);
 		//cvShowImage("image", image);  

@@ -175,7 +175,7 @@ public class gridWindow extends JFrame {
         				    }
         				    con.append("\n");
         				    
-        				    rectifyImage(gw, P02, P03, P04, s);
+        				  //  rectifyImage(gw, P02, P03, P04, s);
         				    
         			    } else {
         			    	con.append("Bad selection.\n");
@@ -193,7 +193,7 @@ public class gridWindow extends JFrame {
     				
     				
     				//gw.addPanel(PM, cc.FindChessboard(image), 1);
-
+/**
     				if (cc.SampleAt == 1){
     					gw.addPanel(P01, image, s);
     					con.append("Collecting Sample Image "+cc.SampleAt+"/"+cc.Samples+"\n");
@@ -235,17 +235,28 @@ public class gridWindow extends JFrame {
     					con.append("Collecting Sample Image "+cc.SampleAt+"/"+cc.Samples+"\n");
     				} 
     				gw.validate();
-    				    				
+    				 **/   				
     			//}
     			if(cc.SampleAt == cc.Samples){
     				con.append("All Samples Collected. Peforming Calibration...\n");
-    			con.append("Calibration Error = "+cc.calibrate()+"\n");
+    			System.out.println("Calibration Error = "+cc.calibrate()+"\n");
 
+             	System.out.println("Focal X: "+cc.fx);
+             	System.out.println("Focal Y: "+cc.fy);
+             	System.out.println("center X: "+cc.cx);
+             	System.out.println("center Y: "+cc.cy);
+             	System.out.println("radial dist 1: "+cc.k1);
+             	System.out.println("radial dist 2: "+cc.k2);
+             	System.out.println("radial dist 3: "+cc.k3);
+             	System.out.println("tangentail dist 1: "+cc.p1);
+             	System.out.println("tangentail dist 2: "+cc.p2);
+
+    			
     			cc.SampleAt = 0;
     			}
             }
         });      
-    	
+    	/**
     	b16.addActionListener(new ActionListener() {
       		 // COIN FINDER
             public void actionPerformed(ActionEvent e)
@@ -312,7 +323,7 @@ public class gridWindow extends JFrame {
         		}
             }
         });      
-
+**/
     	b18.addActionListener(new ActionListener() {
     		// DEPTH PICKER AND RECTIFICATION
             public void actionPerformed(ActionEvent e)
@@ -459,7 +470,7 @@ public class gridWindow extends JFrame {
 			this.getContentPane().remove(this.getContentPane().getComponentAt(x, y));
 		}
 	}
-
+/**
     private static void rectifyImage(gridWindow gw, JPanel P02, JPanel P03, JPanel P04, int s) {
     	
     	if (depthPickerData.isEmpty()) {
@@ -483,7 +494,7 @@ public class gridWindow extends JFrame {
     		//cvWaitKey(0);
     	}
     }
-    
+    **/
     private static IplImage reverseRectify(IplImage totrans) {
     	IplImage reversed = null;
     	
