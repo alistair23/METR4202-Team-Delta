@@ -498,6 +498,16 @@ public class CoinGUI extends JFrame{
 		    	w.ImagePanelUpdate(mainP, overlay, 1);
 			}
 		}
+		
+	//	Attempting to implement threading
+		//    videoPanel v = new videoPanel(kr);
+		//	    mainP.removeAll();
+		//	    mainP.add(v);
+		//	   Thread thread = (new Thread(v));
+		//	   System.out.println(thread.getId());
+		//	   thread.start();
+		
+		
 	}
 	
 	   private static void rectifyImage() {

@@ -40,7 +40,7 @@ public class Window extends JFrame {
 	
 	public void ImagePanelUpdate(JPanel j, IplImage img, int scale){
 		j.removeAll();
-        j.add(new JLabel(new ImageIcon(scale(img, scale).getBufferedImage())));;
+        j.add(new JLabel(new ImageIcon(scale(img, scale).getBufferedImage())));
         revalidate();
 	}
 
