@@ -11,6 +11,7 @@ This project uses the following external libraries/packages:
 -Kinect SDK 1.8
 -OpenNI2.2.30b
 -JavaCV 0.6b
+-OpenCV 2.4.6.0
 -J3D 1.5.2
 -NyARToolkit
 
@@ -22,6 +23,11 @@ Run in order of:
 	2) Find axis
 	3) Rectify image
 	4) Find coins
+
+
+Setup to run:
+1. Install Kinect SDK 1.8 (make sure there are no other kinect drivers installed)
+2. 
 
 
 The following functionality has been implemented:

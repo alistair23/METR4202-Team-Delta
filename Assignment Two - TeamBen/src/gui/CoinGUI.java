@@ -112,8 +112,8 @@ public class CoinGUI extends JFrame{
 		w.setExtendedState(JFrame.MAXIMIZED_BOTH);
 		
 		
-		defC = cvLoadImage("noCam.png");
-		defD = cvLoadImage("noCam.png");
+		defC = cvLoadImage("test_images/noCam.png");
+		defD = cvLoadImage("test_images/noCam.png");
 				
 		mainI = defC;
 		mainDI = defD;
@@ -212,6 +212,10 @@ public class CoinGUI extends JFrame{
 		if(haveKinect){
 			mainI = kr.getColorFrame();
 			mainDI = kr.getDepthFrame();
+			currentI = mainI;
+			currentDI = mainDI;
+			w.ImagePanelUpdate(currentP, currentI, 1);
+			
 		}else{
 			capc.setEnabled(false);
 			capd.setEnabled(false);
