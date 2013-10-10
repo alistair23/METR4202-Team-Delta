@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="C:/javacv-bin/javacpp.jar"/>
-	<classpathentry kind="lib" path="C:/javacv-bin/javacv.jar"/>
+	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry exported="true" kind="lib" path="C:/javacv-bin/javacpp.jar"/>
+	<classpathentry exported="true" kind="lib" path="C:/javacv-bin/javacv.jar"/>
 	<classpathentry kind="lib" path="C:/javacv-bin/javacv-android-arm.jar"/>
 	<classpathentry kind="lib" path="C:/javacv-bin/javacv-linux-x86.jar"/>
 	<classpathentry kind="lib" path="C:/javacv-bin/javacv-linux-x86_64.jar"/>
 	<classpathentry kind="lib" path="C:/javacv-bin/javacv-macosx-x86_64.jar"/>
 	<classpathentry kind="lib" path="C:/javacv-bin/javacv-windows-x86.jar"/>
 	<classpathentry kind="lib" path="C:/javacv-bin/javacv-windows-x86_64.jar"/>
-	<classpathentry kind="lib" path="C:/Program Files/OpenNI2/Redist/org.openni.jar"/>
-	<classpathentry kind="lib" path="C:/Program Files/OpenNI2/Tools/org.openni.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Ben/Documents/GitHub/METR4202---Team-Delta/Assignment Two - TeamBen/NyARToolkit.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Ben/Documents/GitHub/METR4202---Team-Delta/Assignment Two - TeamBen/j3d-jre/lib/ext/j3dcore.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Ben/Documents/GitHub/METR4202---Team-Delta/Assignment Two - TeamBen/j3d-jre/lib/ext/j3dutils.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Ben/Documents/GitHub/METR4202---Team-Delta/Assignment Two - TeamBen/j3d-jre/lib/ext/vecmath.jar"/>
+	<classpathentry exported="true" kind="lib" path="C:/Program Files/OpenNI2/Redist/org.openni.jar"/>
+	<classpathentry exported="true" kind="lib" path="C:/Program Files/OpenNI2/Tools/org.openni.jar"/>
+	<classpathentry exported="true" kind="lib" path="C:/Users/Ben/Documents/GitHub/METR4202---Team-Delta/Assignment Two - TeamBen/NyARToolkit.jar"/>
+	<classpathentry exported="true" kind="lib" path="C:/Users/Ben/Documents/GitHub/METR4202---Team-Delta/Assignment Two - TeamBen/j3d-jre/lib/ext/j3dcore.jar"/>
+	<classpathentry exported="true" kind="lib" path="C:/Users/Ben/Documents/GitHub/METR4202---Team-Delta/Assignment Two - TeamBen/j3d-jre/lib/ext/j3dutils.jar"/>
+	<classpathentry exported="true" kind="lib" path="C:/Users/Ben/Documents/GitHub/METR4202---Team-Delta/Assignment Two - TeamBen/j3d-jre/lib/ext/vecmath.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
