@@ -53,10 +53,9 @@ import functions.ImageRectifier;
 
 public class CoinGUI extends JFrame{
 
-	static ConsolePanel con = new ConsolePanel();
-    
-	static JPanel samples = new JPanel();
+
 	
+	//define main images
 	static IplImage mainI;
 	static IplImage mainDI;
 	static IplImage currentI;
@@ -74,8 +73,9 @@ public class CoinGUI extends JFrame{
  	static CvMat mapy;
  	static Double error;
 	
- 	static int wait = 300;
- 	static int numsamples = 20;
+ 	//axis location matrix
+ 	private static CvMat axisMatrix = null;
+ 	
 	//Color Calibration
 	private static CvScalar BLACK = null;
 	
@@ -87,33 +87,40 @@ public class CoinGUI extends JFrame{
     private static IplImage rectifiedImage = null;
     private static IplImage trialTable = null;
     
-    private static ImageRectifier rectifier = null;
-	
+    //default images
+    static IplImage defC; //Default color image  
+    static IplImage defD; //default depth image
     
-    static IplImage defC;
-    static IplImage defD;
-    
-    private static CvMat axisMatrix = null;
-    
+    //capture and image objects
     static KinectReader kr;
     static OverlayImage overlay;
-    
+    static ImageRectifier rectifier;
+     
+    //gui elements
+	static ConsolePanel con = new ConsolePanel();
+	static JPanel samples = new JPanel();
+
+    //tweaking constants
+ 	static int wait = 300;
+ 	static int numsamples = 20;
     
     public CoinGUI(){
   
     }
     
 	public static void main(String[] args) {
+		
+		//start the camera. if it isn't found, the havekinect variable is false.
 		kr = new KinectReader();
 		boolean haveKinect = kr.Start();
 		
-		
+		//make a new window.
 		final Window w = new Window(new Dimension(1350,750));
 		w.setExtendedState(JFrame.MAXIMIZED_BOTH);
 		
-		
-		defC = cvLoadImage("test_images/noCam.png");
-		defD = cvLoadImage("test_images/noCam.png");
+		//set default images
+		defC = cvLoadImage("system_images/noCam.png");
+		defD = cvLoadImage("system_images/noCam.png");
 				
 		mainI = defC;
 		mainDI = defD;
@@ -121,12 +128,13 @@ public class CoinGUI extends JFrame{
 		currentI = defC;
 		currentDI = defD;
 		
+		//set up a new camera calibrator.
 		final CameraCalibrator cc = new CameraCalibrator();
 		cc.boardSize = new CvSize(5,4);
 		cc.Samples=numsamples;
 		cc.setup();
 
-		
+		//define all the gui buttons and add them to the GUI
 		JButton run = new JButton("Run All");
 		run.setMinimumSize(new Dimension(200,30));
 		w.add(run,0,0,1,1,1,0);
@@ -208,24 +216,21 @@ public class CoinGUI extends JFrame{
 	    w.add(con,0,6,6,1,1,1);
 		con.addln("Here We GO!!!");
 
-		
+		//disable buttons if there is no camera
 		if(haveKinect){
 			mainI = kr.getColorFrame();
 			mainDI = kr.getDepthFrame();
 			currentI = mainI;
 			currentDI = mainDI;
 			w.ImagePanelUpdate(currentP, currentI, 1);
-			
 		}else{
 			capc.setEnabled(false);
 			capd.setEnabled(false);
 			camcal.setEnabled(false);
-			
 		}
 		
-		
-		
-	    capc.addActionListener(new ActionListener() {
+		//define button actions
+		capc.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e){
             	con.addln("Capturing Images! (Showing Color)");
             	currentI = kr.getColorFrame();
@@ -247,8 +252,9 @@ public class CoinGUI extends JFrame{
 	            	final JFileChooser fc = new JFileChooser(System.getProperty("user.dir")+"/test_images/");
 	            	fc.showSaveDialog(new JFrame());
 	            	String path = fc.getSelectedFile().getAbsolutePath();
-	            	con.addln("Saving Image to: "+path);
-	            	ic.savePNG(path.substring(0, path.length()-4), currentI);
+	            	con.addln("Saving Image to: "+path+".png");
+	            	ic.savePNG(path.substring(0, path.length()), currentI);
+	            	ic.savePNG(path.substring(0, path.length())+"-Depth", currentDI);
 	            }});     
 	        
 	    Load.addActionListener(new ActionListener() {
@@ -258,6 +264,7 @@ public class CoinGUI extends JFrame{
             	String path = fc.getSelectedFile().getAbsolutePath();
             	con.addln("Loading Image From: "+path);
             	currentI = cvLoadImage(path);
+            	currentDI = cvLoadImage(path.substring(0, path.length()-4)+"-Depth.png");
             	if(currentI.height() > w.getHeight()-500){
             		currentI = w.scale(currentI, 1);
             	}
@@ -477,22 +484,19 @@ public class CoinGUI extends JFrame{
 	    w.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
 				w.exit();
-			}
-    	});
+			}});
 	    
-		
-	   
-	    
+	    //update the main window with the camera feed forever
 		while(true){
 			if(haveKinect){
-			mainI = kr.getColorFrame();
-			mainDI = kr.getDepthFrame();
-			
-			IplImage overlay = mainI;// = new OverlayImage(mainI, mainDI);
-			cvAddWeighted(mainI, 1.0, mainDI, 0.5, 0.0, overlay);
-	    	w.ImagePanelUpdate(mainP, overlay, 1);
+				mainI = kr.getColorFrame();
+				mainDI = kr.getDepthFrame();
+				
+				//overlay the color image with the depth 
+				IplImage overlay = mainI;
+				cvAddWeighted(mainI, 1.0, mainDI, 0.5, 0.0, overlay);
+		    	w.ImagePanelUpdate(mainP, overlay, 1);
 			}
-        	
 		}
 	}
 	
