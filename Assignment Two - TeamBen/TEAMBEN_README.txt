@@ -5,15 +5,36 @@ Coin Sensing and Perception Project.
 
 Team Members: Ben Merange, Ben Rose
 
+Feel Free to email ben@BlackCircuits.com or bmerange@gmail.com with any problems 
+or post on the GitHub at: https://github.com/alistair23/METR4202---Team-Delta.git
+
 This project was written using eclipse Build 20130919-0819 and JavaSE 1.7
 
 This project uses the following external libraries/packages:
 -Kinect SDK 1.8
 -OpenNI2.2.30b
--JavaCV 0.6b
--OpenCV 2.4.6.0
+-JavaCV 0.6b (with JavaCV-cpp jars for openCV files)
 -J3D 1.5.2
 -NyARToolkit
+
+Setup to run: (from compiled jar)
+1. Install Kinect SDK 1.7+ (make sure there are no other kinect drivers installed)
+2. Install OpenNi2.x
+3. plug in Kinect and verify that the drivers it is using are the kinect sdk ones.
+3. run CoinCounter.jar
+
+Setup to run: (from Eclipse)
+1. Install Kinect SDK 1.7+ (make sure there are no other kinect drivers installed)
+2. Install OpenNi2.x
+3. Open Eclipse
+4. in Eclipse: File>Import...>General>Existing projects into Workspace
+5. set root directory to the git root folder.
+6. the project should appear in the window.
+7. Click finish.
+8. add all the jar files in the dependencies folder to the project build path
+9. add the OpenNI2 jar files to the project build path (in: program files/OpenNI2/Redist/ and program files/OpenNI2/Tools/)
+10. Run CoinGUI class.
+
 
 ALL FUNCTIONALITY IS ACCESSIBLE FROM THE MAIN GUI (CoinGUI)
 Color and camera calibration are not necessary (but may improve results).
@@ -23,11 +44,6 @@ Run in order of:
 	2) Find axis
 	3) Rectify image
 	4) Find coins
-
-
-Setup to run:
-1. Install Kinect SDK 1.8 (make sure there are no other kinect drivers installed)
-2. 
 
 
 The following functionality has been implemented:
@@ -96,4 +112,7 @@ a predefined fiducial using NyARToolkit
 This package includes a class for reading kinect depth and low and high
 definition color images. The kinectreader uses OpenNI 2.x and kinect SDK 1.7+.
 
-*Future Implementation: support for any webcam for image capture*
+
+
+Future Implementation:
+	-support for any webcam for image capture
