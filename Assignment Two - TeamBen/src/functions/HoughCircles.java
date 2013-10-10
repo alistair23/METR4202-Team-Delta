@@ -5,16 +5,22 @@ import static com.googlecode.javacv.cpp.opencv_highgui.*;
 import static com.googlecode.javacv.cpp.opencv_imgproc.*;
 
 import java.util.ArrayList;
- 
+
+/**
+ * @author Benjamin Rose & Ben Merange
+ *
+ * This class is used to find either plates or coins within a rectified image.
+ * 
+ * Either runHoughCirclesRGBPlate() or runHoughCirclesRGBCoins() is to be run,
+ * getCircleDataList() and getRadiusDataList() will then return the results.
+ * 
+ */
+
 public class HoughCircles{
 	
 	private IplImage sourceImage;
 	private ArrayList<Float> circleData;
 	private ArrayList<Integer> radiusData;
-	
-	//private static int minCoinRadius = 5;
-	//private static int maxCoinRadius = 40;
-	//private static int coinCentreThreshold = 20;
 	
 	private static int minCoinRadius = 5;
 	private static int maxCoinRadius = 45;
@@ -28,7 +34,6 @@ public class HoughCircles{
 	}
 
 	public void runHoughCirclesRGBPlate() {
-
 		IplImage gray = cvCreateImage(cvGetSize(sourceImage), 8, 1);
    
 		cvCvtColor(sourceImage, gray, CV_BGR2GRAY);
@@ -57,9 +62,6 @@ public class HoughCircles{
 			circleData.add(circle.x()); circleData.add(circle.y());
 			radiusData.add(radius);
 		}
-		
-		//cvShowImage("plate", sourceImage);  
-		//cvWaitKey(0);
 	}
 	
 	public void runHoughCirclesRGBCoins() {
@@ -135,11 +137,12 @@ public class HoughCircles{
 		return sourceImage.clone();
 	}
 	
-	// returns an array list of the x,y coordinates of circle centers
+	// returns an array list of the pixel x,y coordinates of circle centers
 	public ArrayList<Float> getCircleDataList() {
 		return (ArrayList<Float>) circleData.clone();
 	}
 	
+	// returns an array list of the pixel radius of circles
 	public ArrayList<Integer> getRadiusDataList() {
 		return (ArrayList<Integer>) radiusData.clone();
 	}

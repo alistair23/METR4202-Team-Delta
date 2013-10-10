@@ -1,45 +1,36 @@
 package colorCalibration;
 
 import static com.googlecode.javacv.cpp.opencv_core.CV_AA;
-import static com.googlecode.javacv.cpp.opencv_core.IPL_DEPTH_8U;
 import static com.googlecode.javacv.cpp.opencv_core.cvCircle;
-import static com.googlecode.javacv.cpp.opencv_core.cvCopy;
 import static com.googlecode.javacv.cpp.opencv_core.cvCreateImage;
 import static com.googlecode.javacv.cpp.opencv_core.cvGet2D;
-import static com.googlecode.javacv.cpp.opencv_core.cvInRangeS;
 import static com.googlecode.javacv.cpp.opencv_core.cvPoint;
-import static com.googlecode.javacv.cpp.opencv_core.cvPointFrom32f;
 import static com.googlecode.javacv.cpp.opencv_core.cvRect;
 import static com.googlecode.javacv.cpp.opencv_core.cvResetImageROI;
 import static com.googlecode.javacv.cpp.opencv_core.cvScalar;
 import static com.googlecode.javacv.cpp.opencv_core.cvSetImageROI;
-import static com.googlecode.javacv.cpp.opencv_core.cvSize;
-import static com.googlecode.javacv.cpp.opencv_highgui.cvLoadImage;
-import static com.googlecode.javacv.cpp.opencv_highgui.cvShowImage;
-import static com.googlecode.javacv.cpp.opencv_highgui.cvWaitKey;
 import static com.googlecode.javacv.cpp.opencv_core.*;
-import static com.googlecode.javacv.cpp.opencv_imgproc.cvEqualizeHist;
-
-import java.awt.image.BufferedImage;
-import java.util.ArrayList;
-
 import static com.googlecode.javacv.cpp.opencv_imgproc.*;
-import com.googlecode.javacv.*;
-import com.googlecode.javacv.cpp.*;
+import java.util.ArrayList;
 import com.googlecode.javacv.cpp.opencv_core.CvPoint;
 import com.googlecode.javacv.cpp.opencv_core.CvRect;
 import com.googlecode.javacv.cpp.opencv_core.CvScalar;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
-import functions.*;
+
+/**
+ * @author Benjamin Rose & Ben Merange
+ *
+ * This class is used to identify a MacBeth color chart within an image
+ * and find the color data corresponding to both:
+ * Orange Yellow (#e0a32e - chart #12)
+ * Neutral 6.5 (#a0a0a0 - chart #21)
+ *
+ */
 
 public class ColorChart {
-
-	// Orange Yellow (#e0a32e - chart #12)
-	// Neutral 6.5 (#a0a0a0 - chart #21)
 	
 	private IplImage silver = null;
 	private IplImage gold = null;
-	
 	private IplImage chartImage;
 	
 	public CvScalar silverBGR;
@@ -51,28 +42,11 @@ public class ColorChart {
 	public CvScalar goldYCrCb;
 	
 	private CvScalar BLACK;
-	
 	private IplImage sourceImage;
 	
 	public ColorChart(IplImage sourceImage, CvScalar BLACK) {
 		this.sourceImage = sourceImage.clone();
 		this.BLACK = BLACK;
-	}
-	
-	public void doStuff() {
-	//	EdgesAndLines edgeTool = new EdgesAndLines(sourceImage);
-	//	IplImage edges = edgeTool.getEdges();
-	//	cvShowImage("Edges", edges);  
-	//	cvWaitKey(0);
-		
-	//	IplImage lines = edgeTool.getLines("probabilistic");
-	//	cvShowImage("Lines", lines);  
-	//	cvWaitKey(0);
-		
-	//	BlobFinder blobFinder = new BlobFinder(sourceImage);
-	//	IplImage blobs = blobFinder.getChartSubImage();
-	//	cvShowImage("Blobs", blobs);
-	//	cvWaitKey(0);
 	}
 	
 	public String getColorData() {
@@ -88,14 +62,12 @@ public class ColorChart {
 	}
 	
 	public boolean findCalibColors() {
-		//cvShowImage("source", sourceImage);
+		
 		BlobFinder blobFinder = new BlobFinder(sourceImage);
 		chartImage = getChartSubImage(blobFinder);
 		if (chartImage == null) {
 			return false;
 		}
-	//	cvShowImage("sub image", chartImage);
-	//	cvWaitKey(0);
 		
 		ArrayList<CvScalar> goldData = getGoldData(chartImage, blobFinder);
 		if (goldData == null) {
@@ -119,14 +91,12 @@ public class ColorChart {
 	}
 	
 	public IplImage getChartSubImage(BlobFinder blobFinder) {
-		// TURN OFF DRAW ON IMAGE BEFORE FURTHER PROCESSING!!
+		// NOTE: WILL DRAW FOUND BLOBS ONTO OUTPUT IMAGE
 		
 		// set to find black edges of chart
 		double blackV = BLACK.getVal(2);
 		IplImage chartImage = blobFinder.findBlobs(sourceImage, cvScalar(0, 0, 0, 0),
 															cvScalar(255, 255, 50+blackV, 0), 6000);
-		
-		// WATCH OUT FOR POSSIBLE IMAGE FLIP ON CAPTURE!
 		
 		ArrayList<Integer> blobData = blobFinder.getData();
 		if (blobData.isEmpty()) {
@@ -137,46 +107,24 @@ public class ColorChart {
 		int height = blobData.get(3)-blobData.get(1);
 		
 		CvRect roi = cvRect(x, y, width, height);
-	//	System.out.println(roi.width());
 		
-		//IplImage gray = cvCreateImage(cvGetSize(sourceImage), IPL_DEPTH_8U, 1); 
-		//cvCloneImage(sourceImage, gray);
-		
-	//	IplImage cropped = cvCreateImage(cvSize(roi.width(), roi.height()), sourceImage.depth(), 1);
 		cvSetImageROI(chartImage, roi);
-		//cvCopy(chartImage, cropped);
-		//cvResetImageROI(chartImage);
-		
-		//sourceImage.copyTo(buff);
 		IplImage clone = chartImage.clone();
 		cvResetImageROI(sourceImage);
 		return clone;
 	}
 	
+	// threshold out gold then get choose appropriate blob data.
 	public ArrayList<CvScalar> getGoldData(IplImage chartImage, BlobFinder blobFinder) {
 		//ideal gold: 27 203 224
-		//ideal black: any any 0
-		
-		// VERY LEFTSIDE GOLD IMAGE! PIC IS REVERSED IN CAPTURE!
-		
-	//	IplImage gold = blobFinder.findBlobs(chartImage.clone(), cvScalar(0, 110, 180, 0), cvScalar(40, 170, 255, 0), 2000);
-	//	gold = blobFinder.findBlobs(chartImage.clone(),
-	//			cvScalar(10, 100, 100, 0),
-	//			cvScalar(44, 255, 255, 0), 2000);
 		
 		gold = blobFinder.findBlobs(chartImage.clone(),
 				cvScalar(10, 0, 100, 0),
 				cvScalar(70, 255, 255, 0), 2000);
 		
-		// 25 100 150
-		//cvShowImage("gold", gold);
-		// 15 60 200
-		
 		ArrayList<Integer> blobCent = blobFinder.getCentres();
 		
 		int deltax = chartImage.width()/6;
-	//	int xoff = chartImage.roi().xOffset();
-	//	int deltax = (int) (((double)chartImage.roi().width())/4.0);
 		for (int i=0; i < blobCent.size(); i+=2) {
 			int x = blobCent.get(i);
 			if (x > deltax) {
@@ -189,40 +137,25 @@ public class ColorChart {
 		if (blobCent.size() < 2) {
 			return null;
 		}
-		//System.out.println(blobCent);
-		
-		// pos 0,1 is centre of sub image, pos 2,3 should be leftmost orange
-		//ArrayList<CvScalar> goldData = getPixelHSV(chartImage, blobCent.get(2), blobCent.get(3));
+
 		ArrayList<CvScalar> goldData = getPixelHSV(chartImage, blobCent.get(0), blobCent.get(1));
-		
 		CvPoint cp = cvPoint(blobCent.get(0),blobCent.get(1));
         cvCircle(gold, cp, 2, CvScalar.RED, 10, CV_AA, 0);
         
 		return goldData;
 	}
 	
+	// threshold out silver then get choose appropriate blob data.
 	public ArrayList<CvScalar> getSilverData(IplImage chartImage, BlobFinder blobFinder) {
 		//ideal silver 0 0 160
-		
-		// 3 FROM THE RIGHT! IMAGE REVERSED IN CAPTURE!
-		
-		//IplImage silver = blobFinder.findBlobs(chartImage.clone(), cvScalar(80, 100, 160, 0), cvScalar(255, 180, 190, 0), 2000);
-		//silver = blobFinder.findBlobs(chartImage.clone(),
-		//		cvScalar(100, 120, 60, 0),
-		//		cvScalar(200, 255, 200, 0), 2000);
 		
 		silver = blobFinder.findBlobs(chartImage.clone(),
 				cvScalar(100, 120, 100, 0),
 				cvScalar(200, 255, 200, 0), 2000);
-		// 120 30 130
-		//cvShowImage("silver", silver);
-		// 110 80 200
 		
 		ArrayList<Integer> blobCent = blobFinder.getCentres();
 		
 		int deltay = 2*chartImage.height()/4;
-	//	int yoff = chartImage.roi().yOffset();
-	//	int deltay = (int) (3*(((double)chartImage.roi().height())/4.0));
 		for (int i=0; i < blobCent.size(); i+=2) {
 			int y = blobCent.get(i+1);
 			if (y < deltay) {
@@ -235,12 +168,8 @@ public class ColorChart {
 		if (blobCent.size() < 2) {
 			return null;
 		}
-		//System.out.println(blobCent);
 		
-		// pos 0,1 is centre of sub image, pos 2,3 should be leftmost silver
-		//ArrayList<CvScalar> silverData = getPixelHSV(chartImage, blobCent.get(2), blobCent.get(3));
 		ArrayList<CvScalar> silverData = getPixelHSV(chartImage, blobCent.get(0), blobCent.get(1));
-		
 		CvPoint cp = cvPoint(blobCent.get(0),blobCent.get(1));
         cvCircle(silver, cp, 2, CvScalar.RED, 10, CV_AA, 0);
         
@@ -256,10 +185,6 @@ public class ColorChart {
 		CvScalar rgbData = cvGet2D(rgbImage, y, x);
 		CvScalar hsvData = cvGet2D(hsvImage, y, x);
 		CvScalar yCrCbData = cvGet2D(yCrCbImage, y, x);
-		
-		//IplImage colorImg = cvCreateImage(cvGetSize(rgbImage),8,3);
-		//cvSet(colorImg, CV_RGB(rgbData.val(2),rgbData.val(1),rgbData.val(0)));
-		//cvShowImage("Color fill", colorImg);
 		
 		ArrayList<CvScalar> values = new ArrayList<CvScalar>();
 		values.add(rgbData); values.add(hsvData); values.add(yCrCbData);

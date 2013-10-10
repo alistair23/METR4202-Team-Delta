@@ -1,26 +1,30 @@
 package functions;
 
 import static com.googlecode.javacv.cpp.opencv_core.CV_AA;
-import static com.googlecode.javacv.cpp.opencv_core.CV_RGB;
 import static com.googlecode.javacv.cpp.opencv_core.cvCreateImage;
 import static com.googlecode.javacv.cpp.opencv_core.cvGet2D;
-import static com.googlecode.javacv.cpp.opencv_core.cvGetSize;
 import static com.googlecode.javacv.cpp.opencv_core.cvLine;
-import static com.googlecode.javacv.cpp.opencv_highgui.cvShowImage;
-import static com.googlecode.javacv.cpp.opencv_highgui.cvWaitKey;
 import static com.googlecode.javacv.cpp.opencv_imgproc.cvCvtColor;
 import static com.googlecode.javacv.cpp.opencv_core.*;
 import static com.googlecode.javacv.cpp.opencv_imgproc.*;
-
 import java.util.ArrayList;
 import java.util.TreeMap;
-
 import com.googlecode.javacv.cpp.opencv_core.CvMat;
 import com.googlecode.javacv.cpp.opencv_core.CvPoint;
 import com.googlecode.javacv.cpp.opencv_core.CvPoint2D32f;
 import com.googlecode.javacv.cpp.opencv_core.CvScalar;
-import com.googlecode.javacv.cpp.opencv_core.CvSize;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
+
+/**
+ * @author Benjamin Rose & Ben Merange
+ *
+ * This class is used to rectify an image to be face-on to a flat surface.
+ * The class relies on the fact that it can 150 pixels of consistant data to linearise.
+ * If the Kinect is too close to obtain usable (non-zero) depth data this class becomes unreliable.
+ * 
+ * Call drawTableLines() prior to transformImage().
+ * 
+ */
 
 public class ImageRectifier {
 	
@@ -41,27 +45,9 @@ public class ImageRectifier {
 	private CvPoint2D32f c1;
 	private CvPoint2D32f c2;
 	
-	//public ImageRectifier(IplImage sourceImage, IplImage depthImage, ArrayList<Integer> depthPickerData) {
 	public ImageRectifier(IplImage sourceImage, IplImage depthImage) {
 		this.sourceImage = sourceImage.clone();
 		this.depthImage = depthImage.clone();
-//		this.depthPickerData = depthPickerData;
-		
-		//IplImage depthImageHSV = cvCreateImage(cvGetSize(depthImage),8,3);
-		//cvCvtColor(depthImage, depthImageHSV, CV_RGB2HSV);
-		
-		//double a = cvGet2D(depthImageHSV, 300, 200).getVal(0);
-		//double b = cvGet2D(depthImageHSV, 300, 200).getVal(1);
-		//double c = cvGet2D(depthImageHSV, 300, 200).getVal(2);
-		//double d = cvGet2D(depthImageHSV, 300, 200).getVal(3);
-		//System.out.println(a+", "+b+", "+c);
-		
-		// 0.0, 109.0, 109.0
-		// 0.0, 166.0, 166.0
-		// 0.0, 165.0, 165.0
-		
-		//System.out.println(depthImage.nChannels());
-		//System.out.println(depthImage.depth());
 		
 		int gap = 0;
 		int x = 0; int y = 0;
@@ -94,7 +80,6 @@ public class ImageRectifier {
 		
 		depthData = new TreeMap<Integer, Integer>();
 		IplImage toShow = sourceImage.clone();
-		//IplImage toShow = cvCreateImage(cvGetSize(depthImage),8,3);
 		
 		int x = xMin+width/2;
 		int y_bottom = yMin;
@@ -110,11 +95,11 @@ public class ImageRectifier {
 			double e = getPixelValue(depthImage, x-5, i);
 			double pixelValue = (a+b+c+d+e)/5;
 			
-			if ((pixelValue%5 == 0.0) && (pixelValue != prevPixelValue) && (pixelValue != 255.0) && ! depthData.containsValue(pixelValue)) {
-				//System.out.print(i+" Value: "); System.out.println(pixelValue);
+			if ((pixelValue%5 == 0.0) && (pixelValue != prevPixelValue) &&
+					(pixelValue != 255.0) && ! depthData.containsValue(pixelValue)) {
+				
 				prevPixelValue = pixelValue;
 				CvPoint pt1 = new CvPoint(x-width/2, i); CvPoint pt2 = new CvPoint(x+width/2, i);
-				//System.out.println(pt1); System.out.println(pt2);
 				cvLine(toShow, pt1, pt2, CvScalar.RED, 2, CV_AA, 0);
 				depthData.put(i, (int)pixelValue);
 			}
@@ -134,10 +119,7 @@ public class ImageRectifier {
 		pix0 = (int) ((vals[0]-intercept)/slope);
 		pix1 = (int) ((vals[1]-intercept)/slope);
 		
-		//double ratio = ((double)pix0)/((double)pix1);
 		double ratio = (vals[0]/vals[1])*1.5;
-		//System.out.println(ratio);
-		//System.out.println(slope);
 		
 		delta = (int)(200/ratio)/2;
 		
@@ -152,8 +134,6 @@ public class ImageRectifier {
 		cvLine(tableDrawn, pt1, pt3, CvScalar.RED, 2, CV_AA, 0);
 		cvLine(tableDrawn, pt2, pt4, CvScalar.RED, 2, CV_AA, 0);
 		
-		//cvShowImage("drawn", tableDrawn);    
-		
 		return tableDrawn;
 	}
 	
@@ -166,13 +146,12 @@ public class ImageRectifier {
 	    c1 = new CvPoint2D32f(4);
 	    c2 = new CvPoint2D32f(4);
 
-	    //corner points of the parking place
+	    //corner points from drawTableLines
 	    c1.position(0).put(pt1);
 	    c1.position(1).put(pt2);
 	    c1.position(2).put(pt3);
 	    c1.position(3).put(pt4);
 	    
-	    //double wtoh = ((double)delta)/((double)imgwidth);
 	    double wtoh = (((double)delta)/1.5)/((double)imgwidth);
 	    int hdelta = (int) (wtoh*((double)imgheight));
 	    
@@ -189,18 +168,12 @@ public class ImageRectifier {
 	    c1.position(0); c2.position(0);
 	    cvGetPerspectiveTransform(c1, c2, mmat);
 	    
-	    //System.out.println(c1);
-	    //System.out.println(c2);
-	    //System.out.println(mmat);
-	    
 	    IplImage im_out =  cvCreateImage(cvSize(imgwidth, imgheight), IPL_DEPTH_8U, sourceImage.nChannels());
 	    
 	    cvWarpPerspective(sourceImage, im_out, mmat, CV_INTER_LINEAR, CvScalar.ZERO);
 	    
 	    IplImage threechannel = cvCreateImage(cvSize(imgwidth, imgheight), IPL_DEPTH_8U, 3);
 	    cvCvtColor(im_out, threechannel, CV_RGBA2RGB);
-	    
-	    //cvShowImage("transformed", im_out);  
 	    
 	    return threechannel;
 	}
@@ -253,7 +226,6 @@ public class ImageRectifier {
 		double intercept = (sumy-slope*sumx)/n;
 		
 		fit.add(slope); fit.add(intercept);
-        //System.out.println(fit);
         
 		return fit;
 	}

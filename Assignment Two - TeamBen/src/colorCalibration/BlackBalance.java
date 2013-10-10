@@ -4,13 +4,17 @@ import static com.googlecode.javacv.cpp.opencv_core.cvCreateImage;
 import static com.googlecode.javacv.cpp.opencv_core.cvGet2D;
 import static com.googlecode.javacv.cpp.opencv_core.cvGetSize;
 import static com.googlecode.javacv.cpp.opencv_imgproc.CV_RGB2HSV;
-import static com.googlecode.javacv.cpp.opencv_imgproc.CV_RGB2YCrCb;
 import static com.googlecode.javacv.cpp.opencv_imgproc.cvCvtColor;
-
-import java.util.ArrayList;
-
 import com.googlecode.javacv.cpp.opencv_core.CvScalar;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
+
+/**
+ * @author Benjamin Rose & Ben Merange
+ *
+ * This class allows for easy HSV value return of the center
+ * point of a black image for color calibration purposes.
+ *
+ */
 
 public class BlackBalance {
 	

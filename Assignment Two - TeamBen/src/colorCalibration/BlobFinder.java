@@ -1,16 +1,22 @@
 package colorCalibration;
 
 import java.util.ArrayList;
-
 import com.googlecode.javacv.Blobs;
-import com.googlecode.javacv.CanvasFrame;
 import com.googlecode.javacv.cpp.opencv_core.CvMat;
 import com.googlecode.javacv.cpp.opencv_core.CvScalar;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
-
 import static com.googlecode.javacv.cpp.opencv_core.*;
-import static com.googlecode.javacv.cpp.opencv_highgui.*;
 import static com.googlecode.javacv.cpp.opencv_imgproc.*;
+
+/**
+ * @author Benjamin Rose & Ben Merange
+ *
+ * Adapted from the javaCV cookbook examples.
+ * https://code.google.com/p/javacv/wiki/OpenCV2_Cookbook_Examples
+ *
+ * This class is used to find 'blobs' of color within a given threshold and pixel size.
+ *
+ */
 
 public class BlobFinder {
 	
@@ -28,24 +34,15 @@ public class BlobFinder {
     	
     	blobCent.clear(); blobData.clear();
     	
-        //int MinArea = 2000;
         int ErodeCount = 0;
         int DilateCount = 1;
         
-        //IplImage GrayImage = cvCreateImage(cvGetSize(RawImage), IPL_DEPTH_8U, 1);     
-        //cvCvtColor(RawImage, GrayImage, CV_BGR2GRAY);
-        
         IplImage BWImage = cvCreateImage(cvGetSize(RawImage), IPL_DEPTH_8U, 1);
-        //cvThreshold(GrayImage, BWImage, minThresh, maxThresh, CV_THRESH_BINARY);
         cvInRangeS(RawImage, minThresh, maxThresh, BWImage);
-        //cvShowImage("thresh", BWImage);
-        //cvWaitKey(0);
         
         IplImage WorkingImage = cvCreateImage(cvGetSize(BWImage), IPL_DEPTH_8U, 1);     
         cvErode(BWImage, WorkingImage, null, ErodeCount);    
         cvDilate(WorkingImage, WorkingImage, null, DilateCount);
-        
-        //BinaryHistogram(WorkingImage);
         
         Blobs Regions = new Blobs();
         Regions.BlobAnalysis(
@@ -54,7 +51,6 @@ public class BlobFinder {
                 -1, -1,                     // ROI cols, rows
                 1,                          // border (0 = black; 1 = white)
                 MinArea);                   // minarea
-        //Regions.PrintRegionData();
 
         for(int i = 1; i <= Blobs.MaxLabel; i++) {
         	double [] Region = Blobs.RegionData[i];
@@ -69,14 +65,11 @@ public class BlobFinder {
                 blobCent.add((MaxX+MinX)/2); blobCent.add((MaxY+MinY)/2);
                 blobData.add(MinX); blobData.add(MinY); blobData.add(MaxX); blobData.add(MaxY);
             }
-            }
+         }
         
-        //cvReleaseImage(GrayImage);
         cvReleaseImage(BWImage);
         cvReleaseImage(WorkingImage);
-        //cvReleaseImage(RawImage);
         
-        //System.out.println(blobData);
         return RawImage;
     }
     
@@ -87,7 +80,6 @@ public class BlobFinder {
     public ArrayList<Integer> getData() {
     	return blobData;
     }
-    
     
     public static void Highlight(IplImage image, int [] inVec)
     {
@@ -175,14 +167,11 @@ public class BlobFinder {
         float WhitePixels = (float) ( Sum.getVal(0) / 255 );
         CvMat mat = image.asCvMat();
         float TotalPixels = mat.cols() * mat.rows();
-        //float BlackPixels = TotalPixels - WhitePixels;
         return WhitePixels / TotalPixels;
     }
   
-    // Counterclockwise small angle rotation by skewing - Does not stretch border pixels
     public static IplImage SkewGrayImage(IplImage Src, double angle)    // angle is in radians
     {
-        //double radians = - Math.PI * angle / 360.0;   // Half because skew is horizontal and vertical
         double sin = - Math.sin(angle);
         double AbsSin = Math.abs(sin);
         

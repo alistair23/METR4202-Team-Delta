@@ -9,30 +9,20 @@ import static com.googlecode.javacv.cpp.opencv_core.CV_32SC1;
 import static com.googlecode.javacv.cpp.opencv_core.cvCreateMat;
 import static com.googlecode.javacv.cpp.opencv_core.cvReleaseMat;
 import static com.googlecode.javacv.cpp.opencv_core.*;
-
-import com.googlecode.javacv.cpp.opencv_core.CvMat;
-import com.googlecode.javacv.cpp.opencv_core.*;
-
 import static com.googlecode.javacv.cpp.opencv_imgproc.CV_INTER_LINEAR;
 import static com.googlecode.javacv.cpp.opencv_imgproc.cvInitUndistortMap;
 import static com.googlecode.javacv.cpp.opencv_imgproc.cvRemap;
 import static com.googlecode.javacv.cpp.opencv_core.CV_32FC1;
+import com.googlecode.javacv.cpp.opencv_core.CvMat;
 
 /**
  * 
- * @author Benjamin
+ * @author Benjamin Rose & Ben Merange
  *
- *initialise this class
- *
- *this.setup();
- *
- *keep running calibrate(image);
- *
- *
- *
+ * This class is used to handle the calibration of camera intrinsics and extrinsics
+ * from a number of input IplImages of 5 by 4 chessboards.
  *
  */
-
 
 public class CameraCalibrator {
 
@@ -46,60 +36,32 @@ public class CameraCalibrator {
 	 public	 CvMat objectPoints = CvMat.create(pointNumber*Samples,3);
 	 public	 CvMat imagePoints = CvMat.create(pointNumber*Samples,2);
 	 
-		public double fx; //focal points
-		public double fy; 
-		public double cx; //principat point coordinates
-		public double cy;
-		
-		public double k1; //coeffs of radial distortion
-		public double k2;
-		public double k3;
-		public double p1; //coeffs of tangential distortion
-		public double p2;
-	 
-	 
-public	 CvMat cameraMatrix = CvMat.create(3,3);	
-public	 CvMat distCoeffs = CvMat.create(5,1);
-public	 CvMat rotVectors = CvMat.create(Samples,3);
-public	 CvMat transVectors = CvMat.create(Samples,3);
+	public double fx; //focal points
+	public double fy; 
+	public double cx; //principat point coordinates
+	public double cy;
+	
+	public double k1; //coeffs of radial distortion
+	public double k2;
+	public double k3;
+	public double p1; //coeffs of tangential distortion
+	public double p2;
+	
+	
+	public	 CvMat cameraMatrix = CvMat.create(3,3);	
+	public	 CvMat distCoeffs = CvMat.create(5,1);
+	public	 CvMat rotVectors = CvMat.create(Samples,3);
+	public	 CvMat transVectors = CvMat.create(Samples,3);
 			 
-public	 CvSize Resolution = new CvSize(640, 480);
-	 public	 CvMat mapx = CvMat.create(Resolution.height(), Resolution.width(), CV_32FC1);
-	 public	 CvMat mapy = CvMat.create(Resolution.height(), Resolution.width(), CV_32FC1);
+	public	 CvSize Resolution = new CvSize(640, 480);
+	public	 CvMat mapx = CvMat.create(Resolution.height(), Resolution.width(), CV_32FC1);
+	public	 CvMat mapy = CvMat.create(Resolution.height(), Resolution.width(), CV_32FC1);
 
 	public Double error;
 	public int patternFound;
 		
 	public CameraCalibrator(){
 		setup();
-	}
-	
-	public static void main(String[] args) {
-		/**
-		//Setup the kinect reader
-		KinectReader kr = new KinectReader();
-		kr.Start();
-		
-		//setup the camera calibrator
-		CameraCalibrator cc = new CameraCalibrator();
-		cc.setup();
-		
-		//get a frame and add it to the calibration data until our samples are filled.
-		
-		for(int i = 0;i<cc.Samples;i++){
-		IplImage image = kr.getColorFrame();
-		cc.addToCalibration(image);
-		}
-		
-		//perform the calibration on the current samples
-		System.out.println(String.valueOf(cc.calibrate()));
-		IplImage image = cvLoadImage("test_images/chessboard.jpg");
-		
-		
-		cvShowImage("undistorted", cc.remap(kr.getColorFrame())); 
-		cvWaitKey(0);
-		**/
-		//cc.FindChessboard(image);
 	}
 
 	// builds up coordimnate system of the grid
@@ -143,8 +105,7 @@ public	 CvSize Resolution = new CvSize(640, 480);
 		    
 		    // Draw the corners
 		    cvDrawChessboardCorners(image2, boardSize, corners, cornerCount[0], patternFound);
-		    //cvShowImage("Corners on Chessboard",image);
-		    //cvWaitKey(0);
+		    
 		    return image2;
 		}
 	
@@ -156,28 +117,25 @@ public	 CvSize Resolution = new CvSize(640, 480);
 	    int patternFound = cvFindChessboardCorners(image, boardSize, corners, cornerCount, flags);
 		
 	    if(patternFound > 0){
-		
-	    FindChessboard(image);
-		
-		
-		//set up imagepoints
-		for(int p=0; p<this.pointNumber; p++){
-			this.imagePoints.put(SampleAt*pointNumber+p, 0, corners.position(p).x());
-			this.imagePoints.put(SampleAt*pointNumber+p, 1, corners.position(p).y());
+		    FindChessboard(image);
+			
+			//set up imagepoints
+			for(int p=0; p<this.pointNumber; p++){
+				this.imagePoints.put(SampleAt*pointNumber+p, 0, corners.position(p).x());
+				this.imagePoints.put(SampleAt*pointNumber+p, 1, corners.position(p).y());
+			}
+			
+			SampleAt++;
+			System.out.println(SampleAt);
+			
+			if(SampleAt > Samples){
+				SampleAt = 0;
+			}
+		} else {
+			System.out.println("No Board Found!");
+			return false;
 		}
-		
-		SampleAt++;
-		
-		System.out.println(SampleAt);
-		
-		if(SampleAt > Samples){
-			SampleAt = 0;
-		}
-		}else{
-		
-		System.out.println("No Board Found!");
-		return false;
-		}
+	    
 	    return true;
 	}
 	
@@ -186,7 +144,6 @@ public	 CvSize Resolution = new CvSize(640, 480);
 		for(int i=0; i<Samples; i++){
 			pointCount.put(i,this.pointNumber);
 		}
-		
 		
 		System.out.println("Calibrating");
 		double error = cvCalibrateCamera2(objectPoints,imagePoints,	pointCount,	Resolution,cameraMatrix, distCoeffs, rotVectors, transVectors, 0);
@@ -213,18 +170,12 @@ public	 CvSize Resolution = new CvSize(640, 480);
 
 		IplImage undistortedImage = image.clone();
 		cvRemap(undistortedImage, undistortedImage, mapx, mapy, CV_INTER_LINEAR, CvScalar.ZERO);
-		//cvShowImage("image", image);  
-		//cvShowImage("undistorted", undistortedImage);  
-		//cvWaitKey(0);
 		return undistortedImage;
 	}
 	
 	public IplImage remap2(final IplImage image){
 		IplImage undistortedImage = image.clone();
 		cvRemap(image, undistortedImage, mapx, mapy, CV_INTER_LINEAR, CvScalar.ZERO);
-		//cvShowImage("image", image);  
-		//cvShowImage("undistorted", undistortedImage);  
-		//cvWaitKey(0);
 		return undistortedImage;
 	}
 	
@@ -239,7 +190,6 @@ public	 CvSize Resolution = new CvSize(640, 480);
 	    if(patternFound > 0){
 	    	d = true;
 	    }
-	  
 		
 		return d;
 	}
@@ -251,7 +201,6 @@ public	 CvSize Resolution = new CvSize(640, 480);
 		}
 		return r;
 	}
-	
-	}
+}
 
 

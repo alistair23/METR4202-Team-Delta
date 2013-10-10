@@ -20,6 +20,14 @@ import org.openni.VideoFrameRef;
 import org.openni.VideoStream;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
+/**
+ * @author Benjamin Rose & Ben Merange
+ *
+ * This class is used to convert from Kinect color and depth images in
+ * VideoFrameRef form to JavaCV IplImage form.
+ *
+ */
+
 public class ImageConverter {
 	
 	float mHistogram[];
@@ -51,8 +59,6 @@ public class ImageConverter {
         for (int row = 0; row <= image.getHeight()-1; row++) {
             for (int col = 0; col < image.getWidth(); col++) {
             	
-            	//System.out.println(width+" "+height+" "+row+" "+col);
-            	
                 int R, G, B;
                 R = image.getData().get(bufferInd++);
                 G = image.getData().get(bufferInd++);
@@ -81,16 +87,14 @@ public class ImageConverter {
 	}
 	
 	public BufferedImage convertD(VideoFrameRef image, VideoStream stream){
-		//TODO read the data as little-endian to get a smooth image
 
-			mVideoStream = stream;
-		  int[] packedPixels = new int[image.getWidth() * image.getHeight()];
-		  //ByteBuffer pixels = image.getData();
+		mVideoStream = stream;
+		int[] packedPixels = new int[image.getWidth() * image.getHeight()];
 		  
-		  ByteBuffer frameData = image.getData().order(ByteOrder.LITTLE_ENDIAN);
+		ByteBuffer frameData = image.getData().order(ByteOrder.LITTLE_ENDIAN);
 	        
-	        switch (image.getVideoMode().getPixelFormat())
-	        {
+	    switch (image.getVideoMode().getPixelFormat()) {
+	    
 	            case DEPTH_1_MM:
 	            case DEPTH_100_UM:
 	            case SHIFT_9_2:
@@ -115,26 +119,18 @@ public class ImageConverter {
 	                    pos++;
 	                }
 	                break;
-	                default:
-	                // don't know how to draw
+	             default:
 	            	image.release();
-	            	//image = null;
 	        }
 	        
 	        BufferedImage img = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_RGB);
-	       // WritableRaster wr = img.getRaster();
-	        //wr.setPixels(0, 0, image.getWidth(), image.getHeight(), packedPixels);
 	        img.setRGB(0, 0, image.getWidth(), image.getHeight(), packedPixels, 0, image.getWidth());
-	        
 	        return img;
-		
 	}
 	
     private void calcHist(ByteBuffer depthBuffer) {
         // make sure we have enough room
         mHistogram = new float[mVideoStream.getMaxPixelValue()];
-        
-        
         
         // reset
         for (int i = 0; i < mHistogram.length; ++i)
@@ -160,43 +156,6 @@ public class ImageConverter {
         }
     }
 	
-/**	public BufferedImage convertD(ByteBuffer image){
-		//TODO read the data as little-endian to get a smooth image
-		int width = 640;
-		int height = 480;
-		  int[] packedPixels = new int[width * height * 3];
-			 
-		  ByteBuffer pixels = image;
-		  
-	        int bufferInd = 0;
-	        for (int row = 0; row <= height - 1; row++) {
-	            for (int col = 0; col < width; col++) {
-	            	
-	            
-	            	
-	            	//System.out.println(width+" "+height+" "+row+" "+col);
-	            	
-	                int L, M;
-
-	                M = pixels.get(bufferInd++);
-	                L = pixels.get(bufferInd++);
-	            
-	                System.out.println(M+" - "+little2big(M)+" *** "+L+" - "+little2big(L));
-	                
-	                int index = (row * width + col) *1;
-	                packedPixels[index] = M;
-	                packedPixels[index++] = L;
-
-	                
-	            }
-	        }
-	        BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_INDEXED);
-	        WritableRaster wr = img.getRaster();
-	        wr.setPixels(0, 0, width, height, packedPixels);
-	        return img;
-		
-	}
-	**/
 	public IplImage convertD(BufferedImage image){
 		return IplImage.createFrom(image);
 	}
@@ -223,24 +182,7 @@ public class ImageConverter {
 			} catch (IOException e) {}
 		
 	}
-/**
-	public void savePNG(String str,VideoFrameRef img){
-		File outputfile = new File(str+".png");
-
-		if(img.getVideoMode().getPixelFormat() == PixelFormat.DEPTH_1_MM || 
-				img.getVideoMode().getPixelFormat() == PixelFormat.DEPTH_100_UM){
-					try {
-						ImageIO.write(convertD(img), "png", outputfile);
-					} catch (IOException e) {}
-		}
-		else{
-			try {
-				ImageIO.write(convertRGB(img), "png", outputfile);
-			} catch (IOException e) {			}
-		}
-
-	}
-*/	
+	
 	int little2big(int i) {
 	    return((i&0xff)<<24)+((i&0xff00)<<8)+((i&0xff0000)>>8)+((i>>24)&0xff);
 	}
@@ -256,13 +198,11 @@ public class ImageConverter {
 		catch (IOException e) {
 			System.out.println("I/O Error: " + e.getMessage());
 		}
-
 	}
 	
 	public ByteBuffer loadBuffer(String str){
 		ByteBuffer buf = null;
 		try {
-			
 			
 			File inFile = new File(str);
 
@@ -286,89 +226,26 @@ public class ImageConverter {
 
 	}
 	
-	//float mHistogram[];
-	//int[] mImagePixels;
-	
 	   public BufferedImage convertD(ByteBuffer frame) {
-
-		   
-		   
-	        // frameData = mLastFrame.getData().order(ByteOrder.LITTLE_ENDIAN);
 	        
 	        // make sure we have enough room
 
 		   ByteBuffer frameData = frame.order(ByteOrder.LITTLE_ENDIAN);
 		   int width = 640;
-			int height = 480;
+		   int height = 480;
 			
-	     //   if (mImagePixels == null || mImagePixels.length < width * height) {
-	      //      mImagePixels = new int[width * height];
-	      //  }
-
-			
-			
-			
-			  int[] packedPixels = new int[width * height * 3];
-			  		//calcHist(frameData.asReadOnlyBuffer());
-		                frameData.rewind();
-		                int pos = 0;
-		                while(frameData.remaining() > 0) {
-		                    int depth = (int)frameData.getShort() & 0xFFFF;
-		                    
-		                    //short pixel = (short)mHistogram[depth];
-		                    
-		                 //   mImagePixels[pos] = 0xFF000000 | (pixel << 16) | (pixel << 8);
-		                 //  System.out.println(depth);
-		                    
-		                   packedPixels[pos] = depth;
-		                    
-		                    pos++;
-		                }
-		                
+		   int[] packedPixels = new int[width * height * 3];
+		        frameData.rewind();
+		        int pos = 0;
+		        while(frameData.remaining() > 0) {
+		             int depth = (int)frameData.getShort() & 0xFFFF;
+		             packedPixels[pos] = depth;
+		             pos++;
+		         }
 		
-		        BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY);
-		        WritableRaster wr = img.getRaster();
-		        wr.setPixels(0, 0, width, height, packedPixels);
-		        return img;
-		   
-	        
-
-
-	
-
-
+		    BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY);
+		    WritableRaster wr = img.getRaster();
+		    wr.setPixels(0, 0, width, height, packedPixels);
+		    return img;
 	    }
-/**
-	   private void calcHist(ByteBuffer depthBuffer) {
-
-		   if (mHistogram == null || mHistogram.length < depthBuffer.limit()) {
-	            mHistogram = new float[depthBuffer.limit()];
-	        }
-		   
-	        // reset
-	        for (int i = 0; i < mHistogram.length; ++i)
-	            mHistogram[i] = 0;
-
-	        int points = 0;
-	        while (depthBuffer.remaining() > 0) {
-	            int depth = depthBuffer.getShort() & 0xFFFF;
-	            if (depth != 0) {
-	                mHistogram[depth]++;
-	                points++;
-	            }
-	        }
-
-	        for (int i = 1; i < mHistogram.length; i++) {
-	            mHistogram[i] += mHistogram[i - 1];
-	        }
-
-	        if (points > 0) {
-	            for (int i = 1; i < mHistogram.length; i++) {
-	                mHistogram[i] = (int) (256 * (1.0f - (mHistogram[i] / (float) points)));
-	            }
-	        }
-	    }
-	
-	**/
-
 }

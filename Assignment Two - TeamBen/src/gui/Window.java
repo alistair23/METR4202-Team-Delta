@@ -7,31 +7,29 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
-
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-
 import capture.ImageConverter;
-
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
+
+/**
+ * @author Benjamin Rose & Ben Merange
+ *
+ * This class creates a variation of JFrame to house IplImages within a GUI.
+ * 
+ */
 
 public class Window extends JFrame {
 	
     GridBagConstraints gc = new GridBagConstraints();
     GridBagLayout g = new GridBagLayout();
- 
-
-	public static void main(String[] args) {
-
-	}
 	
 	public Window(Dimension d){
 		this.setSize(d);
 		this.setVisible(true);
 	   	this.setLayout(g);
-	    
 	}
 
 	public JPanel ImagePanel(IplImage img, int scale){
@@ -43,7 +41,7 @@ public class Window extends JFrame {
 	public void ImagePanelUpdate(JPanel j, IplImage img, int scale){
 		j.removeAll();
         j.add(new JLabel(new ImageIcon(scale(img, scale).getBufferedImage())));;
-      revalidate();
+        revalidate();
 	}
 
 	
@@ -54,21 +52,18 @@ public class Window extends JFrame {
 	    g2d.drawImage(image, 0, 0, width, height, null);
 	    g2d.dispose();
 	    return bi;
-	
 	}
 	
 	public IplImage scale(BufferedImage img, int scale){
 		BufferedImage bi = resize(img,img.getWidth()/scale,img.getHeight()/scale);
 		ImageConverter ic = new ImageConverter();
 		return ic.convertRGB(bi);
-		
 	}
 
 	public IplImage scale(IplImage img, int scale){
 		BufferedImage bi = resize(img.getBufferedImage(),img.width()/scale,img.height()/scale);
 		ImageConverter ic = new ImageConverter();
 		return ic.convertRGB(bi);
-		
 	}
 	
 	public void add(Component p, int gx, int gy, int w, int h, int wx, int wy){
@@ -83,13 +78,10 @@ public class Window extends JFrame {
         gc.gridheight = h;
         
         this.add(p, gc);
-        
 		this.revalidate();
-		
 	}
 
 	public void exit(){
 		System.exit(0);
 	}
-
 }

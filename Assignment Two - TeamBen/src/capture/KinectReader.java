@@ -24,16 +24,16 @@ import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
 /**
  * 
- * @author Benjamin Rose
+ * @author Benjamin Rose & Ben Merange
  *
- *This Class Streams a connected kinect device (installed using kinect SDK 1.7 Drivers and OPENNI2.2)
+ * This Class Streams a connected kinect device (installed using kinect SDK 1.7 Drivers and OPENNI2.2)
  *
  * when viewing the GUI, press 'a' to recapture both still frames, 'd' to save the current frame, 
  * and 's' to both recapture and save the frames. 
  * 
  * The exposed variables 'CBuffer' 'DBuffer' 'CFrame' and 'DFrame' all store the current frames.
  *
- *Typical use for Image capture:
+ * Typical use for Image capture:
  
  		KinectReader kr = new KinectReader();
  		kr.Start();
@@ -77,6 +77,14 @@ public class KinectReader {
 		frames = 0;
 	}
 	
+	public boolean deviceConnected() {
+		if (device == null) {
+			return false;
+		} else {
+			return true;
+		}
+	}
+	
 	public void Start(){
 		System.out.println("Starting Kinect");
 		OpenNI.initialize();
@@ -89,35 +97,15 @@ public class KinectReader {
 	    }
 	        
         device = Device.open(devicesInfo.get(0).getUri());
-        
         Cstream = VideoStream.create(device, SensorType.COLOR);
-        
         Dstream = VideoStream.create(device, SensorType.DEPTH);
         
         Cstream.setVideoMode(Cstream.getSensorInfo().getSupportedVideoModes().get(1));
         Dstream.setVideoMode(Dstream.getSensorInfo().getSupportedVideoModes().get(0));
-        
-        //System.out.println(Cstream.getVideoMode().getResolutionX());
-        //Cstream.getVideoMode().setResolution(1280, 1080);
-        //System.out.println(Cstream.getVideoMode().getResolutionX());
-        
         Dstream.getVideoMode().setPixelFormat(DEPTH_1_MM);
         
         Cstream.start();
         Dstream.start();
-        
-        //windowFrame = new JFrame("Lab2 Frame Viewer");
-        //windowFrame.setLayout(new GridLayout(0,2));
-        //windowFrame.addKeyListener(this);
-        
-        //windowFrame.getContentPane().add(CPanel);
-		//windowFrame.getContentPane().add(DPanel);
-  
-		//CBuffer = ic.convertRGB(Cstream.readFrame());
-		//DBuffer = ic.convertD(Dstream.readFrame(), Dstream);
-		
-		//CPanel.add(new JLabel(new ImageIcon(CBuffer)));
-		//DPanel.add(new JLabel(new ImageIcon(DBuffer)));
 	
 	}
 	
@@ -132,7 +120,6 @@ public class KinectReader {
 	
 	public IplImage getColorFrame(){
 		
-		//System.out.println("Getting Frames: Color");
 		Cframe = Cstream.readFrame();
 		
 		CBuffer = ic.convertRGB(Cframe);
@@ -147,40 +134,31 @@ public class KinectReader {
 	}
 	
 	public IplImage getDepthFrame(){
-		//System.out.println("Getting Frames: Depth");
+		
         Dframe = Dstream.readFrame();
 		
         DBuffer = ic.convertD(Dframe, Dstream);
         
         DPanel.removeAll();
 		DPanel.add(new JLabel(new ImageIcon(DBuffer)));        
-        
   		
 		IplImage ii = IplImage.createFrom(DBuffer);
-		 
 		return ii;
 	}
-	
-
 	
 	public void getFrames(){
 		getColorFrame();
 		getDepthFrame();
 	}
 	
-	
-	
 	public IplImage getHighResImage(){
 		Cstream.stop();
-		//Cstream = VideoStream.create(device, SensorType.COLOR);
 		Cstream.setVideoMode(Cstream.getSensorInfo().getSupportedVideoModes().get(0));
 		Cstream.start();
 		IplImage hires = getColorFrame();
 		Cstream.stop();
-		//Cstream = VideoStream.create(device, SensorType.COLOR);
 		Cstream.setVideoMode(Cstream.getSensorInfo().getSupportedVideoModes().get(1));
 		Cstream.start();
 		return hires;
 	}
-	
 }

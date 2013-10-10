@@ -3,19 +3,30 @@ package functions;
 import static com.googlecode.javacv.cpp.opencv_core.*;
 import static com.googlecode.javacv.cpp.opencv_highgui.*;
 import static com.googlecode.javacv.cpp.opencv_imgproc.*;
- 
-import com.googlecode.javacv.cpp.opencv_core.*;
-import com.googlecode.javacv.cpp.opencv_highgui.*;
- 
+
+/**
+ * 
+ * @author Benjamin Rose & Ben Merange
+ *
+ * This Class is utilized to visualize pixel HSV values by printing
+ * the current values at the mouse position to the console.
+ * 
+ */
+
 public class PixelColorVisualiser{
   
 	public static int x_co;
 	public static int y_co; 
 	
 	public static void main (String[] args){
+		if (args.length == 0) {
+			System.out.println("No input image!");
+			return;
+		}
 		
-		final IplImage src = cvLoadImage("test_images/COLORCALIBTRIAL.png");
-		cvNamedWindow("Image",CV_WINDOW_AUTOSIZE);
+		String inputFile = args[0];
+		final IplImage src = cvLoadImage(inputFile);
+		cvNamedWindow("Pixel Color Visualiser",CV_WINDOW_AUTOSIZE);
 		final IplImage hsv = cvCreateImage(cvGetSize(src), 8, 3);
 	    cvCvtColor(src, hsv, CV_BGR2HSV);
 	    
@@ -32,8 +43,8 @@ public class PixelColorVisualiser{
             }
         };
         
-        cvSetMouseCallback("Image", on_mouse, null);        
-	    cvShowImage("Image", src);
+        cvSetMouseCallback("Pixel Color Visualiser", on_mouse, null);        
+	    cvShowImage("Pixel Color Visualiser", src);
 	    cvWaitKey(0);
 	}	
 }
