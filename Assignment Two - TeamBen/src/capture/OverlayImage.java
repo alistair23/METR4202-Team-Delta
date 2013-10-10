@@ -12,23 +12,14 @@ import com.googlecode.javacv.cpp.opencv_core.IplImage;
  * 
  */
 
-public class OverlayImage implements Runnable {
+public class OverlayImage extends IplImage {
 
-	KinectReader kr;
-	public IplImage overlayed;
-	private double level = 0.0;
+	   public OverlayImage(IplImage one, IplImage two, double level) {
+	    	cvAddWeighted(one, 1.0, two, level, 0.0, this);
+	    }
+
+	   public OverlayImage(IplImage one, IplImage two) {
+	    	cvAddWeighted(one, 1.0, two, 0.5, 0.0, this);
+	    }
 	
-    public OverlayImage(KinectReader kr, double level) {
-        this.kr = kr;
-        this.level = level;
-    }
-	
-	@Override
-	public void run() {
-		overlayed = kr.getDepthFrame();
-		IplImage depthframe = kr.getDepthFrame();
-		IplImage colorframe = kr.getColorFrame();
-		
-    	cvAddWeighted(colorframe, 1.0, depthframe, level, 0.0, overlayed);
-	}
 }

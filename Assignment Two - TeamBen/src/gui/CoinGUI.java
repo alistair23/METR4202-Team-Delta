@@ -3,6 +3,7 @@ package gui;
 import static com.googlecode.javacv.cpp.opencv_core.*;
 import static com.googlecode.javacv.cpp.opencv_highgui.cvLoadImage;
 import static com.googlecode.javacv.cpp.opencv_calib3d.cvRodrigues2;
+
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
@@ -11,17 +12,21 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.TreeMap;
+
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+
 import localisation.AxisLocator;
 import colorCalibration.BlackBalance;
 import colorCalibration.ColorChart;
+
 import com.googlecode.javacv.cpp.opencv_core.CvMat;
 import com.googlecode.javacv.cpp.opencv_core.CvScalar;
 import com.googlecode.javacv.cpp.opencv_core.CvSize;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
+
 import cameraCalibration.CameraCalibrator;
 import capture.ImageConverter;
 import capture.KinectReader;
@@ -53,6 +58,7 @@ public class CoinGUI extends JFrame{
 	static JPanel samples = new JPanel();
 	
 	static IplImage mainI;
+	static IplImage mainDI;
 	static IplImage currentI;
 	static IplImage currentDI;
 
@@ -92,27 +98,26 @@ public class CoinGUI extends JFrame{
     static KinectReader kr;
     static OverlayImage overlay;
     
+    
     public CoinGUI(){
   
     }
     
 	public static void main(String[] args) {
 		kr = new KinectReader();
+		boolean haveKinect = kr.Start();
 		
-		if (kr.deviceConnected() == false) {
-			System.out.println("Device is not connected!");
-			return;
-		}
 		
 		final Window w = new Window(new Dimension(1350,750));
 		w.setExtendedState(JFrame.MAXIMIZED_BOTH);
 		
-		overlay = new OverlayImage(kr, 0.1);
 		
-		defC = cvLoadImage("test_images/axonscene.png");
-		defD = cvLoadImage("test_images/axonscene.png");
+		defC = cvLoadImage("noCam.png");
+		defD = cvLoadImage("noCam.png");
+				
+		mainI = defC;
+		mainDI = defD;
 		
-		mainI = kr.getColorFrame();
 		currentI = defC;
 		currentDI = defD;
 		
@@ -194,8 +199,7 @@ public class CoinGUI extends JFrame{
 	
 	    final JPanel mainP = w.ImagePanel(mainI, 1);
 	    final JPanel currentP = w.ImagePanel(currentI, 1);
-		    
-	    
+		
 	    w.add(mainP,0,4,3,1,1,1);
 	    w.add(currentP,3,4,3,1,1,1);
 	    
@@ -204,6 +208,19 @@ public class CoinGUI extends JFrame{
 	    w.add(con,0,6,6,1,1,1);
 		con.addln("Here We GO!!!");
 
+		
+		if(haveKinect){
+			mainI = kr.getColorFrame();
+			mainDI = kr.getDepthFrame();
+		}else{
+			capc.setEnabled(false);
+			capd.setEnabled(false);
+			camcal.setEnabled(false);
+			
+		}
+		
+		
+		
 	    capc.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e){
             	con.addln("Capturing Images! (Showing Color)");
@@ -460,13 +477,17 @@ public class CoinGUI extends JFrame{
     	});
 	    
 		
-	    overlay.run();
+	   
 	    
 		while(true){
+			if(haveKinect){
+			mainI = kr.getColorFrame();
+			mainDI = kr.getDepthFrame();
 			
-		//	IplImage overlayedImage = cvCreateImage(cvGetSize(currentI), currentI.depth(), currentI.nChannels());
-			IplImage overlayedImage = overlay.overlayed;
-			w.ImagePanelUpdate(mainP, overlayedImage, 1);
+			IplImage overlay = mainI;// = new OverlayImage(mainI, mainDI);
+			cvAddWeighted(mainI, 1.0, mainDI, 0.5, 0.0, overlay);
+	    	w.ImagePanelUpdate(mainP, overlay, 1);
+			}
         	
 		}
 	}

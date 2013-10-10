@@ -1,8 +1,10 @@
 package capture;
+import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.image.BufferedImage;
+import java.nio.ByteBuffer;
 import java.util.List;
 
 import javax.swing.ImageIcon;
@@ -73,8 +75,14 @@ public class KinectReader {
 	ImageConverter ic = new ImageConverter();
 	
 	public KinectReader(){
-		this.Start();
-		frames = 0;
+	}
+	
+	public static void main(String[] args) {
+		KinectReader kr = new KinectReader();
+		if(kr.Start()){
+			kr.getColorFrame();
+		}
+		//kr.getDepthFrame();
 	}
 	
 	public boolean deviceConnected() {
@@ -85,16 +93,16 @@ public class KinectReader {
 		}
 	}
 	
-	public void Start(){
+	public boolean Start(){
 		System.out.println("Starting Kinect");
 		OpenNI.initialize();
 		
 		//Check for connected devices
 		List<DeviceInfo> devicesInfo = OpenNI.enumerateDevices();
 	    if (devicesInfo.isEmpty()) {
-            JOptionPane.showMessageDialog(null, "No device is connected", "Error", JOptionPane.ERROR_MESSAGE);
-            return;
-	    }
+           // JOptionPane.showMessageDialog(null, "No device is connected", "Error", JOptionPane.ERROR_MESSAGE);
+            return false;
+	    }else{
 	        
         device = Device.open(devicesInfo.get(0).getUri());
         Cstream = VideoStream.create(device, SensorType.COLOR);
@@ -106,7 +114,8 @@ public class KinectReader {
         
         Cstream.start();
         Dstream.start();
-	
+        return true;
+	    }
 	}
 	
  	
@@ -122,12 +131,8 @@ public class KinectReader {
 		
 		Cframe = Cstream.readFrame();
 		
-		CBuffer = ic.convertRGB(Cframe);
+		IplImage ii = ic.convertRGB(ic.convertRGB(Cframe));
 		
-		CPanel.removeAll();
-		CPanel.add(new JLabel(new ImageIcon(CBuffer)));
-		
-		IplImage ii = IplImage.createFrom(CBuffer);
 		frames++;
 		return ii;
 		
