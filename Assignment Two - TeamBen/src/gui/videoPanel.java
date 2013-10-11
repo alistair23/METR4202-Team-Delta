@@ -14,16 +14,18 @@ import javax.swing.JPanel;
 
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
+import capture.CameraReader;
 import capture.ImageConverter;
 import capture.KinectReader;
 
 public class videoPanel extends JPanel implements Runnable{
 
 	static KinectReader kr;
+	static CameraReader cr;
 	IplImage ic;
 	IplImage id;
 	 IplImage iv;
-	String output = "io";
+	String output = "ic";
 	int scale = 1;
 		
 	public videoPanel(){
@@ -47,13 +49,24 @@ public class videoPanel extends JPanel implements Runnable{
 		//this.run();
 	}
 	
+	public videoPanel(CameraReader cr){
+		this.cr = cr;
+		cr.Start();
+		//kr.Start();
+		iv = cr.getColorFrame();
+		//this.add(new JLabel(new ImageIcon(io.getBufferedImage())));
+
+		
+		//this.run();
+	}
+	
 	public static void main(String[] args) {
 		
 		JFrame w = new JFrame();
 		w.setSize(700, 700);
 		w.setVisible(true);
 		
-		videoPanel v = new videoPanel();
+		videoPanel v = new videoPanel(cr);
 		w.add(v);
 		v.run();
 	}
@@ -61,12 +74,12 @@ public class videoPanel extends JPanel implements Runnable{
 @Override
 	public void run() {
 		while(true){
-			ic = kr.getColorFrame();
-			id = kr.getDepthFrame();
+			ic = cr.getColorFrame();
+			//id = cr.getDepthFrame();
 			iv = ic.clone();
-			cvAddWeighted(ic, 1.0, id, 0.5, 0.0, iv);
+			//cvAddWeighted(ic, 1.0, id, 0.5, 0.0, iv);
 			this.removeAll();
-			if(output == "io"){
+			if(output == "iv"){
 				this.add(new JLabel(new ImageIcon(scale(iv, scale).getBufferedImage())));
 			}else if(output == "ic"){
 				this.add(new JLabel(new ImageIcon(scale(ic, scale).getBufferedImage())));
