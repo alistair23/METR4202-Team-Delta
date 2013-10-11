@@ -1,4 +1,6 @@
 package capture;
+import gui.videoPanel;
+
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.KeyEvent;
@@ -23,6 +25,23 @@ import org.openni.VideoFrameRef;
 import org.openni.VideoStream;
 
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
+import static com.googlecode.javacv.cpp.opencv_core.cvAddWeighted;
+
+import java.awt.Dimension;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.awt.image.BufferedImage;
+
+import javax.swing.ImageIcon;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+
+import com.googlecode.javacv.cpp.opencv_core.IplImage;
+
+import capture.CameraReader;
+import capture.ImageConverter;
+import capture.KinectReader;
 
 /**
  * 
@@ -55,23 +74,14 @@ import com.googlecode.javacv.cpp.opencv_core.IplImage;
  
  */
 
-public class KinectReader {
+public class KinectReader extends CameraReader{
 
 	private Device device;
 	private VideoStream Cstream;
 	private VideoStream Dstream;
-	private JFrame windowFrame;
-	private JPanel CPanel = new JPanel();
-	private JPanel DPanel = new JPanel();
-	BufferedImage CBuffer;
-	BufferedImage DBuffer;
 	VideoFrameRef Cframe;
 	VideoFrameRef Dframe;
 
-	int imageindex = 0;
-	
-	public int frames;
-	
 	ImageConverter ic = new ImageConverter();
 	
 	public KinectReader(){
@@ -79,10 +89,17 @@ public class KinectReader {
 	
 	public static void main(String[] args) {
 		KinectReader kr = new KinectReader();
-		if(kr.Start()){
-			kr.getColorFrame();
-		}
-		//kr.getDepthFrame();
+		kr.Start();
+		
+		JFrame w = new JFrame();
+		w.setVisible(true);
+		
+		videoPanel v = new videoPanel(kr, "Overlay");
+		w.setSize(v.size);
+
+		w.add(v);
+		(new Thread(v)).start();
+
 	}
 	
 	public boolean deviceConnected() {
@@ -123,37 +140,29 @@ public class KinectReader {
 		device.close();
 		Cstream.destroy();
 		Dstream.destroy();
-		windowFrame.dispose();
 		
 	}
 	
 	public IplImage getColorFrame(){
-		
 		Cframe = Cstream.readFrame();
-		
 		IplImage ii = ic.convertRGB(ic.convertRGB(Cframe));
-		
-		frames++;
 		return ii;
-		
 	}
 	
 	public IplImage getDepthFrame(){
-		
         Dframe = Dstream.readFrame();
-		
-        DBuffer = ic.convertD(Dframe, Dstream);
-        
-        DPanel.removeAll();
-		DPanel.add(new JLabel(new ImageIcon(DBuffer)));        
-  		
-		IplImage ii = IplImage.createFrom(DBuffer);
+		IplImage ii = ic.convertD(ic.convertD(Dframe, Dstream));
 		return ii;
 	}
 	
-	public void getFrames(){
-		getColorFrame();
-		getDepthFrame();
+	public IplImage getOverlayFrame(){
+		Cframe = Cstream.readFrame();
+		Dframe = Dstream.readFrame();
+		IplImage imc = ic.convertRGB(ic.convertRGB(Cframe));
+		IplImage imd = ic.convertD(ic.convertD(Dframe, Dstream));
+		IplImage ii = imc.clone();
+		cvAddWeighted(imc, 1.0, imd, 0.5, 0.0, ii);
+		return ii;
 	}
 	
 	public IplImage getHighResImage(){

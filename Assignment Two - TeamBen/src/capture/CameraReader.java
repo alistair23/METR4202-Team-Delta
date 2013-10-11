@@ -1,24 +1,13 @@
 package capture;
 
-import static org.openni.PixelFormat.DEPTH_1_MM;
 import gui.videoPanel;
 
-import java.awt.image.BufferedImage;
 import java.util.List;
 
-import javax.swing.ImageIcon;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
 
-import org.openni.Device;
 import org.openni.DeviceInfo;
 import org.openni.OpenNI;
-import org.openni.SensorType;
-import org.openni.VideoFrameRef;
-import org.openni.VideoStream;
-
-
 
 import com.googlecode.javacv.OpenCVFrameGrabber;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
@@ -27,14 +16,26 @@ import com.googlecode.javacv.cpp.opencv_core.IplImage;
 public class CameraReader {
 
 //the number (0) refers to the device number. if you only have one camera, it will be 0, if you have more, increment it.
-	final OpenCVFrameGrabber device = new OpenCVFrameGrabber(0);
+	
+	OpenCVFrameGrabber device = new OpenCVFrameGrabber(2);
 	
 
 	IplImage cFrame;
 	
+
+	public CameraReader(){
+		
+	}
+
+	public CameraReader(int dev){
+		device = new OpenCVFrameGrabber(dev);
+	}
+	
+	
 	public static void main(String[] args) {
 		
 		CameraReader cr = new CameraReader();
+		cr.listCameras();
 		cr.Start();
 		
 		JFrame w = new JFrame();
@@ -44,30 +45,20 @@ public class CameraReader {
 		videoPanel v = new videoPanel(cr);
 		w.add(v);
 		v.run();
-		
-		
-		
-		//if(cr.Start()){
-			cr.getColorFrame();
-		//}
 	
 	}
 	
 	public boolean Start(){
-		System.out.println("Starting Camera");
 		
+		System.out.println("Starting Camera");
 		try {
 			device.start();
 		} catch (com.googlecode.javacv.FrameGrabber.Exception e) {
 			return false;
 		}
-		
-		
-        return true;
+		return true;
 	}
 	
-	
- 	
 	public void Stop(){
 		try {
 			device.flush();
@@ -78,20 +69,29 @@ public class CameraReader {
 	}
 	
 	public IplImage getColorFrame(){
-		
 		try {
             cFrame = device.grab();
         } catch (Exception e) {
             e.printStackTrace();
         }
-		
 		return cFrame;
-		
+	}
+	public IplImage getDepthFrame(){
+		return null;
+	}
+	public IplImage getOverlayFrame(){
+		return null;
 	}
 	
-
-	
-
-	
-
+	public boolean listCameras(){
+		List<DeviceInfo> devicesInfo = OpenNI.enumerateDevices();
+	    if (devicesInfo.isEmpty()) {
+           // JOptionPane.showMessageDialog(null, "No device is connected", "Error", JOptionPane.ERROR_MESSAGE);
+            return false;
+            
+	    }else{
+	    	System.out.println(devicesInfo.toString());
+	    	return true;
+	    }
+	}
 }

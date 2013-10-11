@@ -20,18 +20,20 @@ import capture.KinectReader;
 
 public class videoPanel extends JPanel implements Runnable{
 
-	static KinectReader kr;
 	static CameraReader cr;
 	IplImage ic;
 	IplImage id;
-	 IplImage iv;
-	String output = "ic";
+	IplImage iv;
+	String output = "Color";// Overlay or Depth
 	int scale = 1;
+	public Dimension size = new Dimension(700,700);
 		
 	public videoPanel(){
-		kr = new KinectReader();
-		kr.Start();
-		iv = kr.getColorFrame();
+		cr = new CameraReader();
+		cr.Start();
+		this.size = new Dimension(cr.getColorFrame().width()+20,cr.getColorFrame().height()+50);
+
+		iv = cr.getColorFrame();
 		this.add(new JLabel(new ImageIcon(iv.getBufferedImage())));
 		
 
@@ -40,9 +42,24 @@ public class videoPanel extends JPanel implements Runnable{
 	}
 	
 	public videoPanel(KinectReader kr){
-		this.kr = kr;
+		this.cr = kr;
 		//kr.Start();
-		iv = kr.getColorFrame();
+		this.size = new Dimension(kr.getColorFrame().width()+20,kr.getColorFrame().height()+50);
+		iv = cr.getColorFrame();
+		//this.add(new JLabel(new ImageIcon(io.getBufferedImage())));
+
+		
+		//this.run();
+	}
+	
+	public videoPanel(KinectReader kr, String str){
+		this.cr = kr;
+		//kr.Start();
+		this.size = new Dimension(kr.getColorFrame().width()+20,kr.getColorFrame().height()+50);
+
+		output = str;
+		
+		iv = cr.getColorFrame();
 		//this.add(new JLabel(new ImageIcon(io.getBufferedImage())));
 
 		
@@ -51,6 +68,8 @@ public class videoPanel extends JPanel implements Runnable{
 	
 	public videoPanel(CameraReader cr){
 		this.cr = cr;
+		this.size = new Dimension(cr.getColorFrame().width(),cr.getColorFrame().height());
+
 		cr.Start();
 		//kr.Start();
 		iv = cr.getColorFrame();
@@ -61,12 +80,11 @@ public class videoPanel extends JPanel implements Runnable{
 	}
 	
 	public static void main(String[] args) {
-		
+		videoPanel v = new videoPanel();
 		JFrame w = new JFrame();
-		w.setSize(700, 700);
+		w.setSize(v.size);
 		w.setVisible(true);
-		
-		videoPanel v = new videoPanel(cr);
+
 		w.add(v);
 		v.run();
 	}
@@ -75,19 +93,18 @@ public class videoPanel extends JPanel implements Runnable{
 	public void run() {
 		while(true){
 			ic = cr.getColorFrame();
-			//id = cr.getDepthFrame();
-			iv = ic.clone();
+			id = cr.getDepthFrame();
+			iv = cr.getOverlayFrame();
 			//cvAddWeighted(ic, 1.0, id, 0.5, 0.0, iv);
 			this.removeAll();
-			if(output == "iv"){
+			if(output == "Overlay"){
 				this.add(new JLabel(new ImageIcon(scale(iv, scale).getBufferedImage())));
-			}else if(output == "ic"){
+			}else if(output == "Color"){
 				this.add(new JLabel(new ImageIcon(scale(ic, scale).getBufferedImage())));
-			}else if(output == "id"){
+			}else if(output == "Depth"){
 				this.add(new JLabel(new ImageIcon(scale(id, scale).getBufferedImage())));
 			}
 			this.revalidate();
-			System.out.println("Doing");
 		}
 		//System.out.println("Done");
 		
