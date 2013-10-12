@@ -2,6 +2,7 @@ package capture;
 
 import gui.videoPanel;
 
+import java.awt.Dimension;
 import java.util.List;
 
 import javax.swing.JFrame;
@@ -17,7 +18,7 @@ public class CameraReader {
 
 //the number (0) refers to the device number. if you only have one camera, it will be 0, if you have more, increment it.
 	
-	OpenCVFrameGrabber device = new OpenCVFrameGrabber(2);
+	OpenCVFrameGrabber device = new OpenCVFrameGrabber(1);
 	
 
 	IplImage cFrame;
@@ -34,18 +35,17 @@ public class CameraReader {
 	
 	public static void main(String[] args) {
 		
-		CameraReader cr = new CameraReader();
-		cr.listCameras();
+		CameraReader cr = new CameraReader(1);
 		cr.Start();
-		
 		JFrame w = new JFrame();
-		w.setSize(1300,900);
+		w.setSize(new Dimension(cr.getColorFrame().width()+20,cr.getColorFrame().height()+50));
 		w.setVisible(true);
-		
 		videoPanel v = new videoPanel(cr);
 		w.add(v);
 		v.run();
-	
+
+
+		
 	}
 	
 	public boolean Start(){

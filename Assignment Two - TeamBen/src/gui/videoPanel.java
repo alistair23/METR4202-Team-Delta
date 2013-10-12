@@ -94,7 +94,7 @@ public class videoPanel extends JPanel implements Runnable{
 		while(true){
 			ic = cr.getColorFrame();
 			id = cr.getDepthFrame();
-			iv = cr.getOverlayFrame();
+			//iv = cr.getOverlayFrame();
 			//cvAddWeighted(ic, 1.0, id, 0.5, 0.0, iv);
 			this.removeAll();
 			if(output == "Overlay"){

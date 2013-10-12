@@ -94,7 +94,7 @@ public class KinectReader extends CameraReader{
 		JFrame w = new JFrame();
 		w.setVisible(true);
 		
-		videoPanel v = new videoPanel(kr, "Overlay");
+		videoPanel v = new videoPanel(kr, "Color");
 		w.setSize(v.size);
 
 		w.add(v);
@@ -125,7 +125,7 @@ public class KinectReader extends CameraReader{
         Cstream = VideoStream.create(device, SensorType.COLOR);
         Dstream = VideoStream.create(device, SensorType.DEPTH);
         
-        Cstream.setVideoMode(Cstream.getSensorInfo().getSupportedVideoModes().get(1));
+        Cstream.setVideoMode(Cstream.getSensorInfo().getSupportedVideoModes().get(0));
         Dstream.setVideoMode(Dstream.getSensorInfo().getSupportedVideoModes().get(0));
         Dstream.getVideoMode().setPixelFormat(DEPTH_1_MM);
         
