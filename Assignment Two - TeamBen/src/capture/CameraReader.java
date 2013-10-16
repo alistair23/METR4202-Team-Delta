@@ -19,10 +19,8 @@ public class CameraReader {
 //the number (0) refers to the device number. if you only have one camera, it will be 0, if you have more, increment it.
 	
 	OpenCVFrameGrabber device = new OpenCVFrameGrabber(1);
-	
 
 	IplImage cFrame;
-	
 
 	public CameraReader(){
 		
@@ -30,11 +28,11 @@ public class CameraReader {
 
 	public CameraReader(int dev){
 		device = new OpenCVFrameGrabber(dev);
+		
 	}
 	
 	
 	public static void main(String[] args) {
-		
 		CameraReader cr = new CameraReader(1);
 		cr.Start();
 		JFrame w = new JFrame();
@@ -43,9 +41,6 @@ public class CameraReader {
 		videoPanel v = new videoPanel(cr);
 		w.add(v);
 		v.run();
-
-
-		
 	}
 	
 	public boolean Start(){

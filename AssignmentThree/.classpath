@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="C:/Users/Ben/Documents/GitHub/METR4202---Team-Delta/AssignmentThree/Dependencies/NyARToolkit.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Ben/Documents/GitHub/METR4202---Team-Delta/AssignmentThree/Dependencies/javacv-cppjars/opencv-2.4.6.0-windows-x86_64.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Ben/Documents/GitHub/METR4202---Team-Delta/AssignmentThree/Dependencies/javacv-bin/javacpp.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Ben/Documents/GitHub/METR4202---Team-Delta/AssignmentThree/Dependencies/javacv-bin/javacv.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Ben/Documents/GitHub/METR4202---Team-Delta/AssignmentThree/Dependencies/javacv-bin/javacv-windows-x86_64.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Ben/Documents/GitHub/METR4202---Team-Delta/AssignmentThree/Dependencies/j3d-1_5_2-windows-amd64/j3d-jre/lib/ext/j3dcore.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Ben/Documents/GitHub/METR4202---Team-Delta/AssignmentThree/Dependencies/j3d-1_5_2-windows-amd64/j3d-jre/lib/ext/j3dutils.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Ben/Documents/GitHub/METR4202---Team-Delta/AssignmentThree/Dependencies/j3d-1_5_2-windows-amd64/j3d-jre/lib/ext/vecmath.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

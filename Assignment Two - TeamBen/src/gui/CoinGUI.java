@@ -28,6 +28,7 @@ import com.googlecode.javacv.cpp.opencv_core.CvSize;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
 import cameraCalibration.CameraCalibrator;
+import capture.CameraReader;
 import capture.ImageConverter;
 import capture.KinectReader;
 import capture.OverlayImage;
@@ -92,7 +93,8 @@ public class CoinGUI extends JFrame{
     static IplImage defD; //default depth image
     
     //capture and image objects
-    static KinectReader kr;
+//    static KinectReader kr;
+    static CameraReader kr;
     static OverlayImage overlay;
     static ImageRectifier rectifier;
      
@@ -111,7 +113,8 @@ public class CoinGUI extends JFrame{
 	public static void main(String[] args) {
 		
 		//start the camera. if it isn't found, the havekinect variable is false.
-		kr = new KinectReader();
+	//	kr = new KinectReader();
+		kr = new CameraReader();
 		boolean haveKinect = kr.Start();
 		
 		//make a new window.
