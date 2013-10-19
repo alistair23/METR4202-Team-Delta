@@ -35,6 +35,7 @@ public class HoughCircles{
 		this.maxCoinRadius = maxCoinRadius;
 	}
 
+/**
 	public void runHoughCirclesRGBPlate() {
 		IplImage gray = cvCreateImage(cvGetSize(sourceImage), 8, 1);
    
@@ -65,6 +66,7 @@ public class HoughCircles{
 			radiusData.add(radius);
 		}
 	}
+*/
 	
 	public void runHoughCirclesRGBCoins() {
 

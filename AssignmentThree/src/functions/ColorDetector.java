@@ -27,7 +27,7 @@ public class ColorDetector {
 	
 	// VARY THIS VALUE FOR ANTICIPATED LIGHTING CONDITIONS
 	// WHITE: ~50		HALOGEN: ~30
-	private static int GOLDCUTOFF = 50;
+	private static int GOLDCUTOFF = 30;
 	
 	public ColorDetector(IplImage sourceImage) {
 		this.sourceImage = sourceImage;
@@ -58,7 +58,7 @@ public class ColorDetector {
 			cvInRangeS(imgHSV, cvScalar(0, 70, 0, 0), cvScalar(GOLDCUTOFF, 255, 230, 0), imgThreshold);
 			cvReleaseImage(imgHSV);
 			cvSmooth(imgThreshold, imgThreshold, CV_MEDIAN, 1);
-		}
+	}
 	
 	public void hsvThresholdSilver() {
 			IplImage imgHSV = cvCreateImage(cvGetSize(sourceImage), 8, 3);
@@ -69,7 +69,7 @@ public class ColorDetector {
 			cvInRangeS(imgHSV, cvScalar(0, 0, 0, 0), cvScalar(255, 80, 190, 0), imgThreshold);
 			cvReleaseImage(imgHSV);
 			cvSmooth(imgThreshold, imgThreshold, CV_MEDIAN, 1);
-		}
+	}
   
 	private static ArrayList<Double> getPixelColor(IplImage hsvImage, int x, int y) {
 		CvScalar s=cvGet2D(hsvImage, y, x);                

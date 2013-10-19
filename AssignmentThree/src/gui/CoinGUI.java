@@ -295,7 +295,8 @@ public class CoinGUI extends JFrame{
 	            	CoinFinder coinFinder = new CoinFinder(currentI, 260.0);
 	            	coinFinder.find();
 	            	IplImage drawnCoins = coinFinder.getDrawnCoins();
-	            	samples.add(w.ImagePanel(drawnCoins, 2));
+	            	//samples.add(w.ImagePanel(drawnCoins, 2));
+	            	w.ImagePanelUpdate(currentP, drawnCoins, 1);
 	            	coinFinder.determineValues();
 	            	con.add(coinFinder.getValues().toString());
             	}
@@ -334,6 +335,9 @@ public class CoinGUI extends JFrame{
 			if(haveKinect){
 				mainI = kr.getColorFrame();
 		    	w.ImagePanelUpdate(mainP, mainI, 1);
+		    	
+		    	//IplImage coins = findCoins(mainI);
+		    	w.ImagePanelUpdate(currentP, findCoins(mainI), 1);
 			}
 		}
 		
@@ -356,5 +360,12 @@ public class CoinGUI extends JFrame{
 	    	rot.put(rotVectors.get(1,0));
 	    	rot.put(rotVectors.get(2,0));
 	    	cvRodrigues2(rot, rotOut,new CvMat());
+	    }
+	    
+	    private static IplImage findCoins(IplImage inImage) {
+	    	CoinFinder coinFinder = new CoinFinder(inImage, 260.0);
+        	coinFinder.find();
+        	IplImage drawnCoins = coinFinder.getDrawnCoins();
+        	return drawnCoins;
 	    }
 }

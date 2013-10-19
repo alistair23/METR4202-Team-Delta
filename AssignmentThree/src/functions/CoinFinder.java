@@ -64,14 +64,14 @@ public class CoinFinder {
 		double physFrameWidth = height*Math.tan(xangle);
 		pixelSize = physFrameWidth/((double)sourceImage.width()); // mm/pix
 		
-		System.out.println("height: "+height);
-		System.out.println("physical width: "+physFrameWidth);
+		//System.out.println("height: "+height);
+		//System.out.println("physical width: "+physFrameWidth);
 		
 		minCoinRadius = (int) (9.0/pixelSize); // pix
 		maxCoinRadius = (int) (22.0/pixelSize); // pix
 		
-		System.out.println("minCoinRadius: "+minCoinRadius);
-		System.out.println("maxCoinRadius: "+maxCoinRadius);
+		//System.out.println("minCoinRadius: "+minCoinRadius);
+		//System.out.println("maxCoinRadius: "+maxCoinRadius);
 	}
 	
 	// gives list of:  value --> point in original image (x,y)
@@ -96,29 +96,25 @@ public class CoinFinder {
 	}
 	
 	public void find() {
-/**		
-		HoughCircles plate = new HoughCircles(sourceImage.clone(), minCoinRadius, maxCoinRadius);
-		plate.runHoughCirclesRGBPlate();
 		
-		plateCoord = plate.getCircleDataList();
-		plateRadius = plate.getRadiusDataList();
 		plateCoord = new ArrayList<Float>();
 		plateRadius = new ArrayList<Integer>();
-		if (plateCoord.size() == 0 || plateRadius.size() == 0) {
-			plateCoord.add(0, (float) (((double)sourceImage.width())/2.0));
-			plateCoord.add((float) (((double)sourceImage.height())/2.0));
-			plateRadius.add(0, 200);
-		}
-*/		
+		plateCoord.add(0, (float) (((double)sourceImage.width())/2.0));
+		plateCoord.add((float) (((double)sourceImage.height())/2.0));
+		plateRadius.add(0, (int)(((double)sourceImage.height())/2.0)-1);
+		
 		HoughCircles circles = new HoughCircles(sourceImage.clone(), minCoinRadius, maxCoinRadius);
 		circles.runHoughCirclesRGBCoins();
 		
-		circles.display("FUCKYALL");
+		//circles.display("circles found");
 		
 		ArrayList<Float> coordList = circles.getCircleDataList();
 		ArrayList<Integer> radiusList = circles.getRadiusDataList();
-/**		
+		
 		for (int i=0; i < coordList.size()-1; i+=2) {
+			if (coordList.size() == 0) {
+				break;
+			}
 			Float x = coordList.get(i);
 			Float y = coordList.get(i+1);
 			if ((Math.pow(x-plateCoord.get(0),2)+Math.pow(y-plateCoord.get(1),2))
@@ -130,20 +126,20 @@ public class CoinFinder {
 				i-=2;
 			}
 		}
-*/		
+		
 		
 		ColorDetector colorMod = new ColorDetector(sourceImage.clone());
 		coinsDrawn = sourceImage.clone();
 		
 		colorMod.hsvThresholdGold();
-		colorMod.display();
+		//colorMod.display();
 		
 		Integer goldCount = 0;
 		int k=0;
 		for (int i=0; i < radiusList.size(); i++) {
-		//	if (coordList.size() == 0) {
-		//		break;
-		//	}
+			if (coordList.size() == 0) {
+				break;
+			}
 			Float x = coordList.get(k);
 			Float y = coordList.get(k+1);
 			k+=2;
@@ -160,14 +156,14 @@ public class CoinFinder {
 		}
 		
 		colorMod.hsvThresholdSilver();
-		colorMod.display();
+		//colorMod.display();
 		
 		Integer silverCount = 0;
 		k=0;
 		for (int i=0; i < radiusList.size(); i++) {
-		//	if (coordList.size() == 0) {
-		//		break;
-		//	}
+			if (coordList.size() == 0) {
+				break;
+			}
 			Float x = coordList.get(k);
 			Float y = coordList.get(k+1);
 			k+=2;
@@ -291,6 +287,9 @@ public class CoinFinder {
 		Integer whitePixels = 0; Integer blackPixels = 0;
 		for (int i = x-radius; i < x+radius; i++) {
 			for (int j = y-radius; j < y+radius; j++) {
+				if (i <= 0 || i >= thresholdImage.width() || j <= 0 || j >= thresholdImage.height()) {
+					continue;
+				}
 				ArrayList<Double> colorData = getPixelColor(thresholdImage, i, j);
 				if (colorData.get(0).compareTo(255.0) == 0) {
 					whitePixels++;
