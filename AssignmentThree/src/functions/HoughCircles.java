@@ -22,15 +22,17 @@ public class HoughCircles{
 	private ArrayList<Float> circleData;
 	private ArrayList<Integer> radiusData;
 	
-	private static int minCoinRadius = 5;
-	private static int maxCoinRadius = 45;
+	private static int minCoinRadius;
+	private static int maxCoinRadius;
 	
 	private static int CANNYTHRESHOLD = 200;
 	
-	public HoughCircles(IplImage sourceImage) {
+	public HoughCircles(IplImage sourceImage, int minCoinRadius, int maxCoinRadius) {
 		this.sourceImage = sourceImage;
 		circleData = new ArrayList<Float>();
 		radiusData = new ArrayList<Integer>();
+		this.minCoinRadius = minCoinRadius;
+		this.maxCoinRadius = maxCoinRadius;
 	}
 
 	public void runHoughCirclesRGBPlate() {
@@ -72,15 +74,14 @@ public class HoughCircles{
 		cvSmooth(gray, gray, CV_GAUSSIAN, 3);
    
 		CvMemStorage mem = CvMemStorage.create();
-   
 		CvSeq circles = cvHoughCircles( 
 				gray, //Input image
 				mem, //Memory Storage
 				CV_HOUGH_GRADIENT, //Detection method
 				1, //Inverse ratio
-				20, //Minimum distance between the centers of the detected circles
+				50, //Minimum distance between the centers of the detected circles
 				CANNYTHRESHOLD, //Higher threshold for canny edge detector
-				20, //Threshold at the center detection stage
+				30, //Threshold at the center detection stage
 				minCoinRadius, //min radius
 				maxCoinRadius //max radius
 				);

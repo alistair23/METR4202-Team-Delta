@@ -10,8 +10,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.util.ArrayList;
-import java.util.TreeMap;
 
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
@@ -292,11 +290,14 @@ public class CoinGUI extends JFrame{
     
 	    getcoins.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e){
+            		samples.removeAll();
             		con.addln("Finding coins in image...");
-	            	CoinFinder coinFinder = new CoinFinder(currentI, null, null);
+	            	CoinFinder coinFinder = new CoinFinder(currentI, 260.0);
 	            	coinFinder.find();
 	            	IplImage drawnCoins = coinFinder.getDrawnCoins();
-	            	samples.add(w.ImagePanel(drawnCoins, 4));
+	            	samples.add(w.ImagePanel(drawnCoins, 2));
+	            	coinFinder.determineValues();
+	            	con.add(coinFinder.getValues().toString());
             	}
             });
 
@@ -317,17 +318,16 @@ public class CoinGUI extends JFrame{
             	} else {
             		con.add("No marker found!\n");
             	}
-            }});   
+            }});
 	    
 	    w.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
-				System.exit(0);
+				w.exit();
 			}});
 	    
 	    //update the main window with the camera feed forever
 		while(true){
 			if(haveKinect){
-				
 				mainI = kr.getColorFrame();
 		    	w.ImagePanelUpdate(mainP, mainI, 1);
 			}
@@ -340,8 +340,7 @@ public class CoinGUI extends JFrame{
 		//	   Thread thread = (new Thread(v));
 		//	   System.out.println(thread.getId());
 		//	   thread.start();
-		
-		
+
 	}
 	    
 	    // UNRELIABLE : NOT FULLY IMPLEMENTED

@@ -35,38 +35,46 @@ import static com.googlecode.javacv.cpp.opencv_core.*;
 public class CoinFinder {
 	
 	private IplImage sourceImage;
-	private IplImage depthImage;
 	private IplImage coinsDrawn;
 	
 	private ArrayList<Float> plateCoord;
 	private ArrayList<Integer> plateRadius;
 	
-	private double[] depth_lookup = new double[2048];
-	
 	private ArrayList<Integer> values;
 	private ArrayList<TreeMap<Integer, CvPoint>> goldCoinData = new ArrayList<TreeMap<Integer, CvPoint>>();
 	private ArrayList<TreeMap<Integer, CvPoint>> silverCoinData = new ArrayList<TreeMap<Integer, CvPoint>>();
 	
-	private CvMat invRectMat;
-	
-	// TreeMap < value, point in original image (x,y,z) >
+	// TreeMap < value, point in original image (x,y) >
 	private ArrayList<TreeMap<Double, ArrayList<Double>>> coinLocationData = new ArrayList<TreeMap<Double, ArrayList<Double>>>();
 	
-	public CoinFinder(IplImage sourceImage, IplImage depthImage, CvMat rectMat) {
+	private double height;
+	private int minCoinRadius;
+	private int maxCoinRadius;
+	
+	private double pixelSize;
+	
+	public CoinFinder(IplImage sourceImage, double height) {
 		this.sourceImage = sourceImage;
-		this.depthImage = depthImage;
+		// height is in mm
+		this.height = height;
 		
-		invRectMat = cvCreateMat(3,3,CV_32FC1);
-		cvInv(rectMat, invRectMat, CV_LU);
-
-		double k1 = 1.1863; double k2 = 2842.5; double k3 = 0.1236;
-		for (int i=0; i<2048; i++) {
-			double depth = k3 * Math.tan(i/k2 + k1);
-			depth_lookup[i] = depth;
-		}
+		// assumes perfectly stright on view, so only considers width
+		double xangle = 36.0*Math.PI/180.0;
+		
+		double physFrameWidth = height*Math.tan(xangle);
+		pixelSize = physFrameWidth/((double)sourceImage.width()); // mm/pix
+		
+		System.out.println("height: "+height);
+		System.out.println("physical width: "+physFrameWidth);
+		
+		minCoinRadius = (int) (9.0/pixelSize); // pix
+		maxCoinRadius = (int) (22.0/pixelSize); // pix
+		
+		System.out.println("minCoinRadius: "+minCoinRadius);
+		System.out.println("maxCoinRadius: "+maxCoinRadius);
 	}
 	
-	// gives list of:  value --> point in original image (x,y,z)
+	// gives list of:  value --> point in original image (x,y)
 	public ArrayList<TreeMap<Double, ArrayList<Double>>> getCoinLocationData() {
 		return coinLocationData;
 	}
@@ -88,23 +96,28 @@ public class CoinFinder {
 	}
 	
 	public void find() {
-		
-		HoughCircles plate = new HoughCircles(sourceImage.clone());
+/**		
+		HoughCircles plate = new HoughCircles(sourceImage.clone(), minCoinRadius, maxCoinRadius);
 		plate.runHoughCirclesRGBPlate();
+		
 		plateCoord = plate.getCircleDataList();
 		plateRadius = plate.getRadiusDataList();
-		
+		plateCoord = new ArrayList<Float>();
+		plateRadius = new ArrayList<Integer>();
 		if (plateCoord.size() == 0 || plateRadius.size() == 0) {
-			plateCoord.add(0, (float) (640.0/2.0)); plateCoord.add((float) (480.0/2.0));
+			plateCoord.add(0, (float) (((double)sourceImage.width())/2.0));
+			plateCoord.add((float) (((double)sourceImage.height())/2.0));
 			plateRadius.add(0, 200);
 		}
-		
-		HoughCircles circles = new HoughCircles(sourceImage.clone());
+*/		
+		HoughCircles circles = new HoughCircles(sourceImage.clone(), minCoinRadius, maxCoinRadius);
 		circles.runHoughCirclesRGBCoins();
+		
+		circles.display("FUCKYALL");
 		
 		ArrayList<Float> coordList = circles.getCircleDataList();
 		ArrayList<Integer> radiusList = circles.getRadiusDataList();
-		
+/**		
 		for (int i=0; i < coordList.size()-1; i+=2) {
 			Float x = coordList.get(i);
 			Float y = coordList.get(i+1);
@@ -117,25 +130,20 @@ public class CoinFinder {
 				i-=2;
 			}
 		}
-		
-		IplImage tempImage = sourceImage.clone();
-		int j=0;
-		for (int i=0; i < radiusList.size(); i++) {
-			float x = coordList.get(j);
-			float y = coordList.get(j+1);
-			j+=2;
-			int radius = radiusList.get(i);
-			CvPoint center = cvPointFrom32f(new CvPoint2D32f(x, y));
-			cvCircle(tempImage, center, radius, CvScalar.RED, 1, CV_AA, 0);
-		}
+*/		
 		
 		ColorDetector colorMod = new ColorDetector(sourceImage.clone());
 		coinsDrawn = sourceImage.clone();
 		
 		colorMod.hsvThresholdGold();
+		colorMod.display();
+		
 		Integer goldCount = 0;
 		int k=0;
 		for (int i=0; i < radiusList.size(); i++) {
+		//	if (coordList.size() == 0) {
+		//		break;
+		//	}
 			Float x = coordList.get(k);
 			Float y = coordList.get(k+1);
 			k+=2;
@@ -152,9 +160,14 @@ public class CoinFinder {
 		}
 		
 		colorMod.hsvThresholdSilver();
+		colorMod.display();
+		
 		Integer silverCount = 0;
 		k=0;
 		for (int i=0; i < radiusList.size(); i++) {
+		//	if (coordList.size() == 0) {
+		//		break;
+		//	}
 			Float x = coordList.get(k);
 			Float y = coordList.get(k+1);
 			k+=2;
@@ -178,47 +191,10 @@ public class CoinFinder {
 			values.add(0);
 		}
 		
-		// gold coins
-		ArrayList<ArrayList<Object>> goldCoinsMm = new ArrayList<ArrayList<Object>>();
-		for (TreeMap<Integer, CvPoint> coin : goldCoinData) {
-			Integer radius = coin.firstKey();
-			CvPoint point = coin.get(radius);
-			
-			// find distance pixel value average
-			int platerad = plateRadius.get(0);
-			int pointx = point.x(); int pointy = point.y();
-			int avgpix = 0;
-			for (int i = -platerad; i < platerad; i++) {
-				int x = pointx+i;
-				Double pixelInfo = getPixelColor(depthImage, x, pointy).get(2);
-				if (pixelInfo != 0.0) {
-					avgpix += pixelInfo;
-				}
-			}
-			avgpix = (int) (((double)avgpix)/((double)(2*platerad)));
-			
-			// find corresponding physical depth
-			double physDepth = depth_lookup[avgpix*2]*1000+40;
-			// calculate physical field of view width at that depth
-			double physFrameWidth = 2.0*physDepth*Math.tan(28.5*(Math.PI/180.0));
-			// calculate corresponding mm width to each pixel at that depth
-			double pixWidth = physFrameWidth/((double)sourceImage.width());
-			// find physical coin radius
-			double coinRadiusmm = pixWidth*radius.doubleValue()*2.0;
-			// calculate physical field of view height at that depth
-			double physFrameHeight = 2.0*physDepth*Math.tan(21.5*(Math.PI/180.0));
-			// calculate corresponding mm height to each pixel at that depth
-			double pixHeight = physFrameHeight/((double)sourceImage.height());
-			
-			ArrayList<Object> newlist= new ArrayList<Object>();
-			newlist.add(coinRadiusmm); newlist.add(physDepth); newlist.add(point);
-			newlist.add(pixWidth); newlist.add(pixHeight);
-			goldCoinsMm.add(newlist);
-		}
-		
+		// GOLD COINS
 		Double maxrad = 0.0; Double minrad = 50.0;
-		for (ArrayList<Object> thislist : goldCoinsMm) {
-			Double radiusmm = (Double)thislist.get(0);
+		for (TreeMap<Integer, CvPoint> thiscoin : goldCoinData) {
+			Double radiusmm = ((double)thiscoin.firstKey())*pixelSize;
 			if (radiusmm.compareTo(maxrad) > 0) {
 				maxrad = radiusmm;
 			} else if (radiusmm.compareTo(minrad) < 0) {
@@ -229,120 +205,68 @@ public class CoinFinder {
 		
 		// compare to midpoint to determine value
 		if (maxrad-minrad > 2) {
-			for (ArrayList<Object> thislist : goldCoinsMm) {
-				Double radiusmm = (Double)thislist.get(0);
+			for (TreeMap<Integer, CvPoint> thiscoin : goldCoinData) {
+				Double radiusmm = ((double)thiscoin.firstKey())*pixelSize;		// pix*mm/pix
 				// if $1
 				if (radiusmm.compareTo(midpoint) > 0 || radiusmm.compareTo(midpoint) == 0) {
 					values.set(4, values.get(4)+1);
-					// transform point in rectified image back to the original frame
-					CvPoint transPoint = transformBack((CvPoint)thislist.get(2));
-					addNewData(1.0, (transPoint.x()-320)*(double)thislist.get(3),
-							(transPoint.y()-240)*(double)thislist.get(4), (Double)thislist.get(1));
+					CvPoint pixLocation = thiscoin.get(thiscoin.firstKey());
+					addNewData(1.0, ((double)pixLocation.x())*pixelSize, ((double)pixLocation.y())*pixelSize);
 				}
 				// if $2
 				else {
 					values.set(5, values.get(5)+1);
-					// transform point in rectified image back to the original frame
-					CvPoint transPoint = transformBack((CvPoint)thislist.get(2));
-					addNewData(2.0, (transPoint.x()-320)*(double)thislist.get(3),
-							(transPoint.y()-240)*(double)thislist.get(4), (Double)thislist.get(1));
+					CvPoint pixLocation = thiscoin.get(thiscoin.firstKey());
+					addNewData(2.0, ((double)pixLocation.x())*pixelSize, ((double)pixLocation.y())*pixelSize);
 				}
 			}
 		}
 		// if only one value of coin compare to physical radius
 		else {
-			for (ArrayList<Object> thislist : goldCoinsMm) {
-				Double radiusmm = (Double)thislist.get(0);
+			for (TreeMap<Integer, CvPoint> thiscoin : goldCoinData) {
+				Double radiusmm = ((double)thiscoin.firstKey())*pixelSize;
 				// if $1
-				if (radiusmm.compareTo(20.0) > 0 || radiusmm.compareTo(20.0) == 0) {
+				if (radiusmm.compareTo(10.0) > 0 || radiusmm.compareTo(10.0) == 0) {
 					values.set(4, values.get(4)+1);
-					// transform point in rectified image back to the original frame
-					CvPoint transPoint = transformBack((CvPoint)thislist.get(2));
-					addNewData(1.0, (transPoint.x()-320)*(double)thislist.get(3),
-							(transPoint.y()-240)*(double)thislist.get(4), (Double)thislist.get(1));
+					CvPoint pixLocation = thiscoin.get(thiscoin.firstKey());
+					addNewData(1.0, ((double)pixLocation.x())*pixelSize, ((double)pixLocation.y())*pixelSize);
 				}
 				// if $2
 				else {
 					values.set(5, values.get(5)+1);
-					// transform point in rectified image back to the original frame
-					CvPoint transPoint = transformBack((CvPoint)thislist.get(2));
-					addNewData(2.0, (transPoint.x()-320)*(double)thislist.get(3),
-							(transPoint.y()-240)*(double)thislist.get(4), (Double)thislist.get(1));
+					CvPoint pixLocation = thiscoin.get(thiscoin.firstKey());
+					addNewData(2.0, ((double)pixLocation.x())*pixelSize, ((double)pixLocation.y())*pixelSize);
 				}
 			}
 		}
 		
 		
-		// silver coins
-		ArrayList<ArrayList<Object>> silverCoinsMm = new ArrayList<ArrayList<Object>>();
-		for (TreeMap<Integer, CvPoint> coin : silverCoinData) {
-			Integer radius = coin.firstKey();
-			CvPoint point = coin.get(radius);
-			
-			int platerad = plateRadius.get(0);
-			int pointx = point.x(); int pointy = point.y();
-			int avgpix = 0;
-			for (int i = -platerad; i < platerad; i++) {
-				int x = pointx+i;
-				Double pixelInfo = getPixelColor(depthImage, x, pointy).get(2);
-				if (pixelInfo != 0.0) {
-					avgpix += pixelInfo;
-				}
-			}
-			avgpix = (int) (((double)avgpix)/((double)(2*platerad)));
-			
-			// find corresponding physical depth
-			double physDepth = depth_lookup[avgpix*2]*1000+40;
-			// calculate physical field of view width at that depth
-			double physFrameWidth = 2.0*physDepth*Math.tan(28.5*(Math.PI/180.0));
-			// calculate corresponding mm width to each pixel at that depth
-			double pixWidth = physFrameWidth/((double)sourceImage.width());
-			// find physical coin radius
-			double coinRadiusmm = pixWidth*radius.doubleValue()*2.0;
-			// calculate physical field of view height at that depth
-			double physFrameHeight = 2.0*physDepth*Math.tan(21.5*(Math.PI/180.0));
-			// calculate corresponding mm height to each pixel at that depth
-			double pixHeight = physFrameHeight/((double)sourceImage.height());
-			
-			ArrayList<Object> newlist= new ArrayList<Object>();
-			newlist.add(coinRadiusmm); newlist.add(physDepth); newlist.add(point);
-			newlist.add(pixWidth); newlist.add(pixHeight);
-			silverCoinsMm.add(newlist);
-		}
-		
-		for (ArrayList<Object> thislist : silverCoinsMm) {
-			Double radiusmm = (Double)thislist.get(0);
+		// SILVER COINS
+		for (TreeMap<Integer, CvPoint> thiscoin : silverCoinData) {
+			Double radiusmm = ((double)thiscoin.firstKey())*pixelSize;
 			// if 5c
-			if (radiusmm.compareTo(20.4) <0) {
+			if (radiusmm.compareTo(10.2) <0) {
 				values.set(0, values.get(0)+1);
-				// transform point in rectified image back to the original frame
-				CvPoint transPoint = transformBack((CvPoint)thislist.get(2));
-				addNewData(0.05, (transPoint.x()-320)*(double)thislist.get(3),
-						(transPoint.y()-240)*(double)thislist.get(4), (Double)thislist.get(1));
+				CvPoint pixLocation = thiscoin.get(thiscoin.firstKey());
+				addNewData(0.05, ((double)pixLocation.x())*pixelSize, ((double)pixLocation.y())*pixelSize);
 			}
 			// if 10c
-			else if (radiusmm.compareTo(24.6) < 0) {
+			else if (radiusmm.compareTo(12.3) < 0) {
 				values.set(1, values.get(1)+1);
-				// transform point in rectified image back to the original frame
-				CvPoint transPoint = transformBack((CvPoint)thislist.get(2));
-				addNewData(0.1, (transPoint.x()-320)*(double)thislist.get(3),
-						(transPoint.y()-240)*(double)thislist.get(4), (Double)thislist.get(1));
+				CvPoint pixLocation = thiscoin.get(thiscoin.firstKey());
+				addNewData(0.1, ((double)pixLocation.x())*pixelSize, ((double)pixLocation.y())*pixelSize);
 			}
 			// if 20c
-			else if (radiusmm.compareTo(29.6) < 0) {
+			else if (radiusmm.compareTo(14.8) < 0) {
 				values.set(2, values.get(2)+1);
-				// transform point in rectified image back to the original frame
-				CvPoint transPoint = transformBack((CvPoint)thislist.get(2));
-				addNewData(0.2, (transPoint.x()-320)*(double)thislist.get(3),
-						(transPoint.y()-240)*(double)thislist.get(4), (Double)thislist.get(1));
+				CvPoint pixLocation = thiscoin.get(thiscoin.firstKey());
+				addNewData(0.2, ((double)pixLocation.x())*pixelSize, ((double)pixLocation.y())*pixelSize);
 			}
 			// if 50c
 			else {
 				values.set(3, values.get(3)+1);
-				// transform point in rectified image back to the original frame
-				CvPoint transPoint = transformBack((CvPoint)thislist.get(2));
-				addNewData(0.5, (transPoint.x()-320)*(double)thislist.get(3),
-						(transPoint.y()-240)*(double)thislist.get(4), (Double)thislist.get(1));
+				CvPoint pixLocation = thiscoin.get(thiscoin.firstKey());
+				addNewData(0.5, ((double)pixLocation.x())*pixelSize, ((double)pixLocation.y())*pixelSize);
 			}
 		}
 	}
@@ -388,59 +312,9 @@ public class CoinFinder {
 		return values;
 	}
 	
-	// Transforms a  point in the rectified image back to the original frame
-	// Simplest way to achieve this is to draw a cross on a blank image then recognise this after transformation.
-	// Trying to find a more direct approach...
-	private CvPoint transformBack(CvPoint point) {
-		BufferedImage img = new BufferedImage(sourceImage.width(), sourceImage.height(), BufferedImage.TYPE_BYTE_GRAY);
-        WritableRaster wr = img.getRaster();
-        int[] pix = new int[1]; pix[0] = 255;
-        for (int y=point.y()-10; y <= point.y()+10; y++) {
-	        for (int x=point.x()-10; x <= point.x()+10; x++) {
-	        	wr.setPixel(x, y, pix);
-	        }
-        }
-		
-        IplImage newimg = IplImage.createFrom(img);
-        IplImage im_out =  cvCreateImage(cvSize(sourceImage.width(), sourceImage.height()), IPL_DEPTH_8U, 1);
-		cvWarpPerspective(newimg, im_out, invRectMat, CV_INTER_LINEAR, CvScalar.ZERO);
-		
-		ArrayList<Integer> newxs = new ArrayList<Integer>();
-		ArrayList<Integer> newys = new ArrayList<Integer>();
-        for (int y=200; y < sourceImage.height()-100; y++) {
-        	for (int x=100; x < sourceImage.width()-100; x++) {
-        		if ((int) cvGet2D(im_out, y, x).val(0) != 0) {
-        			newxs.add(x); newys.add(y);
-        		}
-            }
-        }
-        int xmin = 1000; int xmax = 0;
-        for (int x : newxs) {
-        	if (x < xmin) {
-        		xmin = x;
-        	} if (x > xmax) {
-        		xmax = x;
-        	}
-        }
-        int ymin = 1000; int ymax = 0;
-        for (int y : newys) {
-        	if (y < ymin) {
-        		ymin = y;
-        	} if (y > ymax) {
-        		ymax = y;
-        	}
-        }
-        
-        double newx = ((double)(xmax-xmin))/2.0 + xmin;
-        double newy = ((double)(ymax-ymin))/2.0 + ymin;
-        
-        CvPoint transPoint = cvPointFrom32f(new CvPoint2D32f(newx, newy));
-       return transPoint;
-	}
-	
-	private void addNewData(double val, double x, double y, double z) {
+	private void addNewData(double val, double x, double y) {
 		ArrayList<Double> trans = new ArrayList<Double>();
-		trans.add(x); trans.add(y); trans.add(z);
+		trans.add(x); trans.add(y);
 		TreeMap<Double, ArrayList<Double>> newmap = new TreeMap<Double, ArrayList<Double>>();
 		newmap.put(val, trans);
 		coinLocationData.add(newmap);

@@ -65,9 +65,10 @@ public class Window extends JFrame {
 		//BufferedImage bi = resize(img.getBufferedImage(),img.width()/scale,img.height()/scale);
 		//ImageConverter ic = new ImageConverter();
 		//return ic.convertRGB(bi);
-		
-		IplImage scaledImage = IplImage.create(img.cvSize(), img.depth(), img.nChannels());
-		cvResize(img, scaledImage, scale);
+		int width = (int) (((double)img.width())/((double)scale));
+		int height = (int) (((double)img.height())/((double)scale));
+		IplImage scaledImage = IplImage.create(width,height, img.depth(), img.nChannels());
+		cvResize(img, scaledImage);
 		return scaledImage;
 	}
 	
