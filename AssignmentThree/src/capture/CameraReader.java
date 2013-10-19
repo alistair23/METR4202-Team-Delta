@@ -48,7 +48,7 @@ public class CameraReader {
 	
 	public IplImage getColorFrame(){
 		IplImage grabbedImage = opencv_highgui.cvQueryFrame(capture);
-		return grabbedImage;
+		return grabbedImage.clone();
 	}
 	public IplImage getDepthFrame(){
 		return null;

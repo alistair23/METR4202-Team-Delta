@@ -1,7 +1,14 @@
 package gui;
 
 import static com.googlecode.javacv.cpp.opencv_core.*;
+import static com.googlecode.javacv.cpp.opencv_highgui.CV_LOAD_IMAGE_UNCHANGED;
 import static com.googlecode.javacv.cpp.opencv_highgui.cvLoadImage;
+import static com.googlecode.javacv.cpp.opencv_highgui.cvShowImage;
+import static com.googlecode.javacv.cpp.opencv_highgui.cvWaitKey;
+import static com.googlecode.javacv.cpp.opencv_imgproc.CV_BGR2HSV;
+import static com.googlecode.javacv.cpp.opencv_imgproc.CV_MEDIAN;
+import static com.googlecode.javacv.cpp.opencv_imgproc.cvCvtColor;
+import static com.googlecode.javacv.cpp.opencv_imgproc.cvSmooth;
 import static com.googlecode.javacv.cpp.opencv_calib3d.cvRodrigues2;
 
 import java.awt.Color;
@@ -10,7 +17,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.File;
+import java.io.IOException;
 
+import javax.imageio.ImageIO;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -18,6 +28,7 @@ import javax.swing.JPanel;
 
 import localisation.AxisLocator;
 import colorCalibration.BlackBalance;
+import colorCalibration.BlobFinder;
 import colorCalibration.ColorChart;
 
 import com.googlecode.javacv.cpp.opencv_core.CvMat;
@@ -193,6 +204,19 @@ public class CoinGUI extends JFrame{
             	}
             	w.ImagePanelUpdate(currentP, currentI, 1);
             }});
+	    
+	    save.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e){
+            	final JFileChooser fc = new JFileChooser(System.getProperty("user.dir")+"/test_images/");
+            	fc.showSaveDialog(new JFrame());
+            	String path = fc.getSelectedFile().getAbsolutePath();
+            	con.addln("Saving Image to: "+path+".png");
+            	
+            	File outputfile = new File(path.substring(0, path.length())+".png");
+        		try {
+        			ImageIO.write(currentI.getBufferedImage(), "png", outputfile);
+        		} catch (IOException ex) {}
+            }});    
 
 	    colcal.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e){
@@ -331,13 +355,50 @@ public class CoinGUI extends JFrame{
 			}});
 	    
 	    //update the main window with the camera feed forever
+	//    IplImage trackBase = kr.getColorFrame();
+	    //IplImage trackBase = cvLoadImage("workingImages/cap.png");
+	    String baseString = "training_images/5/01.png";
+		IplImage baseImage = cvLoadImage(baseString);
+		Sifter sifter = new Sifter(baseImage);
+		
 		while(true){
 			if(haveKinect){
 				mainI = kr.getColorFrame();
 		    	w.ImagePanelUpdate(mainP, mainI, 1);
 		    	
-		    	//IplImage coins = findCoins(mainI);
-		    	w.ImagePanelUpdate(currentP, findCoins(mainI), 1);
+		    	//w.ImagePanelUpdate(currentP, findCoins(mainI), 1);
+		    	
+		    	//OpticalFlowTracker flowTracker = new OpticalFlowTracker();
+		    	//IplImage trackedImage = flowTracker.trackMovement(findCoins(kr.getColorFrame()), kr.getColorFrame());
+		    	//w.ImagePanelUpdate(currentP, trackedImage, 1);
+				
+		    	BlobFinder blob = new BlobFinder(mainI);
+		    	CvScalar min = new CvScalar(150, 0, 0, 0);
+		    	CvScalar max = new CvScalar(180, 255, 255, 0);
+		    	IplImage blobImage = blob.findBlobs(mainI, min, max, 800);
+				
+				IplImage imgHSV = cvCreateImage(cvGetSize(mainI), 8, 3);
+				cvCvtColor(mainI, imgHSV, CV_BGR2HSV);
+				IplImage imgThreshold = cvCreateImage(cvGetSize(mainI), 8, 1);
+				cvInRangeS(imgHSV, min, max, imgThreshold);
+				cvReleaseImage(imgHSV);
+				cvSmooth(imgThreshold, imgThreshold, CV_MEDIAN, 1);
+				
+				OverlayImage overlayed = new OverlayImage(imgThreshold,blobImage);
+		    	w.ImagePanelUpdate(currentP, overlayed, 1);
+				
+		    	/**
+				sifter.sift(mainI);
+				if (sifter.isMatch()) {
+					con.wipe();
+					con.addln("True");
+					con.addln("Count: "+sifter.getMatchCount().toString());
+				} else {
+					con.wipe();
+					con.addln("False");
+					con.addln("Count: "+sifter.getMatchCount().toString());
+				}
+				*/
 			}
 		}
 		
@@ -363,7 +424,7 @@ public class CoinGUI extends JFrame{
 	    }
 	    
 	    private static IplImage findCoins(IplImage inImage) {
-	    	CoinFinder coinFinder = new CoinFinder(inImage, 260.0);
+	    	CoinFinder coinFinder = new CoinFinder(inImage, 400.0);
         	coinFinder.find();
         	IplImage drawnCoins = coinFinder.getDrawnCoins();
         	return drawnCoins;
