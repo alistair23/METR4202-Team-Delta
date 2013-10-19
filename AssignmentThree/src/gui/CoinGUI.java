@@ -322,7 +322,11 @@ public class CoinGUI extends JFrame{
 	    
 	    w.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
+				
+				kr.Stop();
 				w.exit();
+				System.exit(0);
+				
 			}});
 	    
 	    //update the main window with the camera feed forever
