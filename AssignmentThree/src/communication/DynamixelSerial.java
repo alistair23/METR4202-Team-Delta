@@ -10,13 +10,15 @@ public class DynamixelSerial {
 	public static void main(String[] args) {
 		DynamixelSerial ds = new DynamixelSerial(4);
 		//System.out.println(ds.calcChecksum("0104022B01")); //FFFF0104022B01CC
-		ds.go(180, 180, 180);
+		ds.motor(3,1,150);
+		//ds.centermotors();
 	}
 	
 	
 	
 	public DynamixelSerial (int port){
 		srl = new Serial(port);
+		srl.open();
 	}
 
 	 /** This program will construct a packet to be sent to the 
@@ -30,32 +32,47 @@ public class DynamixelSerial {
 		
 	}
 	
-	public void write(int id, int register, int value){
-	
-	}
-	
-	public void go(int one, int two, int three){
+	public void write(String id,String length, String register, String parameters){
+		String command = id+length+"03"+register+parameters;
 		
-
+		command = command + calcChecksum(command);
 		
+		srl.write("FFFF"+command); //FFFF is the GO command
 		
-		srl.open();
-		motor(3,100);
-		//srl.write("FFFF0104022B01CC");
 		//while(true){
-		//srl.read();}
-		//srl.close();
-		
-		//serial.out.send(char2byte(packets));
-		
+		//	srl.read();
+		//}
 	}
+	
+
 	
 	public void motor(int id, int pos){
-		String ID = "03";//everything
-		String length = "04"; //length of value VV
+		if(id==0){write("FE","05","1E",xval(pos));} 
+		else{
+			write("0"+id,"05","1E",xval(pos));
+		}
+	}
+	
+	public void motor(int id, int pos, int speed){
+		int Apos = 0;
+		if(pos == 0){Apos = 512;}
+		else{
+			Apos = ((pos*512)/150)-150;
+		}
+		
+		if(id==0){write("FE","07","1E",xval(Apos)+xval(speed));} 
+		else{
+			write("0"+id,"07","1E",xval(Apos)+xval(speed));
+		}
+	}
+	
+	
+	public void centermotors(){
+		String ID = "FE";//everything
+		String length = "07"; //length of value VV including register
 		String instruction = "03"; //write
 		String register = "1E"; //goal position;
-		String value = "01F9"; //about 500
+		String value = "00020002"; //about Centre them
 		
 		
 		String command = ID+length+instruction+register+value;
@@ -63,6 +80,7 @@ public class DynamixelSerial {
 		command = command + calcChecksum(command);
 		
 		srl.write("FFFF"+command); //FFFF is the GO command
+
 	}
 	
 	
@@ -93,5 +111,22 @@ public class DynamixelSerial {
 			
 			return stringchecksum.toUpperCase();
 	 }
+	 public String xval(int v){
+		 
+		String str = Integer.toString(v, 16);
+		while(str.length() < 4){
+			str = "0".concat(str);
+		}
+		if(str.length() == 4){
+		str = str.substring(2, 4)+str.substring(0, 2);
+		}
+		 
+		 return str;
+		 
+		 
+	 }
+	 //public void wait(){
+		 
+	// }
 
 }

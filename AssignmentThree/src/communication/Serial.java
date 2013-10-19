@@ -22,12 +22,12 @@ public class Serial {
 		 s.open();
 		 //s.write("FFFF0104022B01CC"); //return temp of actuator 1
 		 //s.write("FFFFFE18831E04001000500101200260030230007001032002800312"); //FFFFFE18831E04001000500101200260030230007001032002800312
-		 s.write("FFFF1E00020002");
+		 s.write("FFFF0104022B01CC");
 		 
-		// while(true){
-		//	 s.read();
+		 while(true){
+			 s.read();
 		//	 s.write("FF");
-		// }
+		 }
 		 
 		// s.close();
 	    }
@@ -66,6 +66,7 @@ public class Serial {
     public void write(String s) {
            // SerialPort serialPort = new SerialPort("COM1");
             try {
+            	System.out.println("Writing: "+s);
             	serialPort.writeBytes(hexStringToByteArray(s));//Write data to port
             }
             catch (SerialPortException ex) {
