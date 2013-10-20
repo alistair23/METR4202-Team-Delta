@@ -35,7 +35,7 @@ public class BlobFinder {
     	blobCent.clear(); blobData.clear();
     	
         int ErodeCount = 0;
-        int DilateCount = 1;
+        int DilateCount = 0;
         
         IplImage BWImage = cvCreateImage(cvGetSize(RawImage), IPL_DEPTH_8U, 1);
         cvInRangeS(RawImage, minThresh, maxThresh, BWImage);

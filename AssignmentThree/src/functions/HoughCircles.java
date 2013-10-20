@@ -25,6 +25,7 @@ public class HoughCircles{
 	private static int minCoinRadius;
 	private static int maxCoinRadius;
 	
+	//private static int CANNYTHRESHOLD = 200;
 	private static int CANNYTHRESHOLD = 200;
 	
 	public HoughCircles(IplImage sourceImage, int minCoinRadius, int maxCoinRadius) {
@@ -83,7 +84,8 @@ public class HoughCircles{
 				1, //Inverse ratio
 				50, //Minimum distance between the centers of the detected circles
 				CANNYTHRESHOLD, //Higher threshold for canny edge detector
-				30, //Threshold at the center detection stage
+				//50, //Threshold at the center detection stage
+				50, //Threshold at the center detection stage
 				minCoinRadius, //min radius
 				maxCoinRadius //max radius
 				);

@@ -241,19 +241,19 @@ public class CoinFinder {
 		for (TreeMap<Integer, CvPoint> thiscoin : silverCoinData) {
 			Double radiusmm = ((double)thiscoin.firstKey())*pixelSize;
 			// if 5c
-			if (radiusmm.compareTo(10.2) <0) {
+			if (radiusmm.compareTo(11.6) <0) {
 				values.set(0, values.get(0)+1);
 				CvPoint pixLocation = thiscoin.get(thiscoin.firstKey());
 				addNewData(0.05, ((double)pixLocation.x())*pixelSize, ((double)pixLocation.y())*pixelSize);
 			}
 			// if 10c
-			else if (radiusmm.compareTo(12.3) < 0) {
+			else if (radiusmm.compareTo(13.0) < 0) {
 				values.set(1, values.get(1)+1);
 				CvPoint pixLocation = thiscoin.get(thiscoin.firstKey());
 				addNewData(0.1, ((double)pixLocation.x())*pixelSize, ((double)pixLocation.y())*pixelSize);
 			}
 			// if 20c
-			else if (radiusmm.compareTo(14.8) < 0) {
+			else if (radiusmm.compareTo(15.6) < 0) {
 				values.set(2, values.get(2)+1);
 				CvPoint pixLocation = thiscoin.get(thiscoin.firstKey());
 				addNewData(0.2, ((double)pixLocation.x())*pixelSize, ((double)pixLocation.y())*pixelSize);

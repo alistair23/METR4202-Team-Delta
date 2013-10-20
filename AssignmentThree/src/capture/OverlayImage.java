@@ -1,6 +1,9 @@
 package capture;
 
 import static com.googlecode.javacv.cpp.opencv_core.cvAddWeighted;
+import static com.googlecode.javacv.cpp.opencv_core.cvCreateImage;
+import static com.googlecode.javacv.cpp.opencv_core.cvGetSize;
+
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
 /**
@@ -12,14 +15,17 @@ import com.googlecode.javacv.cpp.opencv_core.IplImage;
  * 
  */
 
-public class OverlayImage extends IplImage {
-
-	   public OverlayImage(IplImage one, IplImage two, double level) {
-	    	cvAddWeighted(one, 1.0, two, level, 0.0, this);
-	    }
-
-	   public OverlayImage(IplImage one, IplImage two) {
-	    	cvAddWeighted(one, 1.0, two, 0.5, 0.0, this);
+public class OverlayImage {
+	
+		public OverlayImage() {
+			
+		}
+		
+	   public IplImage overlay(IplImage one, IplImage two, double level) {
+		   	System.out.println();
+		   	IplImage overlayed = cvCreateImage(cvGetSize(one), 8, 3);
+	    	cvAddWeighted(one, 1.0, two, level, 0.0, overlayed);
+	    	return overlayed;
 	    }
 	
 }

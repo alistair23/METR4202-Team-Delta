@@ -357,10 +357,11 @@ public class CoinGUI extends JFrame{
 	    //update the main window with the camera feed forever
 	//    IplImage trackBase = kr.getColorFrame();
 	    //IplImage trackBase = cvLoadImage("workingImages/cap.png");
-	    String baseString = "training_images/5/01.png";
+	    String baseString = "training_images/5/02.png";
 		IplImage baseImage = cvLoadImage(baseString);
+		w.ImagePanelUpdate(currentP, baseImage, 1);
 		Sifter sifter = new Sifter(baseImage);
-		
+		double height = 290.0;
 		while(true){
 			if(haveKinect){
 				mainI = kr.getColorFrame();
@@ -368,26 +369,33 @@ public class CoinGUI extends JFrame{
 		    	
 		    	//w.ImagePanelUpdate(currentP, findCoins(mainI), 1);
 		    	
-		    	//OpticalFlowTracker flowTracker = new OpticalFlowTracker();
-		    	//IplImage trackedImage = flowTracker.trackMovement(findCoins(kr.getColorFrame()), kr.getColorFrame());
+		    	//CoinFinder coinFinder = new CoinFinder(mainI, height);
+	        	//coinFinder.find();
+	        	//coinFinder.determineValues();
+	        	//IplImage drawnCoins = coinFinder.getDrawnCoins();
+	        	//OpticalFlowTracker flowTracker = new OpticalFlowTracker();
+		    	//IplImage trackedImage = flowTracker.trackMovement(drawnCoins, kr.getColorFrame());
 		    	//w.ImagePanelUpdate(currentP, trackedImage, 1);
+		    	//con.wipe();
+				//con.addln(coinFinder.getValues().toString());
 				
-		    	BlobFinder blob = new BlobFinder(mainI);
-		    	CvScalar min = new CvScalar(150, 0, 0, 0);
-		    	CvScalar max = new CvScalar(180, 255, 255, 0);
-		    	IplImage blobImage = blob.findBlobs(mainI, min, max, 800);
-				
+		    	//BlobFinder blob = new BlobFinder(mainI);
+		    	//CvScalar min = new CvScalar(130, 0, 50, 0);
+		    	//CvScalar max = new CvScalar(200, 255, 255, 0);
+		    	//IplImage blobImage = blob.findBlobs(mainI, min, max, 8000);
+		    	
+				/**
 				IplImage imgHSV = cvCreateImage(cvGetSize(mainI), 8, 3);
 				cvCvtColor(mainI, imgHSV, CV_BGR2HSV);
 				IplImage imgThreshold = cvCreateImage(cvGetSize(mainI), 8, 1);
 				cvInRangeS(imgHSV, min, max, imgThreshold);
 				cvReleaseImage(imgHSV);
 				cvSmooth(imgThreshold, imgThreshold, CV_MEDIAN, 1);
+				*/
+		    	
+		    	//w.ImagePanelUpdate(currentP, blobImage, 1);
 				
-				OverlayImage overlayed = new OverlayImage(imgThreshold,blobImage);
-		    	w.ImagePanelUpdate(currentP, overlayed, 1);
-				
-		    	/**
+		    	
 				sifter.sift(mainI);
 				if (sifter.isMatch()) {
 					con.wipe();
@@ -398,7 +406,10 @@ public class CoinGUI extends JFrame{
 					con.addln("False");
 					con.addln("Count: "+sifter.getMatchCount().toString());
 				}
-				*/
+				con.addln("Distance: "+sifter.getDistance().toString());
+				
+				IplImage drawMatches = sifter.drawMatches(mainI);
+				w.ImagePanelUpdate(currentP, drawMatches, 1);
 			}
 		}
 		
@@ -421,12 +432,5 @@ public class CoinGUI extends JFrame{
 	    	rot.put(rotVectors.get(1,0));
 	    	rot.put(rotVectors.get(2,0));
 	    	cvRodrigues2(rot, rotOut,new CvMat());
-	    }
-	    
-	    private static IplImage findCoins(IplImage inImage) {
-	    	CoinFinder coinFinder = new CoinFinder(inImage, 400.0);
-        	coinFinder.find();
-        	IplImage drawnCoins = coinFinder.getDrawnCoins();
-        	return drawnCoins;
 	    }
 }
