@@ -5,10 +5,10 @@ import java.io.UnsupportedEncodingException;
 public class DynamixelSerial {
 
 	//int LENGTH_OF_PACKET  = 22;
-	Serial srl = new Serial(4);
+	Serial srl = new Serial(3);
 	
 	public static void main(String[] args) {
-		DynamixelSerial ds = new DynamixelSerial(4);
+		DynamixelSerial ds = new DynamixelSerial(3);
 		//System.out.println(ds.calcChecksum("0104022B01")); //FFFF0104022B01CC
 		
 		
