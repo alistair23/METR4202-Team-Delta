@@ -75,19 +75,15 @@ public class Serial {
         }
     
         public void read() {
-            //SerialPort serialPort = new SerialPort("COM1");
-            try {
-            	int c;
-            	if ((serialPort.getInputBufferBytesCount()) != 0){
-            	
-                 //byte[] buffer = serialPort.readBytes(serialPort.getInputBufferBytesCount());//Read 10 bytes from serial port
-                 String buffer = serialPort.readHexString();
-            		System.out.println(buffer);
-            	}
-             }
-            catch (SerialPortException ex) {
-                System.out.println(ex);
-            }
+ 	            try {
+	            	System.out.print((serialPort.getInputBufferBytesCount()));
+	            	while((serialPort.getInputBufferBytesCount()) == 0){}
+	            	String buffer = serialPort.readHexString();
+	                System.out.println(buffer);
+	            	}
+	            catch (SerialPortException ex) {
+	                System.out.println(ex);
+	            }
         }
         
         public static byte[] hexStringToByteArray(String s) {

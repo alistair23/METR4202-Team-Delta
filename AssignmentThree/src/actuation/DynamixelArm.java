@@ -1,6 +1,14 @@
 package actuation;
 
+import gui.Window;
+
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.IOException;
+
+import javax.swing.JButton;
 
 import communication.DynamixelSerial;
 import communication.Serial;
@@ -28,10 +36,43 @@ public class DynamixelArm {
 	DynamixelSerial ds = new DynamixelSerial(port);
 	
 	public static void main(String[] args) {
-		DynamixelArm da = new DynamixelArm();
+		final DynamixelArm da = new DynamixelArm();
 
 		//da.flip(true);
-		da.setXY(150, 150, 300);
+		
+		
+		Window w = new Window(new Dimension(400,400));
+		
+		final JButton capc = new JButton("centre");
+		capc.setMinimumSize(new Dimension(200,30));
+		w.add(capc,0,0,1,1,1,1);
+		capc.setBackground(Color.GREEN.darker());
+		
+		final JButton Load = new JButton("go");
+		Load.setMinimumSize(new Dimension(200,30));
+		w.add(Load,0,1,1,1,1,1);
+		Load.setBackground(Color.GREEN.darker());
+		
+		JButton save = new JButton("flip");
+		save.setMinimumSize(new Dimension(200,30));
+		w.add(save,0,2,1,1,1,1);
+		save.setBackground(Color.GREEN.darker());
+		
+		capc.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e){
+            	da.ds.centermotors();
+            }});
+		
+		Load.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e){
+            	da.setXY(150, 150, 1023);
+            }});
+		
+		save.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e){
+            	if(da.direction > 0){da.flip(true);}else{da.flip(false);}
+            	Load.doClick();
+            }});
 
 	}
 	

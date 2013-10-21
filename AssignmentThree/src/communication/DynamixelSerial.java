@@ -4,29 +4,33 @@ import java.io.UnsupportedEncodingException;
 
 public class DynamixelSerial {
 
-	//int LENGTH_OF_PACKET  = 22;
+	//Instruction
+	static String PING = "01";
+	static String READ_DATA = "02";
+	static String WRITE_DATA = "03";
+	static String REG_WRITE = "04";
+	static String ACTION = "05";
+	static String RESET = "06";
+	static String SYNC_WRITE = "83";
+	
+	//Registers
+	String[] RegName = new String[24];
+	String[] RegVal = new String[24];
+	int[] RegLength = new int[24];
+	int[] RegMin = new int[24];
+	int[] RegMax = new int[24];
+	
 	Serial srl = new Serial(3);
 	
 	public static void main(String[] args) {
 		DynamixelSerial ds = new DynamixelSerial(3);
 		//System.out.println(ds.calcChecksum("0104022B01")); //FFFF0104022B01CC
 		
+		ds.command("FE","05",WRITE_DATA,"1E","4002");
+		ds.read("01", "1E");
+		ds.read("01", "1F");
 		
-		ds.motor(1,50,302);
-		//halt(1);
-		ds.motor(2,90,382);
-		//halt(1);
-		ds.motor(3,50,180);
-
-		halt(1100);
-		ds.motor(1,-50,302);
-		//halt(5);
-		ds.motor(2,-90,382);
-		//halt(5);
-		ds.motor(3,-50,180);
 		
-		halt(1100);
-		ds.centermotors();
 	}
 	
 	public static void halt(int milli){
@@ -35,6 +39,33 @@ public class DynamixelSerial {
 	}
 	
 	public DynamixelSerial (int port){
+		//Registers
+		RegName[0] = "ID";						 	 RegVal[0] = "03";	 RegLength[0] = 1;	 RegMin[0] = 0;   RegMax[0] = 253;
+		 RegName[1] = "Baud_Rate";					 RegVal[1] = "04";	 RegLength[1] = 1;	 RegMin[1] = 0;   RegMax[1] = 254;
+		 RegName[2] = "Return_Delay_Time";			 RegVal[2] = "05";	 RegLength[2] = 1;	 RegMin[2] = 0;   RegMax[2] = 254;
+		 RegName[3] = "CW_Angle_Limit";				 RegVal[3] = "06";	 RegLength[3] = 2;	 RegMin[3] = 0;   RegMax[3] = 1023;
+		 RegName[4] = "CCW_Angle_Limit";			 RegVal[4] = "08";	 RegLength[4] = 2;	 RegMin[4] = 0;   RegMax[4] = 1023;
+		 RegName[5] = "Highest_Limit_Temperature";	 RegVal[5] = "0B";	 RegLength[5] = 1;	 RegMin[5] = 0;   RegMax[5] = 150;
+		 RegName[6] = "Lowest_Limit_Voltage";		 RegVal[6] = "0C";	 RegLength[6] = 1;	 RegMin[6] = 50;  RegMax[6] = 250;
+		 RegName[7] = "Highest_Limit_Voltage";		 RegVal[7] = "0D";	 RegLength[7] = 1;	 RegMin[7] = 50;  RegMax[7] = 250;
+		 RegName[8] = "Max_Torque";					 RegVal[8] = "0E";	 RegLength[8] = 2;	 RegMin[8] = 0;   RegMax[8] = 1023;
+		 RegName[9] = "Status_Return_Level";		 RegVal[9] = "10";	 RegLength[9] = 1;	 RegMin[9] = 0;   RegMax[9] = 2;
+		RegName[10] = "Alarm_LED";					RegVal[10] = "11";	RegLength[10] = 1;	RegMin[10] = 0;  RegMax[10] = 127;
+		RegName[11] = "Alarm_Shutdown";				RegVal[11] = "12";	RegLength[11] = 1;	RegMin[11] = 0;  RegMax[11] = 127;
+		RegName[12] = "Torque_Enable";				RegVal[12] = "18";	RegLength[12] = 1;	RegMin[12] = 0;  RegMax[12] = 1;
+		RegName[13] = "LED";						RegVal[13] = "19";	RegLength[13] = 1;	RegMin[13] = 0;  RegMax[13] = 1;
+		RegName[14] = "CW_Compliance_Margin";		RegVal[14] = "1A";	RegLength[14] = 1;	RegMin[14] = 0;  RegMax[14] = 254;
+		RegName[15] = "CCW_Compliance_Margin";		RegVal[15] = "1B";	RegLength[15] = 1;	RegMin[15] = 0;  RegMax[15] = 254;
+		RegName[16] = "CW_Compliance_Slope";		RegVal[16] = "1C";	RegLength[16] = 1;	RegMin[16] = 1;  RegMax[16] = 254;
+		RegName[17] = "CCW_Compliance_Slope";		RegVal[17] = "1D";	RegLength[17] = 1;	RegMin[17] = 1;  RegMax[17] = 254;
+		RegName[18] = "Goal_Position";				RegVal[18] = "1E";	RegLength[18] = 2;	RegMin[18] = 0;  RegMax[18] = 1023;
+		RegName[19] = "Moving_Speed";				RegVal[19] = "20";	RegLength[19] = 2;	RegMin[19] = 0;  RegMax[19] = 1023;
+		RegName[20] = "Torque_Limit";				RegVal[20] = "22";	RegLength[20] = 2;	RegMin[20] = 0;  RegMax[20] = 1023;
+		RegName[21] = "Registered_Instruction";		RegVal[21] = "2C";	RegLength[21] = 1;	RegMin[21] = 0;  RegMax[21] = 1;
+		RegName[22] = "Lock";						RegVal[22] = "2F";	RegLength[22] = 1;	RegMin[22] = 1;  RegMax[22] = 1;
+		RegName[23] = "Punch";						RegVal[23] = "30";	RegLength[23] = 2;	RegMin[23] = 0;  RegMax[23] = 1023;
+		
+		
 		srl = new Serial(port);
 		srl.open();
 	}
@@ -42,8 +73,19 @@ public class DynamixelSerial {
 	 /** This program will construct a packet to be sent to the 
 	 ** dynamixel motors for METR4202 **/
 	
-	public void command(int id, String instruction, String parameters){
+	public void command(String id,String length, String instruction, String register, String parameters){
+		String command = id+length+instruction+register+parameters;
 		
+		command = command + calcChecksum(command);
+		
+		srl.write("FFFF"+command); //FFFF is the GO command
+	}
+	
+	public void read(String id, String register){
+
+		command(id,"04","02",register,"01");
+		srl.read();
+
 	}
 	
 	public void ping(int id){
@@ -128,9 +170,23 @@ public class DynamixelSerial {
 			
 			return stringchecksum.toUpperCase();
 	 }
-	 public String xval(int v){
+	 public String xval(int value, int length){
 		 
-		String str = Integer.toString(v, 16);
+		String str = Integer.toString(value, 16);
+		while(str.length() < length){
+			str = "0".concat(str);
+		}
+		if(str.length() == 4){
+		str = str.substring(2, 4)+str.substring(0, 2);
+		}
+		 
+		 return str;
+		 
+		 
+	 }
+	 public String xval(int value){
+		 
+		String str = Integer.toString(value, 16);
 		while(str.length() < 4){
 			str = "0".concat(str);
 		}
