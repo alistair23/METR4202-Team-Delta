@@ -9,6 +9,7 @@ import java.awt.event.ActionListener;
 import java.io.IOException;
 
 import javax.swing.JButton;
+import javax.swing.JTextArea;
 
 import communication.DynamixelSerial;
 import communication.Serial;
@@ -45,18 +46,29 @@ public class DynamixelArm {
 		
 		final JButton capc = new JButton("centre");
 		capc.setMinimumSize(new Dimension(200,30));
-		w.add(capc,0,0,1,1,1,1);
+		w.add(capc,0,0,2,1,1,1);
 		capc.setBackground(Color.GREEN.darker());
 		
 		final JButton Load = new JButton("go");
 		Load.setMinimumSize(new Dimension(200,30));
-		w.add(Load,0,1,1,1,1,1);
+		w.add(Load,0,1,2,1,1,1);
 		Load.setBackground(Color.GREEN.darker());
 		
 		JButton save = new JButton("flip");
 		save.setMinimumSize(new Dimension(200,30));
-		w.add(save,0,2,1,1,1,1);
+		w.add(save,0,2,2,1,1,1);
 		save.setBackground(Color.GREEN.darker());
+		
+		final JTextArea x = new JTextArea("150");
+		x.setMinimumSize(new Dimension(200,30));
+		w.add(x,0,3,1,1,1,0);
+
+		final JTextArea y = new JTextArea("150");
+		y.setMinimumSize(new Dimension(200,30));
+		w.add(y,1,3,1,1,1,0);
+
+		w.revalidate();
+
 		
 		capc.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e){
@@ -65,7 +77,7 @@ public class DynamixelArm {
 		
 		Load.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e){
-            	da.setXY(150, 150, 1023);
+            	da.setXY(Integer.valueOf(x.getText()), Integer.valueOf(y.getText()), 1023);
             }});
 		
 		save.addActionListener(new ActionListener() {
