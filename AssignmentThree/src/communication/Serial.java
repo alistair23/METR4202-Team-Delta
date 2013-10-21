@@ -66,7 +66,7 @@ public class Serial {
     public void write(String s) {
            // SerialPort serialPort = new SerialPort("COM1");
             try {
-            	System.out.println("Writing: "+s);
+            	//System.out.println("Writing: "+s);
             	serialPort.writeBytes(hexStringToByteArray(s));//Write data to port
             }
             catch (SerialPortException ex) {

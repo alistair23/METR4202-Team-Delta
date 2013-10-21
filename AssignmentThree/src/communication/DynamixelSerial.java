@@ -75,7 +75,7 @@ public class DynamixelSerial {
 
 		int Apos = (int) ((((float)pos)+150.0)*512.0/150.0);
 		if(Apos == 0 ){Apos = 512;}
-		System.out.println(Apos);
+		//System.out.println(Apos);
 		
 		if(id==0){write("FE","07","1E",xval(Apos)+xval(speed));} 
 		else{
@@ -123,7 +123,7 @@ public class DynamixelSerial {
 			String stringchecksum = Integer.toBinaryString(~checksum); //checksum as hex string
 			stringchecksum = Long.toHexString(Long.parseLong(stringchecksum, 2));
 			stringchecksum = stringchecksum.substring(stringchecksum.length()-2, stringchecksum.length());
-			System.out.println(stringchecksum.toUpperCase());
+			//System.out.println(stringchecksum.toUpperCase());
 			//lower byte of checksumstring
 			
 			return stringchecksum.toUpperCase();

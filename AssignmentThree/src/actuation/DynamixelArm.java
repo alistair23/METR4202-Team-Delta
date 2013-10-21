@@ -1,5 +1,7 @@
 package actuation;
 
+import java.io.IOException;
+
 import communication.DynamixelSerial;
 import communication.Serial;
 
@@ -26,57 +28,33 @@ public class DynamixelArm {
 	DynamixelSerial ds = new DynamixelSerial(port);
 	
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub
 		DynamixelArm da = new DynamixelArm();
-		/**
-		da.setAng(0, 90);
-		System.out.println("SET: a1: "+da.a1+"  a2: "+da.a2+"  a3: "+da.a3);
-		System.out.println("x1: "+da.x1+"  x2: "+da.x2);
-		System.out.println("y1: "+da.y1+"  y2: "+da.y2);
-		System.out.println("x: "+da.x+"  y: "+da.y);
-		System.out.println("**************************************");
-**/
-		da.calcAng(50.0, 200.0);
-		//da.setAng(0, 90);
-		
-		System.out.println("CALC: a1: "+da.a1+"  a2: "+da.a2+"  a3: "+da.a3);
-		System.out.println("x1: "+da.x1+"  x2: "+da.x2);
-		System.out.println("y1: "+da.y1+"  y2: "+da.y2);
-		System.out.println("x: "+da.x+"  y: "+da.y);
-		//da.motor(3,50,180);
+
+		//da.flip(true);
+		da.setXY(150, 150, 300);
+
 	}
 	
 	public DynamixelArm(){
-		
-		
-		//ds.motor(1,50,302);
 	}
 	
-	public double x(double one, double two){
+
+
+	public void calcxy(double one, double two){
 		a1 = one;
 		a2 = two;
+		
 		x1 = L1*cos(a1);
 		x2 = L2*cos(a1+a2);
 		x = Math.abs(x1)+Math.abs(x2);
-		return x;
-	}
 
-	public double y(double one, double two){
-		a1 = one;
-		a2 = two;
 		y1 = L1*sin(a1);
 		y2 = L2*sin(a1+a2);
 		if(y2<y1){y2=-y2;}
 		y = y1+y2;
-		return y;
-	}
-
-	public void calcxy(double one, double two){
-		a3 = 90+a1 + a2;
-		x(one, two);
-		y(one, two);
-		a3 = 180-a1 - a2;
 		y=y-L3;
+		
+		a3 = 180-a1 - a2;
 		
 		a1 = direction*a1;
 		a2 = direction*a2;
@@ -96,29 +74,30 @@ public class DynamixelArm {
 		a2 = Math.toDegrees(a2);
 		a3 = Math.toDegrees(a3);
 		
-		ds.motor(motor1ID, (int)a1, 100);
-		ds.motor(motor2ID, (int)a2, 100);
-		ds.motor(motor3ID, (int)a3, 100);
-	}
-	
-	public void setPos(double x, double y){
+		a1 = direction*a1;
+		a2 = direction*a2;
+		a3 = direction*a3;
 		
 	}
 	
-	public void setAng(double one, double two){
-		calcxy(one,two);
-		ds.motor(motor1ID, (int)a1, 300);
-		ds.motor(motor2ID, (int)a2, 300);
-		ds.motor(motor3ID, (int)a3, 300);
+	public void setAng(double ang1, double ang2, int speed){
+		calcxy(ang1,ang2);
+		ds.motor(motor1ID, (int)a1, speed);
+		ds.motor(motor2ID, (int)a2, speed);
+		ds.motor(motor3ID, (int)a3, speed);
 	}
 	
-
-	//have a flag that makes all the angles posotive or negative depending on the desired side.
+	public void setXY(double x, double y, int speed){
+		calcAng(x,y);
+		ds.motor(motor1ID, (int)a1, speed);
+		ds.motor(motor2ID, (int)a2, speed);
+		ds.motor(motor3ID, (int)a3, speed);
+	}
 	
-	//get angles 1 and angle 2 first to get x and y, tool tip is jus offset from this point.
-	
-	//angle 3 is just whatever it needs to be to be vertical.
-	
+	public void flip(boolean b){
+		if(b == true ){direction = -1;}
+		else{direction = 1;}
+	}
 	
 	public double cos(double a){
 		double r = Math.cos(Math.toRadians(a));
@@ -133,6 +112,39 @@ public class DynamixelArm {
 		return r;
 	}
 	
+	int speedRatio(double a, int speed){
+		if(a == a1){
+			 if ( a1 > a3 && a1 > a2 )
+		         return speed;
+		      else if ( a3 > a1 && a3 > a2 )
+		    	  return (int)((double)speed*(double)a1/(double)a3)+10;
+		      else if ( a2 > a1 && a2 > a3 )
+		    	  return (int)((double)speed*(double)a1/(double)a2)+10;
+		      else   
+		         return speed;
+			}
+		if(a == a3){
+			 if ( a1 > a3 && a1 > a2 )
+				 return (int)((double)speed*(double)a2/(double)a1)+10;
+		      else if ( a3 > a1 && a3 > a2 )
+		    	  return speed;
+		      else if ( a2 > a1 && a2 > a3 )
+		    	  return (int)((double)speed*(double)a2/(double)a2)+10;
+		      else   
+		         return speed;
+			}
+		if(a == a2){
+			 if ( a1 > a3 && a1 > a2 )
+				 return (int)((double)speed*(double)a3/(double)a1)+10;
+		      else if ( a3 > a1 && a3 > a2 )
+		    	  return (int)((double)speed*(double)a3/(double)a3)+10;
+		      else if ( a2 > a1 && a2 > a3 )
+		    	  return speed;
+		      else   
+		         return speed;
+			}
+		return speed;
+	}
 	
 	
 }
