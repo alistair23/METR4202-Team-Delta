@@ -77,7 +77,7 @@ public class DynamixelArm {
 		
 		Load.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e){
-            	da.setXY(Integer.valueOf(x.getText()), Integer.valueOf(y.getText()), 1023);
+            	da.setXY(Integer.valueOf(x.getText()), Integer.valueOf(y.getText()), 150);
             }});
 		
 		save.addActionListener(new ActionListener() {
@@ -142,9 +142,9 @@ public class DynamixelArm {
 	
 	public void setXY(double x, double y, int speed){
 		calcAng(x,y);
-		ds.motor(motor1ID, (int)a1, speed);
-		ds.motor(motor2ID, (int)a2, speed);
-		ds.motor(motor3ID, (int)a3, speed);
+		ds.motor(motor1ID, (int)a1, speedRatio(a1,speed));
+		ds.motor(motor2ID, (int)a2, speedRatio(a2,speed));
+		ds.motor(motor3ID, (int)a3, speedRatio(a3,speed));
 	}
 	
 	public void flip(boolean b){
@@ -166,36 +166,38 @@ public class DynamixelArm {
 	}
 	
 	int speedRatio(double a, int speed){
+		
 		if(a == a1){
 			 if ( a1 > a3 && a1 > a2 )
 		         return speed;
-		      else if ( a3 > a1 && a3 > a2 )
-		    	  return (int)((double)speed*(double)a1/(double)a3)+10;
 		      else if ( a2 > a1 && a2 > a3 )
-		    	  return (int)((double)speed*(double)a1/(double)a2)+10;
+		    	  return (int)((double)speed*(double)a1/(double)a2);
+		      else if ( a3 > a1 && a3 > a2 )
+		    	  return (int)((double)speed*(double)a1/(double)a3);
 		      else   
 		         return speed;
 			}
-		if(a == a3){
+		else if(a == a2){
 			 if ( a1 > a3 && a1 > a2 )
-				 return (int)((double)speed*(double)a2/(double)a1)+10;
-		      else if ( a3 > a1 && a3 > a2 )
-		    	  return speed;
-		      else if ( a2 > a1 && a2 > a3 )
-		    	  return (int)((double)speed*(double)a2/(double)a2)+10;
-		      else   
-		         return speed;
-			}
-		if(a == a2){
-			 if ( a1 > a3 && a1 > a2 )
-				 return (int)((double)speed*(double)a3/(double)a1)+10;
-		      else if ( a3 > a1 && a3 > a2 )
-		    	  return (int)((double)speed*(double)a3/(double)a3)+10;
+				 return (int)((double)speed*(double)a2/(double)a1);
 		      else if ( a2 > a1 && a2 > a3 )
 		    	  return speed;
+		      else if ( a3 > a1 && a3 > a2 )
+		    	  return (int)((double)speed*(double)a2/(double)a3);
 		      else   
 		         return speed;
 			}
+		else if(a == a3){
+			 if ( a1 > a3 && a1 > a2 )
+				 return (int)((double)speed*(double)a3/(double)a1);
+		      else if ( a2 > a1 && a2 > a3 )
+		    	  return (int)((double)speed*(double)a3/(double)a2);
+		      else if ( a3 > a1 && a3 > a2 )
+		    	  return speed;
+		      else   
+		         return speed;
+			}
+
 		return speed;
 	}
 	
