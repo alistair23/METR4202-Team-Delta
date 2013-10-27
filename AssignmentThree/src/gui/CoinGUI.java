@@ -361,7 +361,7 @@ public class CoinGUI extends JFrame{
 		IplImage baseImage = cvLoadImage(baseString);
 		w.ImagePanelUpdate(currentP, baseImage, 1);
 		Sifter sifter = new Sifter(baseImage);
-		double height = 290.0;
+		double height = 300.0;
 		while(true){
 			if(haveKinect){
 				mainI = kr.getColorFrame();
@@ -369,15 +369,15 @@ public class CoinGUI extends JFrame{
 		    	
 		    	//w.ImagePanelUpdate(currentP, findCoins(mainI), 1);
 		    	
-		    	//CoinFinder coinFinder = new CoinFinder(mainI, height);
-	        	//coinFinder.find();
-	        	//coinFinder.determineValues();
-	        	//IplImage drawnCoins = coinFinder.getDrawnCoins();
-	        	//OpticalFlowTracker flowTracker = new OpticalFlowTracker();
-		    	//IplImage trackedImage = flowTracker.trackMovement(drawnCoins, kr.getColorFrame());
-		    	//w.ImagePanelUpdate(currentP, trackedImage, 1);
-		    	//con.wipe();
-				//con.addln(coinFinder.getValues().toString());
+		    	CoinFinder coinFinder = new CoinFinder(mainI, height);
+		    	coinFinder.find();
+	        	coinFinder.determineValues();
+	        	IplImage drawnCoins = coinFinder.getDrawnCoins();
+	        	OpticalFlowTracker flowTracker = new OpticalFlowTracker();
+		    	IplImage trackedImage = flowTracker.trackMovement(drawnCoins, kr.getColorFrame());
+		    	w.ImagePanelUpdate(currentP, trackedImage, 1);
+		    	con.wipe();
+				con.addln(coinFinder.getValues().toString());
 				
 		    	//BlobFinder blob = new BlobFinder(mainI);
 		    	//CvScalar min = new CvScalar(130, 0, 50, 0);
@@ -395,21 +395,23 @@ public class CoinGUI extends JFrame{
 		    	
 		    	//w.ImagePanelUpdate(currentP, blobImage, 1);
 				
-		    	
-				sifter.sift(mainI);
+		    	/**
+				sifter.sift(trackedImage);
 				if (sifter.isMatch()) {
-					con.wipe();
+					//con.wipe();
 					con.addln("True");
 					con.addln("Count: "+sifter.getMatchCount().toString());
 				} else {
-					con.wipe();
+					//con.wipe();
 					con.addln("False");
 					con.addln("Count: "+sifter.getMatchCount().toString());
 				}
 				con.addln("Distance: "+sifter.getDistance().toString());
 				
-				IplImage drawMatches = sifter.drawMatches(mainI);
+				//IplImage drawMatches = sifter.drawMatchesOnImage(mainI);
+				IplImage drawMatches = sifter.drawKeyPointsOnImage(trackedImage);
 				w.ImagePanelUpdate(currentP, drawMatches, 1);
+				*/
 			}
 		}
 		
