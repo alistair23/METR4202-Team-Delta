@@ -21,8 +21,13 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.SortedSet;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 import javax.imageio.ImageIO;
+import javax.print.attribute.standard.Media;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -34,6 +39,8 @@ import colorCalibration.BlobFinder;
 import colorCalibration.ColorChart;
 
 import com.googlecode.javacv.cpp.opencv_core.CvMat;
+import com.googlecode.javacv.cpp.opencv_core.CvPoint;
+import com.googlecode.javacv.cpp.opencv_core.CvPoint2D32f;
 import com.googlecode.javacv.cpp.opencv_core.CvScalar;
 import com.googlecode.javacv.cpp.opencv_core.CvSize;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
@@ -43,7 +50,7 @@ import capture.*;
 import functions.*;
 
 /**
- * @author Benjamin Rose & Ben Merange
+ * @author Ben Merange
  *
  * Main user interface.
  * This class interacts with other classes to visualise the results
@@ -96,6 +103,13 @@ public class CoinGUI extends JFrame{
     //tweaking constants
  	static int wait = 300;
  	static int numsamples = 20;
+ 	
+ 	static double originXmm = 0;
+ 	static double originYmm = 0;
+ 	
+ 	static ArrayList<TreeMap<String, ArrayList<Double>>> notesPolar = new ArrayList<TreeMap<String, ArrayList<Double>>>();
+ 	static CvFont font = new CvFont(CV_FONT_HERSHEY_PLAIN, 1, 1);
+ 	static double pixelSize = 0.0;
     
     public CoinGUI(){
   
@@ -349,41 +363,155 @@ public class CoinGUI extends JFrame{
 	    
 	    w.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
-				
 				kr.Stop();
 				w.exit();
 				System.exit(0);
-				
 			}});
 	    
+	    double height = 375.0;
+	    if (haveKinect) {
+		    mainI = kr.getColorFrame();
+		    
+		    AxisLocator origin = new AxisLocator(mainI);
+		    CvMat transMatrix = origin.findAxis(mainI);
+		    originXmm = -1000*transMatrix.get(0, 3);
+		    originYmm = 1000*transMatrix.get(1, 3);
+		    //System.out.println("X: "+originXmm+", Y:"+originYmm);
+		    
+		    // initial sifting and centering
+		    boolean SIFTING = true;
+		    if (SIFTING) {
+		    	con.addln("Finding notes...");
+		    	int SIFTTHRESHOLD = 150;
+		    	File[] files = new File("training_images").listFiles();
+		    	Sifter sifter = new Sifter(mainI, SIFTTHRESHOLD);
+		    	ArrayList<String> labels = new ArrayList<String>();
+		    	ArrayList<CvPoint> locations = new ArrayList<CvPoint>();
+		    	
+				for (File file : files) {
+					String name = file.getName().substring(0, file.getName().length()-4);
+					IplImage thisImage = cvLoadImage(file.toString());
+					TreeSet<Integer> xValues = new TreeSet<Integer>();
+					TreeSet<Integer> yValues = new TreeSet<Integer>();
+					for (int i=0; i < 5; i++) {
+						sifter = new Sifter(thisImage, SIFTTHRESHOLD);
+						sifter.sift(kr.getColorFrame());
+						for (CvPoint2D32f matchPoint : sifter.getGoodMatchPoints()) {
+							xValues.add((int)matchPoint.x());
+							yValues.add((int)matchPoint.y());
+						}
+					}
+					// get median of all good points
+					Integer[] xArray = xValues.toArray(new Integer[0]);
+					Integer[] yArray = yValues.toArray(new Integer[0]);
+					if (xArray.length > 0 && yArray.length > 0) {
+						int x = xArray[(int) (((double)xArray.length)/2.0)];
+						int y = yArray[(int) (((double)yArray.length)/2.0)];
+					    CvPoint POINT = cvPointFrom32f(new CvPoint2D32f(x, y));
+					    labels.add(name); locations.add(POINT);
+					    
+					    //IplImage debugImage = sifter.drawMatchPoints(kr.getColorFrame().clone());
+					    //cvShowImage("debug", debugImage);
+					    //cvWaitKey(0);
+					}
+				}
+				
+				IplImage pointsDrawn = kr.getColorFrame().clone();
+				// need coin finder for pixel size
+				CoinFinder coinFinder = new CoinFinder(mainI, height);
+				for (int i=0; i < labels.size(); i++) {
+					String label = labels.get(i);
+					CvPoint POINT = locations.get(i);
+					cvPutText(pointsDrawn, label, POINT, font, CvScalar.GREEN);
+					
+					pixelSize = coinFinder.getPixelSize();
+		        	double offsetx = 320.0*pixelSize; double offsety = 240.0*pixelSize;
+		        	
+					double x = POINT.x()-offsetx; double y = offsety-POINT.y();
+	        		double diffx = x-originXmm; double diffy = y-originYmm;
+	        		Double polarRadius = Math.sqrt(Math.pow(diffx, 2)+Math.pow(diffy, 2));
+	        		Double polarAngleRad = Math.atan2(diffy, diffx);
+					
+					TreeMap<String, ArrayList<Double>> newmap = new TreeMap<String, ArrayList<Double>>();
+	        		ArrayList<Double> polarcoords = new ArrayList<Double>();
+	        		polarcoords.add(polarRadius); polarcoords.add(polarAngleRad);
+	        		newmap.put(label, polarcoords);
+	        		notesPolar.add(newmap);
+				}
+				w.ImagePanelUpdate(currentP, pointsDrawn, 1);
+				con.addln("Notes found.");
+		    }
+	    }
 	    //update the main window with the camera feed forever
-	    
-	    String baseString = "training_images/20/guy.png";
-		IplImage baseImage = cvLoadImage(baseString);
-		w.ImagePanelUpdate(currentP, baseImage, 1);
-		Sifter sifter = new Sifter(baseImage);
-		double height = 380.0;
 		while(true){
 			if(haveKinect){
 				mainI = kr.getColorFrame();
 		    	w.ImagePanelUpdate(mainP, mainI, 1);
 		    	
-		    	/**
 		    	//w.ImagePanelUpdate(currentP, findCoins(mainI), 1);
-		    	cvErode(mainI, mainI, null, 3);
-		  	  	cvDilate(mainI, mainI, null, 3);
+		    	
+		    	cvErode(mainI, mainI, null, 1);
+		    	cvDilate(mainI, mainI, null, 1);
 		  	  	
 		    	CoinFinder coinFinder = new CoinFinder(mainI, height);
 		    	coinFinder.find();
 	        	coinFinder.determineValues();
+	        	
+	        	ArrayList<TreeMap<Double, ArrayList<Double>>> coinData = coinFinder.getCoinLocationData();
+	        	ArrayList<TreeMap<Double, ArrayList<Double>>> coinsPolar = new ArrayList<TreeMap<Double, ArrayList<Double>>>();
+	        	
+	        	// wrt centre in standard orientation
+	        	double offsetx = 320.0*pixelSize; double offsety = 240.0*pixelSize;
+	        	for (TreeMap<Double, ArrayList<Double>> coin : coinData) {
+	        		Double value = coin.firstKey();
+	        		ArrayList<Double> pos = coin.get(value);
+	        		double x = pos.get(0)-offsetx; double y = offsety-pos.get(1);
+	        		double diffx = x-originXmm; double diffy = y-originYmm;
+	        		//System.out.println(value+" --> diffx: "+diffx+", diffy: "+diffy);
+	        		Double polarRadius = Math.sqrt(Math.pow(diffx, 2)+Math.pow(diffy, 2));
+	        		Double polarAngleRad = Math.atan2(diffy, diffx);
+	        		//Double polarAngleDeg = Math.toDegrees(polarAngleRad);
+	        		//con.wipe(); 
+	        		//con.addln("Radius: "+polarRadius.toString());
+	        		//con.addln("Angle: "+polarAngleRad.toString());
+	        		TreeMap<Double, ArrayList<Double>> newmap = new TreeMap<Double, ArrayList<Double>>();
+	        		ArrayList<Double> polarcoords = new ArrayList<Double>();
+	        		polarcoords.add(polarRadius); polarcoords.add(polarAngleRad);
+	        		newmap.put(value, polarcoords);
+	        		coinsPolar.add(newmap);
+	        	}
+	        	
 	        	IplImage drawnCoins = coinFinder.getDrawnCoins();
 	        	OpticalFlowTracker flowTracker = new OpticalFlowTracker();
 		    	IplImage trackedImage = flowTracker.trackMovement(drawnCoins, kr.getColorFrame());
-		    	w.ImagePanelUpdate(currentP, trackedImage, 1);
-		    	con.wipe();
-				con.addln(coinFinder.getValues().toString());
-				*/
 		    	
+		    	//con.wipe();
+				//con.addln(coinFinder.getValues().toString());
+				
+		    	// DRAW CIRCLES
+		    	boolean DRAWCIRCLES = true;
+		    	if (DRAWCIRCLES) {
+			    	for (TreeMap<String, ArrayList<Double>> note : notesPolar) {
+		        		String label = note.firstKey();
+		        		ArrayList<Double> polarcoord = note.get(label);
+						CvPoint POINT = new CvPoint((int)(originXmm/pixelSize)+320,(int)(-originYmm/pixelSize)+240);
+						cvCircle(trackedImage, POINT, (int)(polarcoord.get(0)/pixelSize), CvScalar.RED, 1, CV_AA, 0);
+		        	}
+			    	for (TreeMap<Double, ArrayList<Double>> note : coinsPolar) {
+		        		Double value = note.firstKey();
+		        		ArrayList<Double> polarcoord = note.get(value);
+						CvPoint POINT = new CvPoint((int)(originXmm/pixelSize)+320,(int)(-originYmm/pixelSize)+240);
+						cvCircle(trackedImage, POINT, (int)(polarcoord.get(0)/pixelSize), CvScalar.RED, 1, CV_AA, 0);
+		        	}
+		    	}
+		    	
+		    	w.ImagePanelUpdate(currentP, trackedImage, 1);
+		    	
+		    	con.wipe();
+	        	//con.addln(coinsPolar.toString());
+	        	con.addln(notesPolar.toString());
+	        	
+	        	
 		    	//BlobFinder blob = new BlobFinder(mainI);
 		    	//CvScalar min = new CvScalar(130, 0, 50, 0);
 		    	//CvScalar max = new CvScalar(200, 255, 255, 0);
@@ -399,15 +527,6 @@ public class CoinGUI extends JFrame{
 				*/
 		    	
 		    	//w.ImagePanelUpdate(currentP, blobImage, 1);
-				
-		    	
-				sifter.sift(mainI);
-				con.addln("Count: "+sifter.getMatchCount().toString());
-				con.addln("Distance: "+sifter.getDistance().toString());
-				
-				//IplImage drawMatches = sifter.drawMatchesOnImage(mainI);
-				IplImage drawMatches = sifter.drawMatchPoints(mainI);
-				w.ImagePanelUpdate(currentP, drawMatches, 1);
 				
 			}
 		}

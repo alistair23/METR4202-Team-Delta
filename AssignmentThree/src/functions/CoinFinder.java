@@ -59,7 +59,7 @@ public class CoinFinder {
 		this.height = height;
 		
 		// assumes perfectly stright on view, so only considers width
-		double xangle = 36.0*Math.PI/180.0;
+		double xangle = 34.5*Math.PI/180.0;
 		
 		double physFrameWidth = height*Math.tan(xangle);
 		pixelSize = physFrameWidth/((double)sourceImage.width()); // mm/pix
@@ -93,6 +93,10 @@ public class CoinFinder {
 		total += values.get(4)*1.00;
 		total += values.get(5)*2.00;
 		return total;
+	}
+	
+	public double getPixelSize() {
+		return pixelSize;
 	}
 	
 	public void find() {
@@ -200,6 +204,7 @@ public class CoinFinder {
 		Double midpoint = (maxrad+minrad)/2.0;
 		
 		// compare to midpoint to determine value
+		/**
 		if (maxrad-minrad > 2) {
 			for (TreeMap<Integer, CvPoint> thiscoin : goldCoinData) {
 				Double radiusmm = ((double)thiscoin.firstKey())*pixelSize;		// pix*mm/pix
@@ -217,24 +222,22 @@ public class CoinFinder {
 				}
 			}
 		}
-		// if only one value of coin compare to physical radius
-		else {
+		*/
 			for (TreeMap<Integer, CvPoint> thiscoin : goldCoinData) {
 				Double radiusmm = ((double)thiscoin.firstKey())*pixelSize;
 				// if $1
-				if (radiusmm.compareTo(10.0) > 0 || radiusmm.compareTo(10.0) == 0) {
+				if (radiusmm.compareTo(8.0) > 0 || radiusmm.compareTo(11.0) < 0) {
 					values.set(4, values.get(4)+1);
 					CvPoint pixLocation = thiscoin.get(thiscoin.firstKey());
 					addNewData(1.0, ((double)pixLocation.x())*pixelSize, ((double)pixLocation.y())*pixelSize);
 				}
 				// if $2
-				else {
+				else if (radiusmm.compareTo(11.0) > 0 || radiusmm.compareTo(14.0) < 0){
 					values.set(5, values.get(5)+1);
 					CvPoint pixLocation = thiscoin.get(thiscoin.firstKey());
 					addNewData(2.0, ((double)pixLocation.x())*pixelSize, ((double)pixLocation.y())*pixelSize);
 				}
 			}
-		}
 		
 		
 		// SILVER COINS

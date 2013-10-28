@@ -28,7 +28,7 @@ public class AxisLocator {
 	  private NyARSingleDetectMarker detector;
 	  private NyARDoubleMatrix44 transMat = new NyARDoubleMatrix44();
 	  private final String CARCODE_FILE = "patt.kanji";
-	  private final double MARKER_SIZE = 0.025; // 32 mm width and height in Java 3D world units
+	  private final double MARKER_SIZE = 0.016; // 32 mm width and height in Java 3D world units
 	  private J3dNyARParam cameraParams;
 	  private final String PARAMS_FNM = "camera_para.dat";
 	
@@ -72,7 +72,8 @@ public class AxisLocator {
 					
 				if (foundMarker) {
 					detector.getTransmat(transMat);
-					System.out.println("Matrixing.");
+					
+		//			System.out.println("Matrixing.");
 					CvMat matrix = CvMat.create(4, 4);
 						
 					matrix.put(0, 0, -transMat.m00);
@@ -95,7 +96,8 @@ public class AxisLocator {
 					matrix.put(2, 3, transMat.m23);
 					matrix.put(3, 3, 1);
 						
-					System.out.println(matrix.toString());
+	//				System.out.println(matrix.toString());
+					System.out.println("Found Marker!");
 					return matrix;
 
 				}else{

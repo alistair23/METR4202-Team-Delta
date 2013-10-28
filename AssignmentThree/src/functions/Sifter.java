@@ -25,74 +25,53 @@ public class Sifter {
 	KeyPoint keyPoints = new KeyPoint();
     KeyPoint keyPoints2 = new KeyPoint();
     
-    int averageX;
-	int averageY;
-    
     DMatch matches = new DMatch();
     ArrayList<CvPoint2D32f> goodPoints = new ArrayList<CvPoint2D32f>();
     ArrayList<CvPoint2D32f> goodPointsBaseImage = new ArrayList<CvPoint2D32f>();
+    int threshold = 140;
 	
-	public Sifter(IplImage baseImage) {
+	public Sifter(IplImage baseImage, int threshold) {
 		this.baseImage = baseImage;
+		this.threshold = threshold;
 	}
 	
 	public void sift(IplImage siftImage) {
 		
-		// RE INIT EVERYTHING!!!!
+		// INIT EVERYTHING!!!!
 		matches = new DMatch();
 		goodPoints = new ArrayList<CvPoint2D32f>();
 		goodPointsBaseImage = new ArrayList<CvPoint2D32f>();
 		keyPoints = new KeyPoint();
 	    keyPoints2 = new KeyPoint();
 		
-		//String smallUrl = "training_images/20/01.jpg";
-	    //String largeUrl = "training_images/20/02.jpg";
-	    //IplImage image = cvLoadImage(largeUrl,CV_LOAD_IMAGE_UNCHANGED );
-	    //IplImage image2 = cvLoadImage(smallUrl,CV_LOAD_IMAGE_UNCHANGED ); 
-		
 	    CvMat descriptorsA = new CvMat(null);
 	    CvMat descriptorsB = new CvMat(null);
 	    
-	    //final KeyPoint keyPoints = new KeyPoint();
-	    //final KeyPoint keyPoints2 = new KeyPoint();
+	    // SIFT(int nfeatures=0, int nOctaveLayers=3, double contrastThreshold=0.04, double edgeThreshold=10, double sigma=1.6)
+	    //nfeatures – The number of best features to retain. The features are ranked by their scores (measured in SIFT algorithm as the local contrast)
+	    //nOctaveLayers – The number of layers in each octave. 3 is the value used in D. Lowe paper. The number of octaves is computed automatically from the image resolution.
+	    //contrastThreshold – The contrast threshold used to filter out weak features in semi-uniform (low-contrast) regions. The larger the threshold, the less features are produced by the detector.
+	    //edgeThreshold – The threshold used to filter out edge-like features. Note that the its meaning is different from the contrastThreshold, i.e. the larger the edgeThreshold, the less features are filtered out (more features are retained).
+	    //sigma – The sigma of the Gaussian applied to the input image at the octave #0. If your image is captured with a weak camera with soft lenses, you might want to reduce the number.
 	    
-	    SIFT sift = new SIFT();
+	    SIFT sift = new SIFT(5000, 2, 0.05, 1.8, 1.6);
+	    //SIFT sift = new SIFT(1000, 2, 0.1, 1.6, 1.6);
+	    //SIFT sift = new SIFT();
+	    
 	    sift.detect(baseImage, null, keyPoints);
 	    sift.detect(siftImage, null, keyPoints2);
 	    
-	    //FastFeatureDetector ffd = new FastFeatureDetector(30, false);
-	    //ffd.detect(baseImage, keyPoints, null);
-	    //ffd.detect(siftImage, keyPoints2, null);
+	    DescriptorExtractor extractor = sift.getDescriptorExtractor();
 	    
-	    //IplImage featureImage = IplImage.create(cvGetSize(baseImage), baseImage.depth(), 3);
-	    //drawKeypoints(siftImage, keyPoints2, featureImage, CvScalar.WHITE, DrawMatchesFlags.DRAW_RICH_KEYPOINTS);
-	    //cvShowImage("SIFT Features", featureImage);
-	    //cvWaitKey(0);
-
-	    //BRISK extractor = new  BRISK();
-	    //BriefDescriptorExtractor extractor = new BriefDescriptorExtractor();
-	    FREAK extractor = new FREAK();
-	    
-	    //extractor.compute(siftImage, descriptorsA, keyPoints2);
-	    //extractor.compute(baseImage, descriptorsB, keyPoints);
 	    extractor.compute(siftImage, keyPoints2, descriptorsA);
 	    extractor.compute(baseImage, keyPoints, descriptorsB);
 	    
-	    //FlannBasedMatcher matcher = new FlannBasedMatcher();
-	    //DescriptorMatcher matcher = new DescriptorMatcher();
-	    BFMatcher matcher = new BFMatcher(NORM_L1, true);
+	    BFMatcher matcher = new BFMatcher(NORM_L2, true);
 	    
 	    if (!(descriptorsA.isNull() || descriptorsB.isNull())) {
 	    	
 	    	matcher.match(descriptorsA, descriptorsB, matches, null);
 	    	matchCount = matches.capacity();
-	    
-		    //IplImage matchImage = IplImage.create(cvGetSize(baseImage), baseImage.depth(), baseImage.nChannels());
-		    //drawKeypoints(siftImage, keyPoints2, matchImage, CvScalar.YELLOW, DrawMatchesFlags.DEFAULT);
-		    //cvShowImage("Matches", matchImage);
-		    //cvWaitKey(0);
-	    	
-	    	//System.out.println("Distance: "+matches.distance());
 	    	
 	    	matches.position(0);
 	    	float minDist = 10000; float maxDist = 0;
@@ -107,69 +86,32 @@ public class Sifter {
 	    	}
 	    	matches.position(0);
 	    	
-	    	System.out.println("MIN: "+minDist+", MAX: "+maxDist);
+	//    	System.out.println("MIN: "+minDist+", MAX: "+maxDist);
 	    	
 	    	if (minDist == 0) {
 	    		minDist = 1;
 	    	}
-	    	/**
-	    	for (int i=0; i < matches.capacity(); i++) {
-	    		DMatch thismatch = matches.position(i);
-	    		float thisDist = thismatch.distance();
-	    		if (thisDist > minDist*3) {
-	    			thismatch.deallocate();
-	    		}
-	    	}
-	    	System.out.println("# good matches: "+matches.capacity());
-	    	*/
 	    	
-	    	float sumx = 0; float sumy = 0; int count = 0;
 	    	keyPoints2.position(0);
 	    	for (int k=0; k < matchCount; k++) {
 	    		DMatch thismatch = matches.position(k);
-	    		if (thismatch.distance() < minDist*2) {
-		    		//CvPoint2D32f thisPoint = keyPoints2.position(k).pt();
+	    		if (thismatch.distance() < minDist*2.0 && thismatch.distance() < threshold) {
 		    		CvPoint2D32f thisPoint = keyPoints2.position(matches.position(k).queryIdx()).pt();
 		    		CvPoint2D32f onBaseImage = keyPoints.position(matches.position(k).trainIdx()).pt();
 		    		goodPoints.add(thisPoint);
 		    		goodPointsBaseImage.add(onBaseImage);
-		    		sumx += thisPoint.x();
-		    		sumy += thisPoint.y();
-		    		count++;
 	    		}
 	    	}
 	    	keyPoints2.position(0); matches.position(0);
-	    	//averageX = (int)sumx/count;
-	    	//averageY = (int)sumy/count;
-	    	System.out.println("total points --> "+matches.capacity());
-	    	System.out.println("good points --> "+goodPoints.size());
 	    	
+	//    	System.out.println("total points --> "+matches.capacity());
+	//    	System.out.println("good points --> "+goodPoints.size());
 	    	
-	/**
-		    matches.queryIdx(0);
-		    matches.trainIdx(0);
-		    System.out.println("queryIdx: "+matches.queryIdx());
-		    System.out.println("trainIdx: "+matches.trainIdx());
-		    
-			// A--> query		B --> train
-		    //CvMat matchedDescriptorsA = new CvMat(descriptorsA.rows());
-		    CvMat matchedDescriptorsA = cvCreateMat(descriptorsA.rows(), descriptorsA.rows(), CV_32FC1);
-		    CvMat matchedDescriptorsB = new CvMat(null);
-		    
-		    matchedDescriptorsA.position(0);
-		    for (int i=0; i < descriptorsA.rows()-1; i++) {
-		    	//if (matches.distance() < 100.0) {
-		    	
-		    	//}
-		    }
-		    
-		    System.out.println(matchedDescriptorsA);
-		    
-		    //CvMat mmat = cvCreateMat(3,3,CV_32FC1);
-		    //cvGetPerspectiveTransform(keyPoints, keyPoints2, mmat);
-		    //opencv_calib3d.cvFindHomography(keyPoints, keyPoints2, mmat);
-	*/
 	    }
+	}
+	
+	public ArrayList<CvPoint2D32f> getGoodMatchPoints() {
+		return (ArrayList<CvPoint2D32f>) goodPoints.clone();
 	}
 	
 	public IplImage drawMatchPoints(IplImage toDrawImage) {
@@ -178,14 +120,14 @@ public class Sifter {
 			return toDrawImage;
 		} else {
 			
-			/**
+			
 			IplImage matchImage = toDrawImage.clone();
 			for (CvPoint2D32f point : goodPoints) {
 				CvPoint center = cvPointFrom32f(point);
 				cvCircle(matchImage, center, 2, CvScalar.GREEN, 1, CV_AA, 0);
 			}
-			*/
 			
+			/**
 			IplImage matchImage = IplImage.create(cvSize(toDrawImage.width()*2, toDrawImage.height()), baseImage.depth(), baseImage.nChannels());
 			cvSetImageROI(matchImage, cvRect(0, 0, 640, 480));
 			cvCopy(baseImage, matchImage);
@@ -207,55 +149,32 @@ public class Sifter {
 				cvCircle(matchImage, baseImagecenter, 2, CvScalar.GREEN, 1, CV_AA, 0);
 				cvLine(matchImage, siftImagecenter, baseImagecenter, CvScalar.RED, 1, CV_AA, 0);
 			}
-			
+			*/
 			return matchImage;
 		}
 	}
 	
-	public IplImage drawMatchesOnImage(IplImage toDrawImage) {
-		//System.out.println(keyPoints.size());
-		//System.out.println(keyPoints2.size());
-		//System.out.println(matches.capacity());
-		keyPoints2.position(0); keyPoints.position(0);
-		matches.position(0);
+	public IplImage drawAllMatchesOnImage(IplImage toDrawImage) {
+		keyPoints2.position(0); keyPoints.position(0); matches.position(0);
 		
-		//if (!matches.isNull() && matches.sizeof() > 0 && !keyPoints.isNull() && !keyPoints2.isNull() &&
-		//		keyPoints.size() > 0 && keyPoints2.size() > 0) {
 		if (matches.capacity() > 10 && matches.sizeof() > 0 && !keyPoints.isNull() && !keyPoints2.isNull() &&
 				keyPoints.size() > 0 && keyPoints2.size() > 0) {
 			
 			IplImage matchImage = IplImage.create(cvSize(toDrawImage.width()*2, toDrawImage.height()), baseImage.depth(), baseImage.nChannels());
-			//IplImage matchImage = toDrawImage.clone();
 			
 		    drawMatches(toDrawImage, keyPoints2, baseImage, keyPoints, matches, matchImage,
 		    		CvScalar.GREEN, CvScalar.RED, null, 0);
-		    
-		    //drawMatches(baseImage, keyPoints , toDrawImage, keyPoints2, matches, matchImage,
-		    //		CvScalar.BLUE, CvScalar.RED, null, 0);
-		    
-		    CvPoint pt1 = cvPoint(averageX-20,averageY-20); CvPoint pt2 = cvPoint(averageX+20,averageY+20);
-		    cvLine(matchImage, pt1, pt2, CvScalar.RED, 3, 4, 0);
-		    CvPoint pt3 = cvPoint(averageX-20,averageY+20); CvPoint pt4 = cvPoint(averageX+20,averageY-20);
-		    cvLine(matchImage, pt3, pt4, CvScalar.RED, 3, 4, 0);
 		    
 		    return matchImage;
 		} else {
 			return toDrawImage;
 		}
-		
 	}
 	
 	
 	public IplImage drawKeyPointsOnImage(IplImage toDrawImage) {
 		IplImage matchImage = IplImage.create(cvGetSize(baseImage), baseImage.depth(), baseImage.nChannels());
-		
 	    drawKeypoints(toDrawImage, keyPoints2, matchImage, CvScalar.YELLOW, DrawMatchesFlags.DEFAULT);
-	    
-	    CvPoint pt1 = cvPoint(averageX-20,averageY-20); CvPoint pt2 = cvPoint(averageX+20,averageY+20);
-	    cvLine(matchImage, pt1, pt2, CvScalar.RED, 3, 4, 0);
-	    CvPoint pt3 = cvPoint(averageX-20,averageY+20); CvPoint pt4 = cvPoint(averageX+20,averageY-20);
-	    cvLine(matchImage, pt3, pt4, CvScalar.RED, 3, 4, 0);
-	    
 	    return matchImage;
 	}
 	
@@ -263,25 +182,37 @@ public class Sifter {
 		return matchCount;
 	}
 	
-	public Float getDistance() {
-		return matches.distance();
-	}
-	
 	public static void main(String[] args) {
 		
-		String baseString = "training_images/5/01.png";
-	    String compareString = "training_images/5/02.png";
+		String baseString = "training_images/20/gal.png";
+	    String compareString = "TOSIFT.png";
 	    IplImage baseImage = cvLoadImage(baseString);
 	    IplImage siftImage = cvLoadImage(compareString);
 		
-		Sifter sifter = new Sifter(baseImage);
-		sifter.sift(siftImage);
-		
-		//IplImage keypoints = sifter.drawKeyPointsOnImage(siftImage);
-		//IplImage matches = sifter.drawMatchesOnImage(siftImage);
-		IplImage matches = sifter.drawMatchPoints(siftImage);
-		cvShowImage("matches drawn", matches);  
+	    ArrayList<CvPoint2D32f> allGoodPoints = new ArrayList<CvPoint2D32f>();
+	    // store data over 5 sift operations
+	    for (int i=0; i < 5; i++) {
+			Sifter sifter = new Sifter(baseImage, 140);
+			sifter.sift(siftImage);
+			allGoodPoints.addAll(sifter.getGoodMatchPoints());
+			//System.out.println(allGoodPoints.size());
+			
+			//IplImage matches = sifter.drawMatchPoints(siftImage);
+			//cvShowImage("matches drawn", matches);  
+			//cvWaitKey(0);
+	    }
+	    
+	    // get median of all good points
+	    CvPoint2D32f bestPoint = allGoodPoints.get((int)(((double)allGoodPoints.size())/2.0));
+	    int x = (int) bestPoint.x(); int y = (int) bestPoint.y();
+	    System.out.println("Best --> ("+x+", "+y+")");
+	    
+	    IplImage pointDrawn = siftImage.clone();
+	    int d = 20;
+	    CvPoint A = cvPointFrom32f(new CvPoint2D32f(x-d, y-d)); CvPoint B = cvPointFrom32f(new CvPoint2D32f(x+d, y+d));
+	    CvPoint C = cvPointFrom32f(new CvPoint2D32f(x-d, y+d)); CvPoint D = cvPointFrom32f(new CvPoint2D32f(x+d, y-d));
+	    cvLine(pointDrawn, A, B, CvScalar.RED, 2, CV_AA, 0); cvLine(pointDrawn, C, D, CvScalar.RED, 2, CV_AA, 0);
+	    cvShowImage("best point drawn", pointDrawn);  
 		cvWaitKey(0);
-		
 	}
 }
