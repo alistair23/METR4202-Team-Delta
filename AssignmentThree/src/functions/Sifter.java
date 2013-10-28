@@ -19,25 +19,32 @@ import java.util.ArrayList;
 public class Sifter {
 	
 	private int matchCount = 0;
-	private int threshold = 0;
 	
 	private IplImage baseImage;
 	
-	final KeyPoint keyPoints = new KeyPoint();
-    final KeyPoint keyPoints2 = new KeyPoint();
+	KeyPoint keyPoints = new KeyPoint();
+    KeyPoint keyPoints2 = new KeyPoint();
     
     int averageX;
 	int averageY;
     
     DMatch matches = new DMatch();
+    ArrayList<CvPoint2D32f> goodPoints = new ArrayList<CvPoint2D32f>();
+    ArrayList<CvPoint2D32f> goodPointsBaseImage = new ArrayList<CvPoint2D32f>();
 	
 	public Sifter(IplImage baseImage) {
 		this.baseImage = baseImage;
-		sift(baseImage);
-		this.threshold = (int) ((1.0*getMatchCount())/2);
 	}
 	
 	public void sift(IplImage siftImage) {
+		
+		// RE INIT EVERYTHING!!!!
+		matches = new DMatch();
+		goodPoints = new ArrayList<CvPoint2D32f>();
+		goodPointsBaseImage = new ArrayList<CvPoint2D32f>();
+		keyPoints = new KeyPoint();
+	    keyPoints2 = new KeyPoint();
+		
 		//String smallUrl = "training_images/20/01.jpg";
 	    //String largeUrl = "training_images/20/02.jpg";
 	    //IplImage image = cvLoadImage(largeUrl,CV_LOAD_IMAGE_UNCHANGED );
@@ -49,13 +56,13 @@ public class Sifter {
 	    //final KeyPoint keyPoints = new KeyPoint();
 	    //final KeyPoint keyPoints2 = new KeyPoint();
 	    
-	    //SIFT sift = new SIFT();
-	    //sift.detect(baseImage, null, keyPoints);
-	    //sift.detect(siftImage, null, keyPoints2);
+	    SIFT sift = new SIFT();
+	    sift.detect(baseImage, null, keyPoints);
+	    sift.detect(siftImage, null, keyPoints2);
 	    
-	    FastFeatureDetector ffd = new FastFeatureDetector(30, true);
-	    ffd.detect(baseImage, keyPoints, null);
-	    ffd.detect(siftImage, keyPoints2, null);
+	    //FastFeatureDetector ffd = new FastFeatureDetector(30, false);
+	    //ffd.detect(baseImage, keyPoints, null);
+	    //ffd.detect(siftImage, keyPoints2, null);
 	    
 	    //IplImage featureImage = IplImage.create(cvGetSize(baseImage), baseImage.depth(), 3);
 	    //drawKeypoints(siftImage, keyPoints2, featureImage, CvScalar.WHITE, DrawMatchesFlags.DRAW_RICH_KEYPOINTS);
@@ -66,16 +73,18 @@ public class Sifter {
 	    //BriefDescriptorExtractor extractor = new BriefDescriptorExtractor();
 	    FREAK extractor = new FREAK();
 	    
+	    //extractor.compute(siftImage, descriptorsA, keyPoints2);
+	    //extractor.compute(baseImage, descriptorsB, keyPoints);
 	    extractor.compute(siftImage, keyPoints2, descriptorsA);
 	    extractor.compute(baseImage, keyPoints, descriptorsB);
 	    
 	    //FlannBasedMatcher matcher = new FlannBasedMatcher();
 	    //DescriptorMatcher matcher = new DescriptorMatcher();
-	    BFMatcher matcher = new BFMatcher(NORM_L2, true);
+	    BFMatcher matcher = new BFMatcher(NORM_L1, true);
 	    
 	    if (!(descriptorsA.isNull() || descriptorsB.isNull())) {
-	    	matcher.match(descriptorsA, descriptorsB, matches, null);
 	    	
+	    	matcher.match(descriptorsA, descriptorsB, matches, null);
 	    	matchCount = matches.capacity();
 	    
 		    //IplImage matchImage = IplImage.create(cvGetSize(baseImage), baseImage.depth(), baseImage.nChannels());
@@ -84,20 +93,56 @@ public class Sifter {
 		    //cvWaitKey(0);
 	    	
 	    	//System.out.println("Distance: "+matches.distance());
+	    	
+	    	matches.position(0);
+	    	float minDist = 10000; float maxDist = 0;
+	    	for (int i=0; i < matchCount; i++) {
+	    		DMatch thismatch = matches.position(i);
+	    		float thisDist = thismatch.distance();
+	    		if (thisDist < minDist) {
+	    			minDist = thisDist;
+	    		} if (thisDist > maxDist) {
+	    			maxDist = thisDist;
+	    		}	
+	    	}
+	    	matches.position(0);
+	    	
+	    	System.out.println("MIN: "+minDist+", MAX: "+maxDist);
+	    	
+	    	if (minDist == 0) {
+	    		minDist = 1;
+	    	}
+	    	/**
+	    	for (int i=0; i < matches.capacity(); i++) {
+	    		DMatch thismatch = matches.position(i);
+	    		float thisDist = thismatch.distance();
+	    		if (thisDist > minDist*3) {
+	    			thismatch.deallocate();
+	    		}
+	    	}
+	    	System.out.println("# good matches: "+matches.capacity());
+	    	*/
+	    	
 	    	float sumx = 0; float sumy = 0; int count = 0;
 	    	keyPoints2.position(0);
-	    	for (int k=0; k < keyPoints2.capacity(); k++) {
-	    		//CvPoint2D32f thisPoint = keyPoints2.position(k).pt();
-	    		CvPoint2D32f thisPoint = keyPoints2.position(matches.position(0).queryIdx()).pt();
-	    		sumx += thisPoint.x();
-	    		sumy += thisPoint.y();
-	    		count++;
+	    	for (int k=0; k < matchCount; k++) {
+	    		DMatch thismatch = matches.position(k);
+	    		if (thismatch.distance() < minDist*2) {
+		    		//CvPoint2D32f thisPoint = keyPoints2.position(k).pt();
+		    		CvPoint2D32f thisPoint = keyPoints2.position(matches.position(k).queryIdx()).pt();
+		    		CvPoint2D32f onBaseImage = keyPoints.position(matches.position(k).trainIdx()).pt();
+		    		goodPoints.add(thisPoint);
+		    		goodPointsBaseImage.add(onBaseImage);
+		    		sumx += thisPoint.x();
+		    		sumy += thisPoint.y();
+		    		count++;
+	    		}
 	    	}
-	    	keyPoints2.position(0);
-	    	averageX = (int)sumx/count;
-	    	averageY = (int)sumy/count;
-	    	
-	    	
+	    	keyPoints2.position(0); matches.position(0);
+	    	//averageX = (int)sumx/count;
+	    	//averageY = (int)sumy/count;
+	    	System.out.println("total points --> "+matches.capacity());
+	    	System.out.println("good points --> "+goodPoints.size());
 	    	
 	    	
 	/**
@@ -115,8 +160,6 @@ public class Sifter {
 		    for (int i=0; i < descriptorsA.rows()-1; i++) {
 		    	//if (matches.distance() < 100.0) {
 		    	
-		    	
-		    	
 		    	//}
 		    }
 		    
@@ -129,16 +172,66 @@ public class Sifter {
 	    }
 	}
 	
-	public IplImage drawMatchesOnImage(IplImage toDrawImage) {
-		System.out.println(keyPoints.size());
-		System.out.println(keyPoints2.size());
-		System.out.println(matches.capacity());
+	public IplImage drawMatchPoints(IplImage toDrawImage) {
 		
-		if (!matches.isNull() && !keyPoints.isNull() && !keyPoints2.isNull()) {
-			IplImage matchImage = IplImage.create(cvGetSize(baseImage), baseImage.depth(), baseImage.nChannels());
+		if (goodPoints.size() == 0) {
+			return toDrawImage;
+		} else {
+			
+			/**
+			IplImage matchImage = toDrawImage.clone();
+			for (CvPoint2D32f point : goodPoints) {
+				CvPoint center = cvPointFrom32f(point);
+				cvCircle(matchImage, center, 2, CvScalar.GREEN, 1, CV_AA, 0);
+			}
+			*/
+			
+			IplImage matchImage = IplImage.create(cvSize(toDrawImage.width()*2, toDrawImage.height()), baseImage.depth(), baseImage.nChannels());
+			cvSetImageROI(matchImage, cvRect(0, 0, 640, 480));
+			cvCopy(baseImage, matchImage);
+			cvSetImageROI(matchImage, cvRect(640, 0, 640, 480));
+			cvCopy(toDrawImage, matchImage);
+			cvSetImageROI(matchImage, cvRect(0, 0, 640*2, 480));
+			
+			int width = toDrawImage.width();
+			
+			for (int i=0; i < goodPoints.size(); i++) {
+				
+				CvPoint2D32f siftImagePoint = goodPoints.get(i);
+				CvPoint2D32f baseImagePoint = goodPointsBaseImage.get(i);
+				
+				CvPoint siftImagecenter = cvPointFrom32f(new CvPoint2D32f(siftImagePoint.x()+width, siftImagePoint.y()));
+				CvPoint baseImagecenter = cvPointFrom32f(new CvPoint2D32f(baseImagePoint.x(), baseImagePoint.y()));
+				
+				cvCircle(matchImage, siftImagecenter, 2, CvScalar.GREEN, 1, CV_AA, 0);
+				cvCircle(matchImage, baseImagecenter, 2, CvScalar.GREEN, 1, CV_AA, 0);
+				cvLine(matchImage, siftImagecenter, baseImagecenter, CvScalar.RED, 1, CV_AA, 0);
+			}
+			
+			return matchImage;
+		}
+	}
+	
+	public IplImage drawMatchesOnImage(IplImage toDrawImage) {
+		//System.out.println(keyPoints.size());
+		//System.out.println(keyPoints2.size());
+		//System.out.println(matches.capacity());
+		keyPoints2.position(0); keyPoints.position(0);
+		matches.position(0);
+		
+		//if (!matches.isNull() && matches.sizeof() > 0 && !keyPoints.isNull() && !keyPoints2.isNull() &&
+		//		keyPoints.size() > 0 && keyPoints2.size() > 0) {
+		if (matches.capacity() > 10 && matches.sizeof() > 0 && !keyPoints.isNull() && !keyPoints2.isNull() &&
+				keyPoints.size() > 0 && keyPoints2.size() > 0) {
+			
+			IplImage matchImage = IplImage.create(cvSize(toDrawImage.width()*2, toDrawImage.height()), baseImage.depth(), baseImage.nChannels());
+			//IplImage matchImage = toDrawImage.clone();
+			
+		    drawMatches(toDrawImage, keyPoints2, baseImage, keyPoints, matches, matchImage,
+		    		CvScalar.GREEN, CvScalar.RED, null, 0);
 		    
-		    drawMatches(baseImage, keyPoints, toDrawImage, keyPoints2, matches, matchImage,
-		    		CvScalar.BLUE, CvScalar.RED, null, DrawMatchesFlags.DEFAULT);
+		    //drawMatches(baseImage, keyPoints , toDrawImage, keyPoints2, matches, matchImage,
+		    //		CvScalar.BLUE, CvScalar.RED, null, 0);
 		    
 		    CvPoint pt1 = cvPoint(averageX-20,averageY-20); CvPoint pt2 = cvPoint(averageX+20,averageY+20);
 		    cvLine(matchImage, pt1, pt2, CvScalar.RED, 3, 4, 0);
@@ -146,13 +239,16 @@ public class Sifter {
 		    cvLine(matchImage, pt3, pt4, CvScalar.RED, 3, 4, 0);
 		    
 		    return matchImage;
+		} else {
+			return toDrawImage;
 		}
-		return null;
+		
 	}
 	
 	
 	public IplImage drawKeyPointsOnImage(IplImage toDrawImage) {
 		IplImage matchImage = IplImage.create(cvGetSize(baseImage), baseImage.depth(), baseImage.nChannels());
+		
 	    drawKeypoints(toDrawImage, keyPoints2, matchImage, CvScalar.YELLOW, DrawMatchesFlags.DEFAULT);
 	    
 	    CvPoint pt1 = cvPoint(averageX-20,averageY-20); CvPoint pt2 = cvPoint(averageX+20,averageY+20);
@@ -171,22 +267,21 @@ public class Sifter {
 		return matches.distance();
 	}
 	
-	public Boolean isMatch() {
-		if (matchCount > threshold) {
-			return true;
-		}
-		return false;
-	}
-	
 	public static void main(String[] args) {
 		
-		String baseString = "training_images/20/01.png";
-	    String compareString = "training_images/20/02.png";
+		String baseString = "training_images/5/01.png";
+	    String compareString = "training_images/5/02.png";
 	    IplImage baseImage = cvLoadImage(baseString);
 	    IplImage siftImage = cvLoadImage(compareString);
 		
 		Sifter sifter = new Sifter(baseImage);
 		sifter.sift(siftImage);
-		System.out.println("Match Count: "+sifter.getMatchCount());
+		
+		//IplImage keypoints = sifter.drawKeyPointsOnImage(siftImage);
+		//IplImage matches = sifter.drawMatchesOnImage(siftImage);
+		IplImage matches = sifter.drawMatchPoints(siftImage);
+		cvShowImage("matches drawn", matches);  
+		cvWaitKey(0);
+		
 	}
 }

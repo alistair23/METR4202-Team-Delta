@@ -8,6 +8,8 @@ import static com.googlecode.javacv.cpp.opencv_highgui.cvWaitKey;
 import static com.googlecode.javacv.cpp.opencv_imgproc.CV_BGR2HSV;
 import static com.googlecode.javacv.cpp.opencv_imgproc.CV_MEDIAN;
 import static com.googlecode.javacv.cpp.opencv_imgproc.cvCvtColor;
+import static com.googlecode.javacv.cpp.opencv_imgproc.cvDilate;
+import static com.googlecode.javacv.cpp.opencv_imgproc.cvErode;
 import static com.googlecode.javacv.cpp.opencv_imgproc.cvSmooth;
 import static com.googlecode.javacv.cpp.opencv_calib3d.cvRodrigues2;
 
@@ -355,20 +357,22 @@ public class CoinGUI extends JFrame{
 			}});
 	    
 	    //update the main window with the camera feed forever
-	//    IplImage trackBase = kr.getColorFrame();
-	    //IplImage trackBase = cvLoadImage("workingImages/cap.png");
-	    String baseString = "training_images/5/02.png";
+	    
+	    String baseString = "training_images/20/guy.png";
 		IplImage baseImage = cvLoadImage(baseString);
 		w.ImagePanelUpdate(currentP, baseImage, 1);
 		Sifter sifter = new Sifter(baseImage);
-		double height = 300.0;
+		double height = 380.0;
 		while(true){
 			if(haveKinect){
 				mainI = kr.getColorFrame();
 		    	w.ImagePanelUpdate(mainP, mainI, 1);
 		    	
+		    	/**
 		    	//w.ImagePanelUpdate(currentP, findCoins(mainI), 1);
-		    	
+		    	cvErode(mainI, mainI, null, 3);
+		  	  	cvDilate(mainI, mainI, null, 3);
+		  	  	
 		    	CoinFinder coinFinder = new CoinFinder(mainI, height);
 		    	coinFinder.find();
 	        	coinFinder.determineValues();
@@ -378,7 +382,8 @@ public class CoinGUI extends JFrame{
 		    	w.ImagePanelUpdate(currentP, trackedImage, 1);
 		    	con.wipe();
 				con.addln(coinFinder.getValues().toString());
-				
+				*/
+		    	
 		    	//BlobFinder blob = new BlobFinder(mainI);
 		    	//CvScalar min = new CvScalar(130, 0, 50, 0);
 		    	//CvScalar max = new CvScalar(200, 255, 255, 0);
@@ -395,23 +400,15 @@ public class CoinGUI extends JFrame{
 		    	
 		    	//w.ImagePanelUpdate(currentP, blobImage, 1);
 				
-		    	/**
-				sifter.sift(trackedImage);
-				if (sifter.isMatch()) {
-					//con.wipe();
-					con.addln("True");
-					con.addln("Count: "+sifter.getMatchCount().toString());
-				} else {
-					//con.wipe();
-					con.addln("False");
-					con.addln("Count: "+sifter.getMatchCount().toString());
-				}
+		    	
+				sifter.sift(mainI);
+				con.addln("Count: "+sifter.getMatchCount().toString());
 				con.addln("Distance: "+sifter.getDistance().toString());
 				
 				//IplImage drawMatches = sifter.drawMatchesOnImage(mainI);
-				IplImage drawMatches = sifter.drawKeyPointsOnImage(trackedImage);
+				IplImage drawMatches = sifter.drawMatchPoints(mainI);
 				w.ImagePanelUpdate(currentP, drawMatches, 1);
-				*/
+				
 			}
 		}
 		
