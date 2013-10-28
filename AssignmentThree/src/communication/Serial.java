@@ -11,13 +11,14 @@ import jssc.SerialPortException;
 public class Serial {
 	
 	SerialPort serialPort;
+	String readbuffer;
 	
 	public Serial(int p){
 		serialPort = new SerialPort("COM"+p);
 	}
    
 	 public static void main(String[] args) {
-		 Serial s = new Serial(4);
+		 Serial s = new Serial(3);
 		// s.getNames();
 		 s.open();
 		 //s.write("FFFF0104022B01CC"); //return temp of actuator 1
@@ -74,16 +75,18 @@ public class Serial {
             }
         }
     
-        public void read() {
+        public String read() {
  	            try {
-	            	System.out.print((serialPort.getInputBufferBytesCount()));
+	            	//System.out.print((serialPort.getInputBufferBytesCount()));
 	            	while((serialPort.getInputBufferBytesCount()) == 0){}
-	            	String buffer = serialPort.readHexString();
-	                System.out.println(buffer);
+	            	readbuffer = serialPort.readHexString();
+	            	serialPort.purgePort(0);
+	                //System.out.println(readbuffer);
 	            	}
 	            catch (SerialPortException ex) {
 	                System.out.println(ex);
 	            }
+				return readbuffer;
         }
         
         public static byte[] hexStringToByteArray(String s) {

@@ -1,7 +1,5 @@
 package communication;
 
-import java.io.UnsupportedEncodingException;
-
 public class DynamixelSerial {
 
 	//Instruction
@@ -26,10 +24,16 @@ public class DynamixelSerial {
 		DynamixelSerial ds = new DynamixelSerial(3);
 		//System.out.println(ds.calcChecksum("0104022B01")); //FFFF0104022B01CC
 		
-		ds.command("FE","05",WRITE_DATA,"1E","4002");
-		ds.read("01", "1E");
-		ds.read("01", "1F");
+		ds.motor(1, 0, 100);
+		ds.motor(2, 90, 100);
+		ds.motor(3, 90, 100);
+
 		
+		ds.command("FE","05",WRITE_DATA,"1E","1301");
+		for(int i = 0;i<1000;i++){
+			boolean n = ds.readMoving();
+			System.out.println(n);
+		}
 		
 	}
 	
@@ -82,9 +86,68 @@ public class DynamixelSerial {
 	}
 	
 	public void read(String id, String register){
-
-		command(id,"04","02",register,"01");
 		srl.read();
+		command(id,"04","02",register,"01");
+		System.out.println(srl.read());
+
+	}
+	
+	public int readGoal(String id){
+		
+		command(id,"04","02","1E","02");
+		String val = srl.read();
+		halt(5);
+		//val = val.substring(15, val.length()-3);
+		val = val.substring(18, 20)+val.substring(15, 17);
+		//System.out.println(val);
+		return Integer.parseInt(val, 16);
+
+	}
+	
+	public int readPos(String id){
+		command(id,"04","02","24","02");
+		String val = srl.read();
+		halt(5);
+		//val = val.substring(15, val.length()-3);
+		val = val.substring(18, 20)+val.substring(15, 17);
+		//System.out.println(val);
+		int pos = Integer.parseInt(val, 16);
+		//int Apos = (int) ((((float)pos)+150.0)*512.0/150.0);
+		int Apos = (int) (pos*150.0/512.0)-150;
+		return Apos;
+
+	}
+	
+	public boolean readMoving(){
+		
+		
+		command("01","04","02","2E","01");
+		halt(5);
+		String val1 = srl.read();
+		val1 = val1.substring(15, 18);
+		Boolean b1 = (val1.charAt(1)=='1');
+		if(b1){
+			return true;
+		}
+		command("02","04","02","2E","01");
+		halt(5);
+		val1 = srl.read();
+		val1 = val1.substring(15, 18);
+		b1 = (val1.charAt(1)=='1');
+		if(b1){
+			return true;
+		}
+		command("03","04","02","2E","01");
+		halt(5);
+		val1 = srl.read();
+		val1 = val1.substring(15, 18);
+		b1 = (val1.charAt(1)=='1');
+		if(b1){
+			return true;
+		}
+		
+		
+		return false;
 
 	}
 	
