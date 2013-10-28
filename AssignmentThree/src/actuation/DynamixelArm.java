@@ -35,7 +35,7 @@ public class DynamixelArm {
 	double direction = 1; //direction = -1 for other side of arm. direction = 1 for turntable side
 	
 	DynamixelSerial ds = new DynamixelSerial(port);
-	
+	/**
 	public static void main(String[] args) {
 		final DynamixelArm da = new DynamixelArm();
 
@@ -140,7 +140,7 @@ public class DynamixelArm {
             	Load.doClick();
             }});
 
-	}
+	}**/
 	
 	public DynamixelArm(){
 	}
@@ -153,13 +153,13 @@ public class DynamixelArm {
 		
 		x1 = L1*cos(one);
 		x2 = L2*cos(one+two);
-		x = Math.abs(x1)+Math.abs(x2);
+		this.x = Math.abs(x1)+Math.abs(x2);
 
 		y1 = L1*sin(one);
 		y2 = L2*sin(one+two);
 		if(y2<y1){y2=-y2;}
-		y = y1+y2;
-		y=y-L3;
+		this.y = y1+y2;
+		this.y=this.y-L3;
 		
 		a3 = 180-one - two;
 		
@@ -262,19 +262,19 @@ public class DynamixelArm {
 			}
 		else if(a == an2){
 			 if ( an1 > an3 && an1 > an2 )
-				 return (int)((double)speed*(double)an2/(double)an1)+10;
+				 return (int)((double)speed*(double)an2/(double)an1)+40;
 		      else if ( an2 > an1 && an2 > an3 )
 		    	  return speed;
 		      else if ( an3 > an1 && an3 > an2 )
-		    	  return (int)((double)speed*(double)an2/(double)an3)+10;
+		    	  return (int)((double)speed*(double)an2/(double)an3)+40;
 		      else   
 		         return speed;
 			}
 		else if(a == an3){
 			 if ( an1 > an3 && an1 > an2 )
-				 return (int)((double)speed*(double)an3/(double)an1)+10;
+				 return (int)((double)speed*(double)an3/(double)an1)+40;
 		      else if ( an2 > an1 && an2 > an3 )
-		    	  return (int)((double)speed*(double)an3/(double)an2)+10;
+		    	  return (int)((double)speed*(double)an3/(double)an2)+40;
 		      else if ( an3 > an1 && an3 > an2 )
 		    	  return speed;
 		      else   

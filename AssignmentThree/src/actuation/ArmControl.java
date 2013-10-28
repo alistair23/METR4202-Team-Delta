@@ -33,7 +33,11 @@ public class ArmControl implements Runnable{
 		ac.goHome();
 		ac.get();
 		ac.toBox(1);
-		ac.toBox(2);
+		ac.put(ac.Box1);
+		//ac.toBox(2);
+		//ac.put(ac.Box2);
+		ac.goHome();
+
 	}
 	
 	public void doit(int x, int box){
@@ -43,13 +47,23 @@ public class ArmControl implements Runnable{
 	}
 
 	public void goHome(){
+		da.flip(false);
 		da.setXY(Home, botHeight, speed);
 		while(da.ds.readMoving()){}
 		atHome = true;
 	}
 	
 	public void goTo(int x){
-		da.setXY(x, botHeight, speed);
+		if(x < 0){da.flip(true);}
+		else{da.flip(false);}
+		da.setXY(Math.abs(x), botHeight, speed);
+		atHome = false;
+	}
+	
+	public void goTo(int x, int y){
+		if(x < 0){da.flip(true);}
+		else{da.flip(false);}
+		da.setXY(Math.abs(x), y, speed);
 		atHome = false;
 	}
 	
@@ -59,25 +73,29 @@ public class ArmControl implements Runnable{
 		da.setXY(da.x, botHeight, speed);
 		while(da.ds.readMoving()){}
 	}
-	public void put(){
+	public void put(int num){
 		atHome = false;
-		da.setXY(da.x, tableHeight - 50, speed);
-		DynamixelSerial.halt(20);
-		da.ds.motor(3, (int) (da.a3+45));
-		DynamixelSerial.halt(20);
-		goHome();
+		goTo(num,tableHeight-20);
+		//DynamixelSerial.halt(2000);
+		
+		while(da.ds.readMoving()){}
+		//da.ds.motor(3, 0);
+		goTo(num+50,tableHeight);
+		while(da.ds.readMoving()){}
+		
+		//goHome();
 	}
 	
 	public void toBox(int num){
 		atHome = false;
 		if(num==1){
-			da.setXY(Box1, botHeight, speed);
+			goTo(Box1);
 		}else if(num==2){
-			da.setXY(Box2, botHeight, speed);
+			goTo(Box2);
 		}else if(num==3){
-			da.setXY(Box3, botHeight, speed);
+			goTo(Box3);
 		}else if(num==4){
-			da.setXY(Box4, botHeight, speed);
+			goTo(Box4);
 		}
 		while(da.ds.readMoving()){}
 	}
