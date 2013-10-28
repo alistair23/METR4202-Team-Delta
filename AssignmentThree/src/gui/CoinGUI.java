@@ -371,6 +371,8 @@ public class CoinGUI extends JFrame{
 	    double height = 375.0;
 	    if (haveKinect) {
 		    mainI = kr.getColorFrame();
+		    CoinFinder coinFinder = new CoinFinder(mainI, height);
+		    pixelSize = coinFinder.getPixelSize();
 		    
 		    AxisLocator origin = new AxisLocator(mainI);
 		    CvMat transMatrix = origin.findAxis(mainI);
@@ -418,16 +420,14 @@ public class CoinGUI extends JFrame{
 				
 				IplImage pointsDrawn = kr.getColorFrame().clone();
 				// need coin finder for pixel size
-				CoinFinder coinFinder = new CoinFinder(mainI, height);
+				
 				for (int i=0; i < labels.size(); i++) {
 					String label = labels.get(i);
 					CvPoint POINT = locations.get(i);
 					cvPutText(pointsDrawn, label, POINT, font, CvScalar.GREEN);
 					
-					pixelSize = coinFinder.getPixelSize();
 		        	double offsetx = 320.0*pixelSize; double offsety = 240.0*pixelSize;
-		        	
-					double x = POINT.x()-offsetx; double y = offsety-POINT.y();
+					double x = POINT.x()*pixelSize-offsetx; double y = offsety-POINT.y()*pixelSize;
 	        		double diffx = x-originXmm; double diffy = y-originYmm;
 	        		Double polarRadius = Math.sqrt(Math.pow(diffx, 2)+Math.pow(diffy, 2));
 	        		Double polarAngleRad = Math.atan2(diffy, diffx);
@@ -474,6 +474,7 @@ public class CoinGUI extends JFrame{
 	        		//con.wipe(); 
 	        		//con.addln("Radius: "+polarRadius.toString());
 	        		//con.addln("Angle: "+polarAngleRad.toString());
+	        		
 	        		TreeMap<Double, ArrayList<Double>> newmap = new TreeMap<Double, ArrayList<Double>>();
 	        		ArrayList<Double> polarcoords = new ArrayList<Double>();
 	        		polarcoords.add(polarRadius); polarcoords.add(polarAngleRad);
@@ -494,22 +495,40 @@ public class CoinGUI extends JFrame{
 			    	for (TreeMap<String, ArrayList<Double>> note : notesPolar) {
 		        		String label = note.firstKey();
 		        		ArrayList<Double> polarcoord = note.get(label);
-						CvPoint POINT = new CvPoint((int)(originXmm/pixelSize)+320,(int)(-originYmm/pixelSize)+240);
-						cvCircle(trackedImage, POINT, (int)(polarcoord.get(0)/pixelSize), CvScalar.RED, 1, CV_AA, 0);
+		        		double radius = polarcoord.get(0);
+		        		double angle = polarcoord.get(1);
+						CvPoint ORIGIN = new CvPoint((int)(originXmm/pixelSize)+320, (int)(-originYmm/pixelSize)+240);
+						cvCircle(trackedImage, ORIGIN, (int)(radius/pixelSize), CvScalar.RED, 1, CV_AA, 0);
+						
+						double xWrtCent = (radius)*Math.cos(angle)/pixelSize;
+						double yWrtCent = (radius)*Math.sin(angle)/pixelSize;
+						double cartX = xWrtCent+ORIGIN.x(); double cartY = -yWrtCent+ORIGIN.y();
+						CvPoint POINT = new CvPoint((int)cartX, (int)cartY);
+						cvCircle(trackedImage, POINT, 5, CvScalar.GREEN, 2, CV_AA, 0);
+						cvPutText(trackedImage, "  "+label, POINT, font, CvScalar.GREEN);
 		        	}
 			    	for (TreeMap<Double, ArrayList<Double>> note : coinsPolar) {
 		        		Double value = note.firstKey();
 		        		ArrayList<Double> polarcoord = note.get(value);
-						CvPoint POINT = new CvPoint((int)(originXmm/pixelSize)+320,(int)(-originYmm/pixelSize)+240);
-						cvCircle(trackedImage, POINT, (int)(polarcoord.get(0)/pixelSize), CvScalar.RED, 1, CV_AA, 0);
+		        		double radius = polarcoord.get(0);
+		        		double angle = polarcoord.get(1);
+						CvPoint ORIGIN = new CvPoint((int)(originXmm/pixelSize)+320,(int)(-originYmm/pixelSize)+240);
+						cvCircle(trackedImage, ORIGIN, (int)(radius/pixelSize), CvScalar.RED, 1, CV_AA, 0);
+						
+						double xWrtCent = (radius)*Math.cos(angle)/pixelSize;
+						double yWrtCent = (radius)*Math.sin(angle)/pixelSize;
+						double cartX = xWrtCent+ORIGIN.x(); double cartY = -yWrtCent+ORIGIN.y();
+						CvPoint POINT = new CvPoint((int)cartX, (int)cartY);
+						cvCircle(trackedImage, POINT, 5, CvScalar.GREEN, 2, CV_AA, 0);
+						cvPutText(trackedImage, "  "+value.toString(), POINT, font, CvScalar.GREEN);
 		        	}
 		    	}
 		    	
 		    	w.ImagePanelUpdate(currentP, trackedImage, 1);
 		    	
 		    	con.wipe();
-	        	//con.addln(coinsPolar.toString());
-	        	con.addln(notesPolar.toString());
+	        	con.addln(coinsPolar.toString());
+	        	//con.addln(notesPolar.toString());
 	        	
 	        	
 		    	//BlobFinder blob = new BlobFinder(mainI);
