@@ -1,6 +1,6 @@
 package communication;
 
-public class DynamixelSerial {
+public class DynamixelSerial implements Runnable{
 
 	//Instruction
 	static String PING = "01";
@@ -118,6 +118,20 @@ public class DynamixelSerial {
 
 	}
 	
+	public int readPos(String id, String len){
+		command(id,"04",len,"24","02");
+		String val = srl.read();
+		halt(5);
+		//val = val.substring(15, val.length()-3);
+		val = val.substring(15, 17);
+		//System.out.println(val);
+		int pos = Integer.parseInt(val, 16);
+		//int Apos = (int) ((((float)pos)+150.0)*512.0/150.0);
+		int Apos = (int) (pos*150.0/512.0)-150;
+		return Apos;
+
+	}
+	
 	public boolean readMoving(){
 		
 		
@@ -207,7 +221,7 @@ public class DynamixelSerial {
 			write("0"+id,"07","1E",xval(Apos)+xval(speed));
 		}
 		System.out.println("Motor "+id+" set");
-		srl.read();
+		srl.readbuffer= "";
 	}
 	
 	
@@ -284,6 +298,12 @@ public class DynamixelSerial {
 		 
 	 }
 	 //public void wait(){
+
+	@Override
+	public void run() {
+		// TODO Auto-generated method stub
+		
+	}
 		 
 	// }
 

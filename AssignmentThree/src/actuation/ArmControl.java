@@ -18,7 +18,7 @@ public class ArmControl implements Runnable{
 	int botHeight = 100;
 	int xoffset = 180;
 	
-	int speed = 200;
+	int speed = 100;
 	
 	int BoxS1 = 85;
 	int BoxS2 = -83;
@@ -175,8 +175,10 @@ public class ArmControl implements Runnable{
 		//da.ds.motor(3, 0);
 		//goTo(num+50,tableHeight);
 		//while(da.ds.readMoving()){}
-		
+		int ospeed = speed;
+		speed = 500;
 		goHome();
+		speed = ospeed;
 	}
 	
 	public void toBox(int num){
