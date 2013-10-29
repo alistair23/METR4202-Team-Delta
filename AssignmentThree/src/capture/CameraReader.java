@@ -39,6 +39,13 @@ public class CameraReader {
 		System.out.println("Starting Camera");
 		opencv_highgui.cvSetCaptureProperty(capture, opencv_highgui.CV_CAP_PROP_FRAME_HEIGHT, 480);
 	    opencv_highgui.cvSetCaptureProperty(capture, opencv_highgui.CV_CAP_PROP_FRAME_WIDTH, 640);
+	    
+	    // shitty 1 sec wait
+	    double a = System.currentTimeMillis(); double b = System.currentTimeMillis();
+	    while (b < a+1000) {
+	    	b = System.currentTimeMillis();
+	    }
+	    
 		return true;
 	}
 	

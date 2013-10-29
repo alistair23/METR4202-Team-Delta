@@ -54,8 +54,8 @@ public class Sifter {
 	    //edgeThreshold – The threshold used to filter out edge-like features. Note that the its meaning is different from the contrastThreshold, i.e. the larger the edgeThreshold, the less features are filtered out (more features are retained).
 	    //sigma – The sigma of the Gaussian applied to the input image at the octave #0. If your image is captured with a weak camera with soft lenses, you might want to reduce the number.
 	    
+	    //SIFT sift = new SIFT(5000, 2, 0.05, 1.8, 1.6);
 	    SIFT sift = new SIFT(5000, 2, 0.05, 1.8, 1.6);
-	    //SIFT sift = new SIFT(5000, 2, 0.05, 3.0, 1.6);
 	    //SIFT sift = new SIFT();
 	    
 	    sift.detect(baseImage, null, keyPoints);
@@ -120,15 +120,15 @@ public class Sifter {
 			return toDrawImage;
 		} else {
 			
-			
+			/**
 			IplImage matchImage = toDrawImage.clone();
 			for (CvPoint2D32f point : goodPoints) {
 				CvPoint center = cvPointFrom32f(point);
-				cvCircle(matchImage, center, 2, CvScalar.GREEN, 1, CV_AA, 0);
+				cvCircle(matchImage, center, 10, CvScalar.RED, 3, CV_AA, 0);
 			}
+			*/
 			
-			/**
-			IplImage matchImage = IplImage.create(cvSize(toDrawImage.width()*2, toDrawImage.height()), baseImage.depth(), baseImage.nChannels());
+			IplImage matchImage = IplImage.create(cvSize(baseImage.width()*2, baseImage.height()), baseImage.depth(), baseImage.nChannels());
 			cvSetImageROI(matchImage, cvRect(0, 0, 640, 480));
 			cvCopy(baseImage, matchImage);
 			cvSetImageROI(matchImage, cvRect(640, 0, 640, 480));
@@ -149,7 +149,7 @@ public class Sifter {
 				cvCircle(matchImage, baseImagecenter, 2, CvScalar.GREEN, 1, CV_AA, 0);
 				cvLine(matchImage, siftImagecenter, baseImagecenter, CvScalar.RED, 1, CV_AA, 0);
 			}
-			*/
+			
 			return matchImage;
 		}
 	}
@@ -184,7 +184,7 @@ public class Sifter {
 	
 	public static void main(String[] args) {
 		
-		String baseString = "training_images/20/gal.png";
+		String baseString = "training_images/$5_back.png";
 	    String compareString = "TOSIFT.png";
 	    IplImage baseImage = cvLoadImage(baseString);
 	    IplImage siftImage = cvLoadImage(compareString);
@@ -192,14 +192,14 @@ public class Sifter {
 	    ArrayList<CvPoint2D32f> allGoodPoints = new ArrayList<CvPoint2D32f>();
 	    // store data over 5 sift operations
 	    for (int i=0; i < 5; i++) {
-			Sifter sifter = new Sifter(baseImage, 140);
+			Sifter sifter = new Sifter(baseImage, 190);
 			sifter.sift(siftImage);
 			allGoodPoints.addAll(sifter.getGoodMatchPoints());
 			//System.out.println(allGoodPoints.size());
 			
-			//IplImage matches = sifter.drawMatchPoints(siftImage);
-			//cvShowImage("matches drawn", matches);  
-			//cvWaitKey(0);
+			IplImage matches = sifter.drawMatchPoints(siftImage);
+			cvShowImage("matches drawn", matches);  
+			cvWaitKey(0);
 	    }
 	    
 	    // get median of all good points

@@ -30,13 +30,14 @@ repeat
 
 		//ts.writeSpeed();
 		//ts.getMoving();
-		//ts.writeSpeed(900);
-		//ts.writeTarget(1530);
+		//ts.writeSpeed(112);
+		ts.writeTarget(1123);
 		//srl.read();
 		
 		//while (true) {
 		//	System.out.println(ts.readSpeed());
 		//}
+		srl.close();
 	}
 	
 	// returns speed in rad/s
@@ -46,7 +47,8 @@ repeat
 		Integer speed = -Integer.parseInt(readString.substring(3, 5)+readString.substring(0, 2), 16)+6000;
 		// max = +-16 rpm
 		// 2000 = (16*2*Math.PI/60)
-		double mult = Math.PI/3750.0;
+		//double mult = Math.PI/3750.0;
+		double mult = Math.PI/2000.0;
 		return speed*mult;
 	}
 	

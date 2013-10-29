@@ -52,7 +52,7 @@ public class HoughCircles{
 				50, //Minimum distance between the centers of the detected circles
 				CANNYTHRESHOLD, //Higher threshold for canny edge detector
 				//50, //Threshold at the center detection stage
-				40, //Threshold at the center detection stage
+				35, //Threshold at the center detection stage
 				minCoinRadius, //min radius
 				maxCoinRadius //max radius
 				);
