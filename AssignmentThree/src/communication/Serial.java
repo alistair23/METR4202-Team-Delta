@@ -94,10 +94,14 @@ public class Serial {
 	            	while((serialPort.getInputBufferBytesCount()) == 0){}
 	            	readbuffer = serialPort.readHexString();
 	            	serialPort.purgePort(0);
-	                //System.out.println(readbuffer);
+	                System.out.println(readbuffer);
 	            	}
-	            catch (SerialPortException ex) {
+ 	           catch (SerialPortException ex) {
+ 	        	  ex.printStackTrace();
 	                System.out.println(ex);
+	            }
+ 	           catch (Exception e) {
+ 	        	  e.printStackTrace();
 	            }
 				return readbuffer;
         }

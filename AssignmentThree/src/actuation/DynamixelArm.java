@@ -14,7 +14,7 @@ import javax.swing.JTextArea;
 import communication.DynamixelSerial;
 import communication.Serial;
 
-public class DynamixelArm {
+public class DynamixelArm{
 
 	//Constants
 	double L1 = 144; //length of member 1 in mm
@@ -168,7 +168,7 @@ public class DynamixelArm {
 		a3 = direction*a3;
 	}
 	
-	public void calcAng(double x, double y){
+	public void calcAng(double x, double y, double a3off){
 		this.x = x;
 		this.y = y;
 		double d = Math.sqrt((x*x)+(y*y));	
@@ -183,7 +183,7 @@ public class DynamixelArm {
 		
 		a1 = direction*a1;
 		a2 = direction*a2;
-		a3 = direction*a3;
+		a3 = direction*(a3+a3off);
 		
 		
 	}
@@ -196,7 +196,7 @@ public class DynamixelArm {
 	}
 	
 	public void setXY(double x, double y, int speed){
-		calcAng(x,y);
+		calcAng(x,y,0);
 		System.out.println("Pos: "+this.x+" , "+this.y);
 		System.out.println("Ang: "+a1+" , "+a2+" , "+a3);
 		int speed1 = (int)speedRatio(a1,speed);
@@ -212,17 +212,25 @@ public class DynamixelArm {
 		//ds.read("01","25");
 	}
 	
-	public void gotoXY(double x, double y, double time){
-		calcAng(x,y);
-		double speed = a3/time;
-		for(int i=0;i<100;i++){
-			ds.motor(motor1ID, (int)a1, (int)speedRatio(a1,speed/i));
-			ds.motor(motor2ID, (int)a2, (int)speedRatio(a2,speed/i));
-			ds.motor(motor3ID, (int)a3, (int)speedRatio(a3,speed/i));
-			DynamixelSerial.halt(1);
-			System.out.println(i);
-		}
+	public void setXY(double x, double y, int speed, double ang){
+		calcAng(x,y,ang);
+		System.out.println("Pos: "+this.x+" , "+this.y);
+		System.out.println("Ang: "+a1+" , "+a2+" , "+a3);
+		int speed1 = (int)speedRatio(a1,speed);
+		int speed2 = (int)speedRatio(a2,speed);
+		int speed3 = (int)speedRatio(a3,speed);
+		System.out.println("funct 2 Speeds: "+speed1+"  "+speed2+"  "+speed3);
+		System.out.println("funct 2 angles: "+(int)a1+"  "+(int)a2+"  "+(int)a3);
+		
+		ds.motor(motor1ID, (int)a1, speed1);
+		ds.motor(motor2ID, (int)a2, speed2);
+		ds.motor(motor3ID, (int)a3, speed3);
+		//for(int i=0;i<100;i++){
+		//ds.read("01","24");
+		//}
+		//ds.read("01","25");
 	}
+	
 	
 	
 	public void flip(boolean b){
@@ -254,27 +262,27 @@ public class DynamixelArm {
 		if(a == an1){
 			 if ( an1 > an3 && an1 > an2 )
 		         return speed;
-		      else if ( an2 > an1 && an2 > an3 )
+		      else if ( an2 > an1 && an2 > an3 && an2 != 0 )
 		    	  return (int)((double)speed*(double)an1/(double)an2)+40;
-		      else if ( an3 > an1 && an3 > an2 )
+		      else if ( an3 > an1 && an3 > an2 && an3 != 0 )
 		    	  return (int)((double)speed*(double)an1/(double)an3)+40;
 		      else   
 		         return speed;
 			}
 		else if(a == an2){
-			 if ( an1 > an3 && an1 > an2 )
+			 if ( an1 > an3 && an1 > an2 && an1 != 0 )
 				 return (int)((double)speed*(double)an2/(double)an1)+40;
 		      else if ( an2 > an1 && an2 > an3 )
 		    	  return speed;
-		      else if ( an3 > an1 && an3 > an2 )
+		      else if ( an3 > an1 && an3 > an2 && an3 != 0 )
 		    	  return (int)((double)speed*(double)an2/(double)an3)+40;
 		      else   
 		         return speed;
 			}
 		else if(a == an3){
-			 if ( an1 > an3 && an1 > an2 )
+			 if ( an1 > an3 && an1 > an2 && an1 != 0 )
 				 return (int)((double)speed*(double)an3/(double)an1)+40;
-		      else if ( an2 > an1 && an2 > an3 )
+		      else if ( an2 > an1 && an2 > an3 && an2 != 0 )
 		    	  return (int)((double)speed*(double)an3/(double)an2)+40;
 		      else if ( an3 > an1 && an3 > an2 )
 		    	  return speed;
@@ -284,6 +292,7 @@ public class DynamixelArm {
 
 		return speed;
 	}
-	
+
+
 	
 }

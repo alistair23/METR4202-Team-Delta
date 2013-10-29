@@ -121,26 +121,44 @@ public class DynamixelSerial {
 	public boolean readMoving(){
 		
 		
-		command("01","04","02","2E","01");
-		halt(5);
-		String val1 = srl.read();
-		val1 = val1.substring(15, 18);
+		String val1 = "";
+		
+		try {
+			command("01","04","02","2E","01");
+			halt(5);
+			val1 = srl.read();
+			val1 = val1.substring(15, 18);
+			
+		} catch (StringIndexOutOfBoundsException e) {
+			return true;
+		}
+		
 		Boolean b1 = (val1.charAt(1)=='1');
 		if(b1){
 			return true;
 		}
+		try {
 		command("02","04","02","2E","01");
 		halt(5);
 		val1 = srl.read();
 		val1 = val1.substring(15, 18);
+		
+		} catch (StringIndexOutOfBoundsException e) {
+			return true;
+		}
+		
 		b1 = (val1.charAt(1)=='1');
 		if(b1){
 			return true;
 		}
+		try{
 		command("03","04","02","2E","01");
 		halt(5);
 		val1 = srl.read();
 		val1 = val1.substring(15, 18);
+	} catch (StringIndexOutOfBoundsException e) {
+		return true;
+	}
 		b1 = (val1.charAt(1)=='1');
 		if(b1){
 			return true;
@@ -177,6 +195,8 @@ public class DynamixelSerial {
 	}
 	
 	public void motor(int id, int pos, int speed){
+		
+		System.out.println("Motor "+id+" setting");
 
 		int Apos = (int) ((((float)pos)+150.0)*512.0/150.0);
 		if(Apos == 0 ){Apos = 512;}
@@ -186,6 +206,8 @@ public class DynamixelSerial {
 		else{
 			write("0"+id,"07","1E",xval(Apos)+xval(speed));
 		}
+		System.out.println("Motor "+id+" set");
+		srl.read();
 	}
 	
 	
