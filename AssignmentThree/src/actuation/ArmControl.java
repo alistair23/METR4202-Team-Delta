@@ -8,8 +8,6 @@ public class ArmControl implements Runnable{
 	
 	DynamixelArm da = new DynamixelArm();
 	
-	
-	
 	private int Home = 190;
 	
 	int GLOBALOFFSET = -12;
@@ -54,17 +52,18 @@ public class ArmControl implements Runnable{
 		//ac.da.setAng(0, 90, 200);
 		//while(ac.da.ds.readMoving()){DynamixelSerial.halt(10);}
 		ac.goHome();
-		ac.get(200);
-		ac.put(1);
-		ac.get(170);
-		ac.put(1);
-		ac.get(170);
-		ac.put(2);
-		ac.get(170);
-		ac.put(3);
-		ac.get(170);
-		ac.put(4);
-
+		
+		//ac.get(300);
+		//ac.put(1);
+		//ac.get(170);
+		//ac.put(1);
+		//ac.get(170);
+		//ac.put(2);
+		//ac.get(170);
+		//ac.put(3);
+		//ac.get(170);
+		//ac.put(4);
+		
 		
 		
 		/**for(int i =160; i<170;i++){
@@ -81,9 +80,6 @@ public class ArmControl implements Runnable{
 		
 		//ac.goTo((int)(ac.da.L2), (int)(ac.da.L1), 0);
 		//ac.goTo(ac.Box2, ac.botHeight-20, -40);
-
-		
-		
 		
 		
 		//ac.goTo(ac.BoxS1, ac.botHeight, 0);

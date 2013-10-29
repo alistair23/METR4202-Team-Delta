@@ -51,7 +51,7 @@ import capture.*;
 import functions.*;
 
 /**
- * @author Ben Merange
+ * @author Ben Merange, Ben Rose, Bob Zhou and Clinton Walker
  *
  */
 
