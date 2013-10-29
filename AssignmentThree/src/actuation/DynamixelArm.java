@@ -22,7 +22,7 @@ public class DynamixelArm {
 	double L3 = 35; //length of member 3 in mm
 	
 	//Serial comm port for USB2Dynamixel
-	int port  = 3;
+	int port  = 8;
 	
 	int motor1ID = 1;
 	int motor2ID = 2;

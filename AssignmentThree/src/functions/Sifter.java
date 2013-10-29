@@ -55,7 +55,7 @@ public class Sifter {
 	    //sigma – The sigma of the Gaussian applied to the input image at the octave #0. If your image is captured with a weak camera with soft lenses, you might want to reduce the number.
 	    
 	    SIFT sift = new SIFT(5000, 2, 0.05, 1.8, 1.6);
-	    //SIFT sift = new SIFT(1000, 2, 0.1, 1.6, 1.6);
+	    //SIFT sift = new SIFT(5000, 2, 0.05, 3.0, 1.6);
 	    //SIFT sift = new SIFT();
 	    
 	    sift.detect(baseImage, null, keyPoints);

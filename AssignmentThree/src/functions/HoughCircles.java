@@ -26,7 +26,7 @@ public class HoughCircles{
 	private static int maxCoinRadius;
 	
 	//private static int CANNYTHRESHOLD = 200;
-	private static int CANNYTHRESHOLD = 200;
+	private static int CANNYTHRESHOLD = 250;
 	
 	public HoughCircles(IplImage sourceImage, int minCoinRadius, int maxCoinRadius) {
 		this.sourceImage = sourceImage;
@@ -35,39 +35,6 @@ public class HoughCircles{
 		this.minCoinRadius = minCoinRadius;
 		this.maxCoinRadius = maxCoinRadius;
 	}
-
-/**
-	public void runHoughCirclesRGBPlate() {
-		IplImage gray = cvCreateImage(cvGetSize(sourceImage), 8, 1);
-   
-		cvCvtColor(sourceImage, gray, CV_BGR2GRAY);
-		cvSmooth(gray, gray, CV_GAUSSIAN, 3);
-   
-		CvMemStorage mem = CvMemStorage.create();
-   
-		CvSeq circles = cvHoughCircles( 
-				gray, //Input image
-				mem, //Memory Storage
-				CV_HOUGH_GRADIENT, //Detection method
-				1, //Inverse ratio
-				1000, //Minimum distance between the centers of the detected circles
-				20, //Higher threshold for canny edge detector
-				50, //Threshold at the center detection stage
-				100, //min radius
-				1000 //max radius
-				);
-   
-		for(int i = 0; i < circles.total(); i++){
-			CvPoint3D32f circle = new CvPoint3D32f(cvGetSeqElem(circles, i));
-			CvPoint center = cvPointFrom32f(new CvPoint2D32f(circle.x(), circle.y()));
-			int radius = Math.round(circle.z());      
-			cvCircle(sourceImage, center, radius, CvScalar.GREEN, 1, CV_AA, 0);
-			
-			circleData.add(circle.x()); circleData.add(circle.y());
-			radiusData.add(radius);
-		}
-	}
-*/
 	
 	public void runHoughCirclesRGBCoins() {
 
@@ -85,7 +52,7 @@ public class HoughCircles{
 				50, //Minimum distance between the centers of the detected circles
 				CANNYTHRESHOLD, //Higher threshold for canny edge detector
 				//50, //Threshold at the center detection stage
-				50, //Threshold at the center detection stage
+				40, //Threshold at the center detection stage
 				minCoinRadius, //min radius
 				maxCoinRadius //max radius
 				);
@@ -99,6 +66,8 @@ public class HoughCircles{
 			circleData.add(circle.x()); circleData.add(circle.y());
 			radiusData.add(radius);
 		}
+		//cvShowImage("circles",sourceImage);
+		//cvWaitKey(0);
 	}
 	
 	public void runHoughCirclesHSV() {

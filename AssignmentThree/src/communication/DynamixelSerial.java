@@ -18,10 +18,10 @@ public class DynamixelSerial {
 	int[] RegMin = new int[24];
 	int[] RegMax = new int[24];
 	
-	Serial srl = new Serial(3);
+	Serial srl = new Serial(8);
 	
 	public static void main(String[] args) {
-		DynamixelSerial ds = new DynamixelSerial(3);
+		DynamixelSerial ds = new DynamixelSerial(8);
 		//System.out.println(ds.calcChecksum("0104022B01")); //FFFF0104022B01CC
 		
 		ds.motor(1, 0, 100);

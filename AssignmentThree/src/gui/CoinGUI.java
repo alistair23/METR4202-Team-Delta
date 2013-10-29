@@ -52,22 +52,12 @@ import functions.*;
 /**
  * @author Ben Merange
  *
- * Main user interface.
- * This class interacts with other classes to visualise the results
- * of the coin sensing and localisation process.
- * 
- * Color and camera calibration are not necessary for coin finding (but may improve results).
- * 
- * MUST run in order of:
- * 1) Snap color image
- * 2) Find axis
- * 3) Rectify image
- * 4) Find coins
- * 
  */
 
 public class CoinGUI extends JFrame{
 
+	static boolean SIFTING = false;
+	
 	//define main images
 	static IplImage mainI;
 	static IplImage currentI;
@@ -110,7 +100,8 @@ public class CoinGUI extends JFrame{
  	static ArrayList<TreeMap<String, ArrayList<Double>>> notesPolar = new ArrayList<TreeMap<String, ArrayList<Double>>>();
  	static CvFont font = new CvFont(CV_FONT_HERSHEY_PLAIN, 1, 1);
  	static double pixelSize = 0.0;
-    
+ 	static CoinFinder coinFinder;
+ 	
     public CoinGUI(){
   
     }
@@ -371,7 +362,7 @@ public class CoinGUI extends JFrame{
 	    double height = 375.0;
 	    if (haveKinect) {
 		    mainI = kr.getColorFrame();
-		    CoinFinder coinFinder = new CoinFinder(mainI, height);
+		    coinFinder = new CoinFinder(mainI, height);
 		    pixelSize = coinFinder.getPixelSize();
 		    
 		    AxisLocator origin = new AxisLocator(mainI);
@@ -381,7 +372,6 @@ public class CoinGUI extends JFrame{
 		    //System.out.println("X: "+originXmm+", Y:"+originYmm);
 		    
 		    // initial sifting and centering
-		    boolean SIFTING = true;
 		    if (SIFTING) {
 		    	con.addln("Finding notes...");
 		    	int SIFTTHRESHOLD = 150;
@@ -439,6 +429,7 @@ public class CoinGUI extends JFrame{
 	        		notesPolar.add(newmap);
 				}
 				w.ImagePanelUpdate(currentP, pointsDrawn, 1);
+				pointsDrawn.release();
 				con.addln("Notes found.");
 		    }
 	    }
@@ -450,10 +441,10 @@ public class CoinGUI extends JFrame{
 		    	
 		    	//w.ImagePanelUpdate(currentP, findCoins(mainI), 1);
 		    	
-		    	cvErode(mainI, mainI, null, 1);
-		    	cvDilate(mainI, mainI, null, 1);
+		    	//cvErode(mainI, mainI, null, 1);
+		    	//cvDilate(mainI, mainI, null, 1);
 		  	  	
-		    	CoinFinder coinFinder = new CoinFinder(mainI, height);
+		    	coinFinder.setImage(mainI);
 		    	coinFinder.find();
 	        	coinFinder.determineValues();
 	        	
@@ -482,9 +473,11 @@ public class CoinGUI extends JFrame{
 	        		coinsPolar.add(newmap);
 	        	}
 	        	
-	        	IplImage drawnCoins = coinFinder.getDrawnCoins();
-	        	OpticalFlowTracker flowTracker = new OpticalFlowTracker();
-		    	IplImage trackedImage = flowTracker.trackMovement(drawnCoins, kr.getColorFrame());
+	        	IplImage trackedImage = coinFinder.getDrawnCoins();
+	        	
+	        	//IplImage drawnCoins = coinFinder.getDrawnCoins();
+	        	//OpticalFlowTracker flowTracker = new OpticalFlowTracker();
+		    	//IplImage trackedImage = flowTracker.trackMovement(drawnCoins, kr.getColorFrame());
 		    	
 		    	//con.wipe();
 				//con.addln(coinFinder.getValues().toString());
@@ -546,7 +539,6 @@ public class CoinGUI extends JFrame{
 				*/
 		    	
 		    	//w.ImagePanelUpdate(currentP, blobImage, 1);
-				
 			}
 		}
 		

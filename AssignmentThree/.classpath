@@ -10,6 +10,10 @@
 	<classpathentry kind="lib" path="C:/Users/Ben/Documents/GitHub/METR4202---Team-Delta/AssignmentThree/Dependencies/j3d-1_5_2-windows-amd64/j3d-jre/lib/ext/j3dcore.jar"/>
 	<classpathentry kind="lib" path="C:/Users/Ben/Documents/GitHub/METR4202---Team-Delta/AssignmentThree/Dependencies/j3d-1_5_2-windows-amd64/j3d-jre/lib/ext/j3dutils.jar"/>
 	<classpathentry kind="lib" path="C:/Users/Ben/Documents/GitHub/METR4202---Team-Delta/AssignmentThree/Dependencies/j3d-1_5_2-windows-amd64/j3d-jre/lib/ext/vecmath.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Ben/Documents/GitHub/METR4202---Team-Delta/AssignmentThree/Dependencies/jSSC-2.6.0-Release/jssc.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Ben/Documents/GitHub/METR4202---Team-Delta/AssignmentThree/Dependencies/RxTx/RXTXcomm.jar"/>
 	<classpathentry kind="lib" path="C:/Users/Ben/Documents/GitHub/METR4202---Team-Delta/AssignmentThree/Dependencies/mfz-rxtx-2.2-20081207-win-x64/RXTXcomm.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Ben/Documents/GitHub/METR4202---Team-Delta/AssignmentThree/Dependencies/jSSC-2.6.0-Release/src/jssc-2.6.0-src.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Ben/Documents/GitHub/METR4202---Team-Delta/AssignmentThree/Dependencies/jSSC-2.6.0-Release/javadoc/jssc-2.6.0-javadoc.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -74,6 +74,10 @@ public class CoinFinder {
 		//System.out.println("maxCoinRadius: "+maxCoinRadius);
 	}
 	
+	public void setImage(IplImage sourceImage) {
+		this.sourceImage = sourceImage;
+	}
+	
 	// gives list of:  value --> point in original image (x,y)
 	public ArrayList<TreeMap<Double, ArrayList<Double>>> getCoinLocationData() {
 		return coinLocationData;
@@ -100,6 +104,10 @@ public class CoinFinder {
 	}
 	
 	public void find() {
+		// re init
+		goldCoinData = new ArrayList<TreeMap<Integer, CvPoint>>();
+		silverCoinData = new ArrayList<TreeMap<Integer, CvPoint>>();
+		coinLocationData = new ArrayList<TreeMap<Double, ArrayList<Double>>>();
 		
 		plateCoord = new ArrayList<Float>();
 		plateRadius = new ArrayList<Integer>();
@@ -226,13 +234,13 @@ public class CoinFinder {
 			for (TreeMap<Integer, CvPoint> thiscoin : goldCoinData) {
 				Double radiusmm = ((double)thiscoin.firstKey())*pixelSize;
 				// if $1
-				if (radiusmm.compareTo(8.0) > 0 || radiusmm.compareTo(11.0) < 0) {
+				if (radiusmm.compareTo(11.0) > 0 && radiusmm.compareTo(14.0) <= 0){
 					values.set(4, values.get(4)+1);
 					CvPoint pixLocation = thiscoin.get(thiscoin.firstKey());
 					addNewData(1.0, ((double)pixLocation.x())*pixelSize, ((double)pixLocation.y())*pixelSize);
 				}
 				// if $2
-				else if (radiusmm.compareTo(11.0) > 0 || radiusmm.compareTo(14.0) < 0){
+				else if (radiusmm.compareTo(8.0) >= 0 && radiusmm.compareTo(11.0) <= 0) {
 					values.set(5, values.get(5)+1);
 					CvPoint pixLocation = thiscoin.get(thiscoin.firstKey());
 					addNewData(2.0, ((double)pixLocation.x())*pixelSize, ((double)pixLocation.y())*pixelSize);
@@ -244,7 +252,7 @@ public class CoinFinder {
 		for (TreeMap<Integer, CvPoint> thiscoin : silverCoinData) {
 			Double radiusmm = ((double)thiscoin.firstKey())*pixelSize;
 			// if 5c
-			if (radiusmm.compareTo(11.6) <0) {
+			if (radiusmm.compareTo(10.5) <0) {
 				values.set(0, values.get(0)+1);
 				CvPoint pixLocation = thiscoin.get(thiscoin.firstKey());
 				addNewData(0.05, ((double)pixLocation.x())*pixelSize, ((double)pixLocation.y())*pixelSize);

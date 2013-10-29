@@ -23,10 +23,8 @@ public class ArmControl implements Runnable{
 	boolean atHome = false;
 
 	public ArmControl(){
-		da.port = 3;
-		
 		this.goHome();
-		
+		da.port = 8;
 	}
 	public static void main(String[] args) {
 		ArmControl ac = new ArmControl();

@@ -55,7 +55,8 @@ public class ColorDetector {
 			imgThreshold = cvCreateImage(cvGetSize(sourceImage), 8, 1);
 			
 			// THESE VALUES CAN BE VARIED TO BE MORE ROBUST TO DIFFERENT LIGHTING CONDITIONS
-			cvInRangeS(imgHSV, cvScalar(0, 70, 0, 0), cvScalar(GOLDCUTOFF, 255, 230, 0), imgThreshold);
+			//cvInRangeS(imgHSV, cvScalar(0, 70, 0, 0), cvScalar(GOLDCUTOFF, 255, 230, 0), imgThreshold);
+			cvInRangeS(imgHSV, cvScalar(0, 50, 0, 0), cvScalar(GOLDCUTOFF, 255, 230, 0), imgThreshold);
 			cvReleaseImage(imgHSV);
 			cvSmooth(imgThreshold, imgThreshold, CV_MEDIAN, 1);
 	}
