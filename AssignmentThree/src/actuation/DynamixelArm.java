@@ -22,7 +22,7 @@ public class DynamixelArm {
 	double L3 = 35; //length of member 3 in mm
 	
 	//Serial comm port for USB2Dynamixel
-	int port  = 8;
+	int port  = 3;
 	
 	int motor1ID = 1;
 	int motor2ID = 2;
@@ -177,13 +177,14 @@ public class DynamixelArm {
 		a2 = Math.toRadians(180.0) - Math.acos(((L1*L1)+(L2*L2)-(d*d))/(2*L1*L2));
 		a3 = Math.toRadians(180.0) - a1 - a2;
 		
-		a1 = Math.toDegrees(a1);
-		a2 = Math.toDegrees(a2);
-		a3 = Math.toDegrees(a3);
+		a1 = Math.toDegrees(a1)-5;
+		a2 = Math.toDegrees(a2)+2;
+		a3 = Math.toDegrees(a3)-5;
 		
 		a1 = direction*a1;
 		a2 = direction*a2;
 		a3 = direction*a3;
+		
 		
 	}
 	

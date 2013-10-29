@@ -10,32 +10,33 @@ public class ArmControl implements Runnable{
 	
 	private int Home = 160;
 	
-	int tableHeight = 100;
-	int botHeight = 150;
+	int GLOBALOFFSET = -12;
+	
+	int tableHeight = 55;
+	int botHeight = 100;
 	int xoffset = 180;
 	
 	int speed = 200;
-
-	int Box1 = 100;
-	int Box2 = 70;
-	int Box3 = -70;
-	int Box4 = -100;
+	
+	int Box1 = 150+GLOBALOFFSET;
+	int Box2 = 70+GLOBALOFFSET;
+	int Box3 = -70+GLOBALOFFSET;
+	int Box4 = -150+GLOBALOFFSET;
 	boolean atHome = false;
 
 	public ArmControl(){
-		this.goHome();
-		da.port = 8;
+		//this.goHome();
+		da.port = 3;
 	}
 	public static void main(String[] args) {
 		ArmControl ac = new ArmControl();
-		ac.goHome();
-		ac.get();
-		ac.toBox(1);
-		ac.put(ac.Box1);
-		//ac.toBox(2);
-		//ac.put(ac.Box2);
-		ac.goHome();
-
+		//ac.goHome();
+		//ac.toBox(1);
+		//ac.put(ac.Box1);
+		//ac.toBox(3);
+		//ac.put(ac.Box1);
+		//ac.goHome();
+		ac.goTo(110, 190);
 	}
 	
 	public void doit(int x, int box){
