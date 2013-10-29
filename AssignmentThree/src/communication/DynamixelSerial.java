@@ -224,6 +224,24 @@ public class DynamixelSerial implements Runnable{
 		srl.readbuffer= "";
 	}
 	
+	public void motorsync(int pos1, int speed1, int pos2, int speed2, int pos3, int speed3){
+		
+		int Apos1 = (int) ((((float)pos1)+150.0)*512.0/150.0);
+		int Apos2 = (int) ((((float)pos2)+150.0)*512.0/150.0);
+		int Apos3 = (int) ((((float)pos3)+150.0)*512.0/150.0);
+		if(Apos1 == 0 ){Apos1 = 512;}
+		if(Apos2 == 0 ){Apos2 = 512;}
+		if(Apos3 == 0 ){Apos3 = 512;}
+		
+		String command = "FE"+"13"+"83"+"1E"+"04"+"01"+xval(Apos1)+xval(speed1)+"02"+xval(Apos2)+xval(speed2)+"03"+xval(Apos3)+xval(speed3);
+		
+		command = command + calcChecksum(command);
+		
+		srl.write("FFFF"+command);
+
+		srl.readbuffer= "";
+	}
+	
 	
 	public void centermotors(){
 		String ID = "FE";//everything

@@ -190,9 +190,10 @@ public class DynamixelArm{
 	
 	public void setAng(double ang1, double ang2, int speed){
 		calcxy(ang1,ang2);
-		ds.motor(motor1ID, (int)a1, speed);
-		ds.motor(motor2ID, (int)a2, speed);
-		ds.motor(motor3ID, (int)a3, speed);
+		//ds.motor(motor1ID, (int)a1, speed);
+		//ds.motor(motor2ID, (int)a2, speed);
+		//ds.motor(motor3ID, (int)a3, speed);
+		ds.motorsync((int)a1, speed, (int)a2, speed, (int)a3, speed);
 	}
 	
 	public void setXY(double x, double y, int speed){
@@ -203,9 +204,10 @@ public class DynamixelArm{
 		int speed2 = (int)speedRatio(a2,speed);
 		int speed3 = (int)speedRatio(a3,speed);
 		System.out.println("Speeds: "+speed1+"  "+speed2+"  "+speed3);
-		ds.motor(motor1ID, (int)a1, speed1);
-		ds.motor(motor2ID, (int)a2, speed2);
-		ds.motor(motor3ID, (int)a3, speed3);
+		//ds.motor(motor1ID, (int)a1, speed1);
+		//ds.motor(motor2ID, (int)a2, speed2);
+		//ds.motor(motor3ID, (int)a3, speed3);
+		ds.motorsync((int)a1, speed1, (int)a2, speed2, (int)a3, speed3);
 		//for(int i=0;i<100;i++){
 		//ds.read("01","24");
 		//}
@@ -222,10 +224,11 @@ public class DynamixelArm{
 		System.out.println("funct 2 Speeds: "+speed1+"  "+speed2+"  "+speed3);
 		System.out.println("funct 2 angles: "+(int)a1+"  "+(int)a2+"  "+(int)a3);
 		
-		ds.motor(motor1ID, (int)a1, speed1);
-		ds.motor(motor2ID, (int)a2, speed2);
-		ds.motor(motor3ID, (int)a3, speed3);
+		//ds.motor(motor1ID, (int)a1, speed1);
+		//ds.motor(motor2ID, (int)a2, speed2);
+		//ds.motor(motor3ID, (int)a3, speed3);
 		//for(int i=0;i<100;i++){
+		ds.motorsync((int)a1, speed1, (int)a2, speed2, (int)a3, speed3);
 		//ds.read("01","24");
 		//}
 		//ds.read("01","25");
