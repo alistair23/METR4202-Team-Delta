@@ -23,6 +23,8 @@ repeat
 		
 		TurnTableSerial ts = new TurnTableSerial();
 		
+		ts.xval(1500);
+		
 		//ts.readSpeed();
 		//ts.srl.read();
 
@@ -33,7 +35,7 @@ repeat
 		//srl.read();
 		
 		//while (true) {
-			System.out.println(ts.readSpeed());
+		//	System.out.println(ts.readSpeed());
 		//}
 	}
 	
@@ -58,10 +60,10 @@ repeat
 		srl.write("FF03"+xval(target));
 	}
 
-	public void writeTarget(String target){
-		System.out.println(target);
-		srl.write("8403"+target);
-	}
+	//public void writeTarget(String target){
+	//	System.out.println(target);
+//		srl.write("8403"+target);
+//	}
 
 	public void getMoving(){
 		srl.write("9003");
@@ -69,15 +71,38 @@ repeat
 	}
 	
 	 public String xval(int value){
+		int val = value*4;
+		String bi = Integer.toBinaryString(val);
+		
+		
+		while(bi.length() < 14){
+			bi = "0".concat(bi);
+		}
+		String bi1 = bi.substring(0,7);
+		while(bi1.length() < 8){
+			bi1 = "0".concat(bi1);
+		}
+
+		String bi2 = bi.substring(7,14);
+		while(bi2.length() < 8){
+			bi2 = "0".concat(bi2);
+		}
+		
+		bi1 = Integer.toHexString(Integer.parseInt(bi1, 2));
+		bi2 = Integer.toHexString(Integer.parseInt(bi2, 2));
+		
+		
+		
+		System.out.println(bi1);
+		System.out.println(bi2);
+		
 		 
-		String str = Integer.toString(value, 16);
+		 String str = bi2+bi1;
 		while(str.length() < 4){
 			str = "0".concat(str);
 		}
-		if(str.length() == 4){
-		str = str.substring(2, 4)+str.substring(0, 2);
-		}
-		 
+		
+		System.out.println(str.toUpperCase()); 
 		 return str.toUpperCase();
 		 
 		 
