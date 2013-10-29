@@ -4,12 +4,10 @@ import java.awt.Dimension;
 
 import communication.DynamixelSerial;
 
-public class ArmControl implements Runnable{
+public class ArmControl extends Thread {
 	
 	DynamixelArm da = new DynamixelArm();
-	
-	
-	
+		
 	private int Home = 140;
 	
 	int GLOBALOFFSET = -12;
@@ -30,15 +28,19 @@ public class ArmControl implements Runnable{
 	int Box3 = -120-GLOBALOFFSET;
 	int Box4 = -70-GLOBALOFFSET;
 	boolean atHome = false;
+	
+	boolean INIT = true;
+	int BOX;
+	int RADIUS;
 
 	public ArmControl(){
-		//this.goHome();
+		this.goHome();
 		da.port = 3;
 	}
 	public static void main(String[] args) {
 		ArmControl ac;
-		(new Thread(ac = new ArmControl())).start();
-		
+	//	(new Thread()).start();
+		ac = new ArmControl();
 		ac.goHome();
 		//ac.get(160);
 		//ac.getCoin(50);
@@ -51,6 +53,20 @@ public class ArmControl implements Runnable{
 		//ac.put(4);
 	}
 	
+	public int getBoxNum(double value) {
+		if (value == 0.5 || value == 0.2) {
+			return 2;
+		} else if (value == 0.1 || value == 0.05) {
+			return 1;
+		} else if (value == 1.0) {
+			return 3;
+		} else if (value == 2.0) {
+			return 4;
+		}
+		// if not a coin value return boxx #1
+		return 1;
+	}
+	
 	public void goHome(){
 		da.flip(false);
 		da.setXY(Home, botHeight+10, speed);
@@ -59,34 +75,36 @@ public class ArmControl implements Runnable{
 		atHome = true;
 	}
 	
-	public void goTo(int x, int y){
+	private void goTo(int x, int y){
 		if(x < 0){da.flip(true);}
 		else{da.flip(false);}
 		da.setXY(Math.abs(x), y, speed);
 		da.setXY(Math.abs(x), y, speed);
-		atHome = false;
 		while(da.ds.readMoving()){DynamixelSerial.halt(10);}
 	}
 	
-	public void goTo(int x, int y, int ang){
+	private void goTo(int x, int y, int ang){
 		if(x < 0){da.flip(true);}
 		else{da.flip(false);}
 		da.setXY(Math.abs(x), y, speed, ang);
 		da.setXY(Math.abs(x), y, speed, ang);
-		atHome = false;
 		while(da.ds.readMoving()){DynamixelSerial.halt(10);}
 	}
 	
-	public void goTo(int x, int y, int ang, int speedy){
+	private void goTo(int x, int y, int ang, int speedy){
 		if(x < 0){da.flip(true);}
 		else{da.flip(false);}
 		da.setXY(Math.abs(x), y, speedy, ang);
 		da.setXY(Math.abs(x), y, speedy, ang);
-		atHome = false;
 		while(da.ds.readMoving()){DynamixelSerial.halt(10);}
 	}
 	
-	public void get(int x){
+	public boolean ready() {
+		return (da.ds.readMoving() && atHome);
+	}
+	
+	private void get(int x){
+		atHome = false;
 		if (x>215) {
 			x = 215;
 		}
@@ -133,12 +151,13 @@ public class ArmControl implements Runnable{
 
 	}
 	
-	public void getCoin(int r){
+	private void getCoin(int r){
 		int x = xoffset - r;
 		get(x);
 	}
 	
-	public void put(int num){
+	private void put(int num){
+		atHome = false;
 		if(num == 1){
 			goTo(Box1, botHeight+10, 40);
 			goTo(Box1, botHeight-20, 0);
@@ -159,8 +178,6 @@ public class ArmControl implements Runnable{
 			goTo(Box4, botHeight+40, 0);
 		}
 			
-		
-		atHome = false;
 		//goTo(num,tableHeight-20);
 		//DynamixelSerial.halt(2000);
 		
@@ -170,10 +187,44 @@ public class ArmControl implements Runnable{
 		//while(da.ds.readMoving()){}
 		goHome();
 	}
+	
+	public void setThread(int radius, int box) {
+		this.BOX = box;
+		this.RADIUS = radius;
+	}
+	
 	@Override
 	public void run() {
 		// TODO Auto-generated method stub
 		
+		if (INIT) {
+			INIT = false;
+			return;
+		}
+		
+		atHome = false;
+		int x = xoffset - RADIUS;
+		get(x);
+		if(BOX == 1){
+			goTo(Box1, botHeight+10, 40);
+			goTo(Box1, botHeight-20, 0);
+			goTo(Box1+20, botHeight+20, 0);
+		}else if(BOX == 2){
+			goTo(Box2+60, botHeight+20, 0);
+			goTo(Box2+60, botHeight-15, 0);
+			goTo(Box2, botHeight-10, 0);
+			goTo(Box2, botHeight+40, 0);
+		}else if(BOX == 3){
+			goTo(Box3, botHeight+10, 40);
+			goTo(Box3, botHeight-23, 0);
+			goTo(Box3-20, botHeight+20, 0);
+		}else if(BOX == 4){
+			goTo(Box4-60, botHeight+20, 0);
+			goTo(Box4-60, botHeight-15, 0);
+			goTo(Box4, botHeight-10, 0);
+			goTo(Box4, botHeight+40, 0);
+		}
+		goHome();
 	}
 	
 }

@@ -34,6 +34,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import localisation.AxisLocator;
+import actuation.ArmControl;
 import colorCalibration.BlackBalance;
 import colorCalibration.BlobFinder;
 import colorCalibration.ColorChart;
@@ -44,8 +45,8 @@ import com.googlecode.javacv.cpp.opencv_core.CvPoint2D32f;
 import com.googlecode.javacv.cpp.opencv_core.CvScalar;
 import com.googlecode.javacv.cpp.opencv_core.CvSize;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
-import communication.TurnTableSerial;
 
+import communication.TurnTableSerial;
 import cameraCalibration.CameraCalibrator;
 import capture.*;
 import functions.*;
@@ -57,7 +58,7 @@ import functions.*;
 
 public class CoinGUI extends JFrame{
 
-	static boolean SIFTING = true;
+	static boolean SIFTING = false;
 	
 	//define main images
 	static IplImage mainI;
@@ -108,6 +109,9 @@ public class CoinGUI extends JFrame{
 	static double initTime = 0;
 	static Double currentVelocity = 0.0;
  	
+	static ArmControl arm = new ArmControl();
+	static Thread armThread = new Thread(arm, "armThread");
+	
     public CoinGUI(){
   
     }
@@ -365,6 +369,12 @@ public class CoinGUI extends JFrame{
 				System.exit(0);
 			}});
 	    
+	    // initialise arm comms
+	    
+	 //   Thread armThread = (new Thread(arm = new ArmControl()));
+	//    Thread armThread = new Thread(arm, "armThread");
+	//    arm.goHome();
+	    
 	    //double height = 375.0;
 	    double height = 375.0;
 	    if (haveKinect) {
@@ -473,14 +483,14 @@ public class CoinGUI extends JFrame{
 		    	}
 		    	
 		    	time = (System.currentTimeMillis()/1000.0) - initTime;
-		    	
+		    	/**
 		    	// RESET SCENE AFTER SET TIME
 		    	if (time > 10.0) {
 		    		coinsPolar.clear();
 		    		initTime = (System.currentTimeMillis()/1000.0);
 		    	}
 		    	con.addln("Time --> "+String.valueOf(time));
-		    	
+		    	*/
 		    	z = Math.toRadians(origin.rotsInfo.z);
 		    	
 		    	//currentVelocity = turnTable.readSpeed();
@@ -680,7 +690,7 @@ public class CoinGUI extends JFrame{
 		    	
 		    	w.ImagePanelUpdate(currentP, trackedImage, 1);
 		    	
-		    	con.wipe();
+	//	    	con.wipe();
 		    	// ONLY VALUE IN CURRENT COIN FINDER CLASS
 	        	//con.addln("$"+coinFinder.getTotalValue().toString());
 	        	con.addln("Total value --> $"+TOTALVALUE.toString());
@@ -704,6 +714,52 @@ public class CoinGUI extends JFrame{
 				*/
 		    	
 		    	//w.ImagePanelUpdate(currentP, blobImage, 1);
+	        	
+	        	// actuation time faster as radius increases
+	        	// PICK SOME STUFFS UP YO
+	        	for (TreeMap<Double, ArrayList<Double>> coin : coinsPolar) {
+	        		Double value = coin.firstKey();
+	        		ArrayList<Double> polarcoord = coin.get(value);
+	        		Double radius = polarcoord.get(0);
+	        		double angle = polarcoord.get(1);
+	        		
+	        		double deltaAng;
+	        		
+	        		// quadrant left of arm --> top right of screen
+	        		if ((currentVelocity > 0) && (angle > 0.0) && (angle < Math.PI/2.0)) {
+	        			if (radius > 0.0 && radius < 10.0) {
+	        				deltaAng = Math.PI/4.0;		//45 deg from std coord
+	        			} else {
+	        				deltaAng = Math.PI/4.0;		//45 deg
+	        			}
+	        			
+	        			if ((angle > deltaAng) && (!armThread.isAlive())) {
+	        				arm.setThread(radius.intValue(), arm.getBoxNum(value));
+	        				//arm.run();
+	        				armThread = new Thread(arm, "armThread");
+	        				armThread.start();
+	        				con.addln("radius: "+radius+", angle: "+angle);
+	        				break;
+	        			}
+	        		}
+	        		// quadrant right of arm --> top left of screen
+	        		else if ((currentVelocity < 0) && (angle > 90.0) && (angle < Math.PI)) {
+	        			if (radius > 0.0 && radius < 10.0) {
+	        				deltaAng = 3.0*Math.PI/4.0;		//45 deg
+	        			} else {
+	        				deltaAng = 3.0*Math.PI/4.0;		//45 deg
+	        			}
+	        			
+	        			if ((angle < deltaAng) && (!armThread.isAlive())) {
+	        				arm.setThread(radius.intValue(), arm.getBoxNum(value));
+	        				//arm.run();
+	        				armThread = new Thread(arm, "armThread");
+	        				armThread.start();
+	        				con.addln("radius: "+radius+", angle: "+angle);
+	        				break;
+	        			}
+	        		}
+	        	}
 			}
 		}
 		
