@@ -19,8 +19,17 @@ public class ArmControl implements Runnable{
 
 	int botHeight = 100;
 
-	int xoffset = 180;
+	int xoffset = 200;
 	
+	int minX = 30;
+	int maxX = 200;
+
+	int minY = 30;
+	int maxY = 200;
+
+	int minA = 30;
+	int maxA = 200;
+
 	int speed = 150;
 	
 	int BoxS1 = 85;
@@ -93,18 +102,14 @@ public class ArmControl implements Runnable{
 	}
 	
 	public void goHome(){
-		da.flip(false);
-		da.setXY(Home, botHeight, speed);
-		da.setXY(Home, botHeight, speed);
-		while(da.ds.readMoving()){DynamixelSerial.halt(10);}
+		goTo(Home, botHeight);
 		atHome = true;
 	}
 	
 	public void goTo(int x, int y){
 		if(x < 0){da.flip(true);}
 		else{da.flip(false);}
-		da.setXY(Math.abs(x), y, speed);
-		da.setXY(Math.abs(x), y, speed);
+		da.setXY(OffsetX(Math.abs(x)), OffsetY(y), speed);
 		atHome = false;
 		while(da.ds.readMoving()){DynamixelSerial.halt(10);}
 	}
@@ -112,8 +117,7 @@ public class ArmControl implements Runnable{
 	public void goTo(int x, int y, int ang){
 		if(x < 0){da.flip(true);}
 		else{da.flip(false);}
-		da.setXY(Math.abs(x), y, speed, ang);
-		da.setXY(Math.abs(x), y, speed, ang);
+		da.setXY(OffsetX(Math.abs(x)), OffsetY(y), speed, OffsetA(ang));
 		atHome = false;
 		while(da.ds.readMoving()){DynamixelSerial.halt(10);}
 	}
@@ -121,25 +125,17 @@ public class ArmControl implements Runnable{
 	public void get(int x){
 		if(x>180){
 			goTo(x-10, tableHeight+15, 0);
-			while(da.ds.readMoving()){DynamixelSerial.halt(10);}
+			//while(da.ds.readMoving()){DynamixelSerial.halt(10);}
 			goTo(x-5, tableHeight+15, 0);
-			while(da.ds.readMoving()){DynamixelSerial.halt(10);}
-			da.setXY(x, tableHeight, speed/2);
-			da.setXY(x, tableHeight, speed/2);
-			while(da.ds.readMoving()){DynamixelSerial.halt(10);}
+			//while(da.ds.readMoving()){DynamixelSerial.halt(10);}
+			goTo(x, tableHeight, speed/2);
+			//while(da.ds.readMoving()){DynamixelSerial.halt(10);}
 		} else {
-			da.setXY(x, tableHeight+15, speed/2);
-			da.setXY(x, tableHeight+15, speed/2);
-			while(da.ds.readMoving()){DynamixelSerial.halt(10);}
-			da.setXY(x, tableHeight+5, speed/2);
-			da.setXY(x, tableHeight+5, speed/2);
-			while(da.ds.readMoving()){DynamixelSerial.halt(10);}
+			goTo(x, tableHeight+15, speed/2);
+			goTo(x, tableHeight+5, speed/2);
 		}
 
-		da.setXY(Home-10, botHeight+35, speed/3);
-		da.setXY(Home-10, botHeight+35, speed/3);
-		while(da.ds.readMoving()){DynamixelSerial.halt(10);}
-
+		goTo(Home-10, botHeight+35, speed/3);	
 	}
 	
 	public void getRad(int r){
@@ -149,36 +145,74 @@ public class ArmControl implements Runnable{
 	
 	public void put(int num){
 		if(num == 1){
-			goTo(Box1, botHeight+10, 40);
-			goTo(Box1, botHeight-20, 0);
-			goTo(Box1+20, botHeight+20, 0);
+			da.setXY(Box1, botHeight+10, 40);
+			da.setXY(Box1, botHeight-20, 0);
+			da.setXY(Box1+20, botHeight+20, 0);
 		}else if(num == 2){
-			goTo(Box2+60, botHeight+20, 0);
-			goTo(Box2+60, botHeight-15, 0);
-			goTo(Box2, botHeight-10, 0);
-			goTo(Box2, botHeight+40, 0);
+			da.setXY(Box2+60, botHeight+20, 0);
+			da.setXY(Box2+60, botHeight-15, 0);
+			da.setXY(Box2, botHeight-10, 0);
+			da.setXY(Box2, botHeight+40, 0);
 		}else if(num == 3){
-			goTo(Box3, botHeight+10, 40);
-			goTo(Box3, botHeight-23, 0);
-			goTo(Box3-20, botHeight+20, 0);
+			da.setXY(Box3, botHeight+10, 40);
+			da.setXY(Box3, botHeight-23, 0);
+			da.setXY(Box3-20, botHeight+20, 0);
 		}else if(num == 4){
-			goTo(Box4-60, botHeight+20, 0);
-			goTo(Box4-60, botHeight-15, 0);
-			goTo(Box4, botHeight-10, 0);
-			goTo(Box4, botHeight+40, 0);
+			da.setXY(Box4-60, botHeight+20, 0);
+			da.setXY(Box4-60, botHeight-15, 0);
+			da.setXY(Box4, botHeight-10, 0);
+			da.setXY(Box4, botHeight+40, 0);
 		}
 			
 		
 		atHome = false;
-		//goTo(num,tableHeight-20);
-		//DynamixelSerial.halt(2000);
-		
-		//while(da.ds.readMoving()){}
-		//da.ds.motor(3, 0);
-		//goTo(num+50,tableHeight);
-		//while(da.ds.readMoving()){}
+	
 		goHome();
 	}
+	
+	public int OffsetX(int x){
+		int offset = 0;
+		if(x<minX){
+			return minX;
+		}else if(x>0 && x<10){
+			
+		}else if(x>0 && x<10){
+			
+		}else if(x>maxX){
+			return maxX;
+		}
+		return x+offset;
+	}
+	
+	public int OffsetY(int y){
+		int offset = 0;
+		if(y<minY){
+			return minY;
+		}else if(y>0 && y<10){
+			
+		}else if(y>0 && y<10){
+			
+		}else if(y>maxY){
+			return maxY;
+		}
+		return y+offset;
+	}
+	
+	public int OffsetA(int a){
+		int offset = 0;
+		if(a<minA){
+			return minA;
+		}else if(a>0 && a<10){
+			
+		}else if(a>0 && a<10){
+			
+		}else if(a>maxA){
+			return maxA;
+		}
+		return a+offset;
+	}
+	
+	
 	@Override
 	public void run() {
 		// TODO Auto-generated method stub
