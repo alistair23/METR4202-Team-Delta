@@ -2,10 +2,15 @@ package localisation;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+
+import javax.vecmath.Matrix4d;
+import javax.vecmath.Point3d;
+
 import com.googlecode.javacpp.Loader;
 import com.googlecode.javacv.cpp.opencv_core.CvMat;
 import com.googlecode.javacv.cpp.opencv_objdetect;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
+
 import jp.nyatla.nyartoolkit.core.NyARCode;
 import jp.nyatla.nyartoolkit.core.NyARException;
 import jp.nyatla.nyartoolkit.core.types.matrix.NyARDoubleMatrix44;
@@ -31,7 +36,9 @@ public class AxisLocator {
 	  private final double MARKER_SIZE = 0.016; // 32 mm width and height in Java 3D world units
 	  private J3dNyARParam cameraParams;
 	  private final String PARAMS_FNM = "camera_para.dat";
-	
+	  
+	  public Point3d rotsInfo = null;
+	  
 	public AxisLocator(IplImage image){
 		
 		Loader.load(opencv_objdetect.class);
@@ -60,8 +67,68 @@ public class AxisLocator {
 	public void setImage(IplImage image){
 		this.image = image;
 	}
+	
+	private double roundToNumPlaces(double val, int numPlaces) 
+	  {
+	    double power = Math.pow(10, numPlaces);
+	    long temp = Math.round(val*power);
+	    return ((double)temp)/power;
+	  }
+	
+	 private void calcEulerRots()
+	  /* calculate the Euler rotation angles from the upper 3x3 rotation
+	     components of the 4x4 transformation matrix. 
+	     Based on code by Daniel Selman, December 1999
+	     which is based on pseudo-code in "Matrix and Quaternion FAQ", Q37
+	       http://www.j3d.org/matrix_faq/matrfaq_latest.html
+	  */
+	  {
+	    rotsInfo = new Point3d();
 
-	public CvMat findAxis(IplImage img){
+	    rotsInfo.y = -Math.asin(transMat.m20);
+	    double c = Math.cos(rotsInfo.y);
+
+	    double tRx, tRy, tRz;
+	    if(Math.abs(rotsInfo.y) > 0.00001) {
+	      tRx = transMat.m22/c;
+	      tRy = -transMat.m21/c;
+	      rotsInfo.x = Math.atan2(tRy, tRx);
+
+	      tRx = transMat.m00/c;
+	      tRy = -transMat.m10/c;
+	      rotsInfo.z = Math.atan2(tRy, tRx);
+	    }
+	    else {
+	      rotsInfo.x  = 0.0;
+
+	      tRx = transMat.m11;
+	      tRy = transMat.m01;
+	      rotsInfo.z = Math.atan2(tRy, tRx);
+	    }
+
+	    rotsInfo.x = -rotsInfo.x;
+	    rotsInfo.z = -rotsInfo.z;
+
+	    // ensure the values are positive by adding 2*PI if necessary...
+	    if(rotsInfo.x < 0.0)
+	    rotsInfo.x += 2*Math.PI;
+
+	    if(rotsInfo.y < 0.0)
+	      rotsInfo.y += 2*Math.PI;
+
+	    if(rotsInfo.z < 0.0)
+	      rotsInfo.z += 2*Math.PI;
+
+	    // convert to degrees and round
+	    rotsInfo.x = roundToNumPlaces( Math.toDegrees(rotsInfo.x), 0);
+	    rotsInfo.y = roundToNumPlaces( Math.toDegrees(rotsInfo.y), 0);
+	    rotsInfo.z = roundToNumPlaces( Math.toDegrees(rotsInfo.z), 0);
+
+	    // System.out.println(getNameInfo() + " rots (" + 
+	    //         rotsInfo.x + ", " + rotsInfo.y + ", " + rotsInfo.z + ")");
+	  }  // end of calcEulerRots()
+
+	public CvMat findAxis(){
 		/* use the detector to update the colored cube's position on the markers */
 		try {
 			raster.wrapImage(image.getBufferedImage());
@@ -97,7 +164,10 @@ public class AxisLocator {
 					matrix.put(3, 3, 1);
 						
 	//				System.out.println(matrix.toString());
-					System.out.println("Found Marker!");
+	//				System.out.println("Found Marker!");
+					
+					calcEulerRots();
+					
 					return matrix;
 
 				}else{
@@ -107,7 +177,7 @@ public class AxisLocator {
 		} catch (NyARException e) {
 			e.printStackTrace();
 		}
-		      
+		
 		 return null;
 	}
 }

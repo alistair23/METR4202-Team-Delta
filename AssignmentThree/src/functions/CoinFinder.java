@@ -242,13 +242,13 @@ public class CoinFinder {
 			for (TreeMap<Integer, CvPoint> thiscoin : goldCoinData) {
 				Double radiusmm = ((double)thiscoin.firstKey())*pixelSize;
 				// if $1
-				if (radiusmm.compareTo(11.0) > 0 && radiusmm.compareTo(14.0) <= 0){
+				if (radiusmm.compareTo(10.5) > 0 && radiusmm.compareTo(14.0) <= 0){
 					values.set(4, values.get(4)+1);
 					CvPoint pixLocation = thiscoin.get(thiscoin.firstKey());
 					addNewData(1.0, ((double)pixLocation.x())*pixelSize, ((double)pixLocation.y())*pixelSize);
 				}
 				// if $2
-				else if (radiusmm.compareTo(8.0) >= 0 && radiusmm.compareTo(11.0) <= 0) {
+				else if (radiusmm.compareTo(8.0) >= 0 && radiusmm.compareTo(10.5) <= 0) {
 					values.set(5, values.get(5)+1);
 					CvPoint pixLocation = thiscoin.get(thiscoin.firstKey());
 					addNewData(2.0, ((double)pixLocation.x())*pixelSize, ((double)pixLocation.y())*pixelSize);
@@ -266,7 +266,7 @@ public class CoinFinder {
 				addNewData(0.05, ((double)pixLocation.x())*pixelSize, ((double)pixLocation.y())*pixelSize);
 			}
 			// if 10c
-			else if (radiusmm.compareTo(13.0) < 0) {
+			else if (radiusmm.compareTo(13.5) < 0) {
 				values.set(1, values.get(1)+1);
 				CvPoint pixLocation = thiscoin.get(thiscoin.firstKey());
 				addNewData(0.1, ((double)pixLocation.x())*pixelSize, ((double)pixLocation.y())*pixelSize);
