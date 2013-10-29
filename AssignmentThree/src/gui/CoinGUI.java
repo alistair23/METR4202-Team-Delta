@@ -384,7 +384,7 @@ public class CoinGUI extends JFrame{
 		    // initial sifting and centering
 		    if (SIFTING) {
 		    	con.addln("Finding notes...");
-		    	int SIFTTHRESHOLD = 130;
+		    	int SIFTTHRESHOLD = 210;
 		    	File[] files = new File("training_images").listFiles();
 		    	Sifter sifter = new Sifter(mainI, SIFTTHRESHOLD);
 		    	ArrayList<String> labels = new ArrayList<String>();
@@ -407,15 +407,16 @@ public class CoinGUI extends JFrame{
 					// get median of all good points
 					Integer[] xArray = xValues.toArray(new Integer[0]);
 					Integer[] yArray = yValues.toArray(new Integer[0]);
-					if (xArray.length > 0 && yArray.length > 0) {
+					if (xArray.length > 10 && yArray.length > 10) {
 						int x = xArray[(int) (((double)xArray.length)/2.0)];
 						int y = yArray[(int) (((double)yArray.length)/2.0)];
 					    CvPoint POINT = cvPointFrom32f(new CvPoint2D32f(x, y));
 					    labels.add(name); locations.add(POINT);
-					    
-					    //IplImage debugImage = sifter.drawMatchPoints(kr.getColorFrame().clone());
-					    //cvShowImage("debug", debugImage);
-					    //cvWaitKey(0);
+					    Integer len = xArray.length;
+					    con.addln(len.toString());
+			//		    IplImage debugImage = sifter.drawMatchPoints(kr.getColorFrame().clone());
+			//		    cvShowImage("debug", debugImage);
+			//		    cvWaitKey(0);
 					}
 				}
 				

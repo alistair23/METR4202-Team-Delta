@@ -54,8 +54,8 @@ public class Sifter {
 	    //edgeThreshold – The threshold used to filter out edge-like features. Note that the its meaning is different from the contrastThreshold, i.e. the larger the edgeThreshold, the less features are filtered out (more features are retained).
 	    //sigma – The sigma of the Gaussian applied to the input image at the octave #0. If your image is captured with a weak camera with soft lenses, you might want to reduce the number.
 	    
-	    //SIFT sift = new SIFT(5000, 2, 0.05, 1.8, 1.6);
-	    SIFT sift = new SIFT(5000, 2, 0.05, 1.8, 1.6);
+	//    SIFT sift = new SIFT(5000, 2, 0.05, 1.8, 1.6);
+	    SIFT sift = new SIFT(5000, 2, 0.03, 2.0, 1.6);
 	    //SIFT sift = new SIFT();
 	    
 	    sift.detect(baseImage, null, keyPoints);
@@ -95,7 +95,7 @@ public class Sifter {
 	    	keyPoints2.position(0);
 	    	for (int k=0; k < matchCount; k++) {
 	    		DMatch thismatch = matches.position(k);
-	    		if (thismatch.distance() < minDist*2.0 && thismatch.distance() < threshold) {
+	    		if (thismatch.distance() < minDist*2.5 && thismatch.distance() < threshold) {
 		    		CvPoint2D32f thisPoint = keyPoints2.position(matches.position(k).queryIdx()).pt();
 		    		CvPoint2D32f onBaseImage = keyPoints.position(matches.position(k).trainIdx()).pt();
 		    		goodPoints.add(thisPoint);
@@ -191,7 +191,7 @@ public class Sifter {
 		
 	    ArrayList<CvPoint2D32f> allGoodPoints = new ArrayList<CvPoint2D32f>();
 	    // store data over 5 sift operations
-	    for (int i=0; i < 5; i++) {
+//	    for (int i=0; i < 5; i++) {
 			Sifter sifter = new Sifter(baseImage, 190);
 			sifter.sift(siftImage);
 			allGoodPoints.addAll(sifter.getGoodMatchPoints());
@@ -200,7 +200,7 @@ public class Sifter {
 			IplImage matches = sifter.drawMatchPoints(siftImage);
 			cvShowImage("matches drawn", matches);  
 			cvWaitKey(0);
-	    }
+//	    }
 	    
 	    // get median of all good points
 	    CvPoint2D32f bestPoint = allGoodPoints.get((int)(((double)allGoodPoints.size())/2.0));
