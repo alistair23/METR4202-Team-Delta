@@ -14,8 +14,13 @@ public class ArmControl implements Runnable{
 	
 	int GLOBALOFFSET = -12;
 	
+<<<<<<< HEAD
 	int tableHeight = 70;
 	int botHeight = 100;
+=======
+	int tableHeight = 55;
+	int botHeight = 150;
+>>>>>>> tracking working (Ben)
 	int xoffset = 180;
 	
 	int speed = 100;

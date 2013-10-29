@@ -181,7 +181,15 @@ public class CoinFinder {
 			k+=2;
 			Integer radius = radiusList.get(i);
 			boolean isSilver = isMostlyWhite(colorMod.getThresholdImage(), x.intValue(), y.intValue(), radius);
-			if (isSilver) {
+			boolean isGold = false;
+			for (TreeMap<Integer, CvPoint> goldCoin : goldCoinData) {
+				CvPoint goldPoint = goldCoin.get(goldCoin.firstKey());
+				int goldx = goldPoint.x(); int goldy = goldPoint.y();
+				if ((x.intValue() > goldx-5 || x.intValue() < goldx+5) && (y.intValue() > goldy-5 || y.intValue() < goldy+5)) {
+					isGold = true;
+				}
+			}
+			if (isSilver && !isGold) {
 				silverCount++;
 				CvPoint center = cvPointFrom32f(new CvPoint2D32f(x, y));
 				cvCircle(coinsDrawn, center, radius, CvScalar.WHITE, 1, CV_AA, 0);

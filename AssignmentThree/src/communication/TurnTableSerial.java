@@ -13,11 +13,14 @@ repeat
 	 */
 	
 
-	static Serial srl = new Serial(5);
+	static Serial srl = new Serial(4);
+	
+	public TurnTableSerial() {
+		srl.open(9600);
+	}
 	
 	public static void main(String[] args) {
-		srl.open(9600);
-
+		
 		TurnTableSerial ts = new TurnTableSerial();
 		
 		//ts.readSpeed();
@@ -26,13 +29,23 @@ repeat
 		//ts.writeSpeed();
 		//ts.getMoving();
 		//ts.writeSpeed(900);
-		ts.writeTarget(1530);
+		//ts.writeTarget(1530);
 		//srl.read();
+		
+		//while (true) {
+			System.out.println(ts.readSpeed());
+		//}
 	}
 	
-	public void readSpeed(){
+	// returns speed in rad/s
+	public Double readSpeed(){
 		srl.write("9003");
-		srl.read();
+		String readString = srl.read();
+		Integer speed = -Integer.parseInt(readString.substring(3, 5)+readString.substring(0, 2), 16)+6000;
+		// max = +-16 rpm
+		// 2000 = (16*2*Math.PI/60)
+		double mult = Math.PI/3750.0;
+		return speed*mult;
 	}
 	
 	public void writeSpeed(int speed){

@@ -2,18 +2,31 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="C:/Users/Ben/Documents/GitHub/METR4202---Team-Delta/AssignmentThree/Dependencies/NyARToolkit.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Ben/Documents/GitHub/METR4202---Team-Delta/AssignmentThree/Dependencies/javacv-cppjars/opencv-2.4.6.0-windows-x86_64.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Ben/Documents/GitHub/METR4202---Team-Delta/AssignmentThree/Dependencies/javacv-bin/javacpp.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Ben/Documents/GitHub/METR4202---Team-Delta/AssignmentThree/Dependencies/javacv-bin/javacv.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Ben/Documents/GitHub/METR4202---Team-Delta/AssignmentThree/Dependencies/javacv-bin/javacv-windows-x86_64.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Ben/Documents/GitHub/METR4202---Team-Delta/AssignmentThree/Dependencies/j3d-1_5_2-windows-amd64/j3d-jre/lib/ext/j3dcore.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Ben/Documents/GitHub/METR4202---Team-Delta/AssignmentThree/Dependencies/j3d-1_5_2-windows-amd64/j3d-jre/lib/ext/j3dutils.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Ben/Documents/GitHub/METR4202---Team-Delta/AssignmentThree/Dependencies/j3d-1_5_2-windows-amd64/j3d-jre/lib/ext/vecmath.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Ben/Documents/GitHub/METR4202---Team-Delta/AssignmentThree/Dependencies/jSSC-2.6.0-Release/jssc.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Ben/Documents/GitHub/METR4202---Team-Delta/AssignmentThree/Dependencies/RxTx/RXTXcomm.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Ben/Documents/GitHub/METR4202---Team-Delta/AssignmentThree/Dependencies/mfz-rxtx-2.2-20081207-win-x64/RXTXcomm.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Ben/Documents/GitHub/METR4202---Team-Delta/AssignmentThree/Dependencies/jSSC-2.6.0-Release/src/jssc-2.6.0-src.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Ben/Documents/GitHub/METR4202---Team-Delta/AssignmentThree/Dependencies/jSSC-2.6.0-Release/javadoc/jssc-2.6.0-javadoc.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Alistair/Documents/GitHub/METR4202---Team-Delta/AssignmentThree/Dependencies/j3d-1_5_2-windows-amd64/j3d-jre/lib/ext/j3dcore.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Alistair/Documents/GitHub/METR4202---Team-Delta/AssignmentThree/Dependencies/j3d-1_5_2-windows-amd64/j3d-jre/lib/ext/j3dutils.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Alistair/Documents/GitHub/METR4202---Team-Delta/AssignmentThree/Dependencies/j3d-1_5_2-windows-amd64/j3d-jre/lib/ext/vecmath.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Alistair/Documents/GitHub/METR4202---Team-Delta/AssignmentThree/Dependencies/javacv-bin/javacpp.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Alistair/Documents/GitHub/METR4202---Team-Delta/AssignmentThree/Dependencies/javacv-bin/javacv.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Alistair/Documents/GitHub/METR4202---Team-Delta/AssignmentThree/Dependencies/javacv-bin/javacv-android-arm.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Alistair/Documents/GitHub/METR4202---Team-Delta/AssignmentThree/Dependencies/javacv-bin/javacv-linux-x86.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Alistair/Documents/GitHub/METR4202---Team-Delta/AssignmentThree/Dependencies/javacv-bin/javacv-linux-x86_64.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Alistair/Documents/GitHub/METR4202---Team-Delta/AssignmentThree/Dependencies/javacv-bin/javacv-macosx-x86_64.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Alistair/Documents/GitHub/METR4202---Team-Delta/AssignmentThree/Dependencies/javacv-bin/javacv-windows-x86.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Alistair/Documents/GitHub/METR4202---Team-Delta/AssignmentThree/Dependencies/javacv-bin/javacv-windows-x86_64.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Alistair/Documents/GitHub/METR4202---Team-Delta/AssignmentThree/Dependencies/javacv-cppjars/ffmpeg-2.0.1-android-arm.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Alistair/Documents/GitHub/METR4202---Team-Delta/AssignmentThree/Dependencies/javacv-cppjars/ffmpeg-2.0.1-linux-x86.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Alistair/Documents/GitHub/METR4202---Team-Delta/AssignmentThree/Dependencies/javacv-cppjars/ffmpeg-2.0.1-linux-x86_64.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Alistair/Documents/GitHub/METR4202---Team-Delta/AssignmentThree/Dependencies/javacv-cppjars/ffmpeg-2.0.1-macosx-x86_64.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Alistair/Documents/GitHub/METR4202---Team-Delta/AssignmentThree/Dependencies/javacv-cppjars/ffmpeg-20130915-git-7ac6c63-windows-x86.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Alistair/Documents/GitHub/METR4202---Team-Delta/AssignmentThree/Dependencies/javacv-cppjars/ffmpeg-20130915-git-7ac6c63-windows-x86_64.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Alistair/Documents/GitHub/METR4202---Team-Delta/AssignmentThree/Dependencies/javacv-cppjars/opencv-2.4.6.0-windows-x86.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Alistair/Documents/GitHub/METR4202---Team-Delta/AssignmentThree/Dependencies/javacv-cppjars/opencv-2.4.6.0-windows-x86_64.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Alistair/Documents/GitHub/METR4202---Team-Delta/AssignmentThree/Dependencies/javacv-cppjars/opencv-2.4.6.1-android-arm.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Alistair/Documents/GitHub/METR4202---Team-Delta/AssignmentThree/Dependencies/javacv-cppjars/opencv-2.4.6.1-linux-x86.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Alistair/Documents/GitHub/METR4202---Team-Delta/AssignmentThree/Dependencies/javacv-cppjars/opencv-2.4.6.1-linux-x86_64.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Alistair/Documents/GitHub/METR4202---Team-Delta/AssignmentThree/Dependencies/javacv-cppjars/opencv-2.4.6.1-macosx-x86_64.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Alistair/Documents/GitHub/METR4202---Team-Delta/AssignmentThree/Dependencies/jSSC-2.6.0-Release/jssc.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Alistair/Documents/GitHub/METR4202---Team-Delta/AssignmentThree/Dependencies/mfz-rxtx-2.2-20081207-win-x64/RXTXcomm.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Alistair/Documents/GitHub/METR4202---Team-Delta/AssignmentThree/Dependencies/NyARToolkit.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

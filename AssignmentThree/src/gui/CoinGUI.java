@@ -44,6 +44,7 @@ import com.googlecode.javacv.cpp.opencv_core.CvPoint2D32f;
 import com.googlecode.javacv.cpp.opencv_core.CvScalar;
 import com.googlecode.javacv.cpp.opencv_core.CvSize;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
+import communication.TurnTableSerial;
 
 import cameraCalibration.CameraCalibrator;
 import capture.*;
@@ -101,6 +102,11 @@ public class CoinGUI extends JFrame{
  	static CvFont font = new CvFont(CV_FONT_HERSHEY_PLAIN, 1, 1);
  	static double pixelSize = 0.0;
  	static CoinFinder coinFinder;
+ 	
+	static ArrayList<TreeMap<Double, ArrayList<Double>>> coinsPolar = new ArrayList<TreeMap<Double, ArrayList<Double>>>();
+	
+	static double initTime = 0;
+	static Double currentVelocity = 0.0;
  	
     public CoinGUI(){
   
@@ -434,10 +440,17 @@ public class CoinGUI extends JFrame{
 		    }
 	    }
 	    //update the main window with the camera feed forever
+	    initTime = System.currentTimeMillis()/1000.0;
+	    TurnTableSerial turnTable = new TurnTableSerial();
+	    int takeVel = 0;
+	    
 		while(true){
 			if(haveKinect){
 				mainI = kr.getColorFrame();
+				double time = (System.currentTimeMillis()/1000.0) - initTime;
 		    	w.ImagePanelUpdate(mainP, mainI, 1);
+		    	takeVel++;
+		    	currentVelocity = turnTable.readSpeed();
 		    	
 		    	//w.ImagePanelUpdate(currentP, findCoins(mainI), 1);
 		    	
@@ -449,7 +462,9 @@ public class CoinGUI extends JFrame{
 	        	coinFinder.determineValues();
 	        	
 	        	ArrayList<TreeMap<Double, ArrayList<Double>>> coinData = coinFinder.getCoinLocationData();
-	        	ArrayList<TreeMap<Double, ArrayList<Double>>> coinsPolar = new ArrayList<TreeMap<Double, ArrayList<Double>>>();
+	        	
+	        	// radius, angle, time
+	        	ArrayList<TreeMap<Double, ArrayList<Double>>> NEWcoinsPolar = new ArrayList<TreeMap<Double, ArrayList<Double>>>();
 	        	
 	        	// wrt centre in standard orientation
 	        	double offsetx = 320.0*pixelSize; double offsety = 240.0*pixelSize;
@@ -468,16 +483,93 @@ public class CoinGUI extends JFrame{
 	        		
 	        		TreeMap<Double, ArrayList<Double>> newmap = new TreeMap<Double, ArrayList<Double>>();
 	        		ArrayList<Double> polarcoords = new ArrayList<Double>();
-	        		polarcoords.add(polarRadius); polarcoords.add(polarAngleRad);
+	        		polarcoords.add(polarRadius); polarcoords.add(polarAngleRad); polarcoords.add(time);
 	        		newmap.put(value, polarcoords);
-	        		coinsPolar.add(newmap);
+	        		NEWcoinsPolar.add(newmap);
 	        	}
+	        	
+	        	// shift all based on velocity
+	        	for (TreeMap<Double, ArrayList<Double>> OLDcoin : coinsPolar) {
+	        		Double OLDvalue = OLDcoin.firstKey();
+        			ArrayList<Double> OLDpolar = OLDcoin.get(OLDvalue);
+        			Double angle = OLDpolar.get(1);
+        			Double NEWangle = angle+Math.PI/8.0;
+        			OLDcoin.get(OLDvalue).set(1, NEWangle);
+	        	}
+	        	
+	        	/**
+	        	ArrayList<TreeMap<Double, ArrayList<Double>>> coinsToAdd = new ArrayList<TreeMap<Double, ArrayList<Double>>>();
+	        	// velocities in rad/s
+	        	ArrayList<Double> velocities = new ArrayList<Double>();
+	        	boolean veltaken = false;
+	        	
+	        	// determine if same as previous
+	        	for (TreeMap<Double, ArrayList<Double>> NEWcoin : NEWcoinsPolar) {
+	        		boolean addme = true;
+	        		Double NEWvalue = NEWcoin.firstKey();
+	        		ArrayList<Double> NEWpolar = NEWcoin.get(NEWvalue);
+	        		// brute force compare
+	        		for (TreeMap<Double, ArrayList<Double>> OLDcoin : coinsPolar) {
+	        			Double OLDvalue = OLDcoin.firstKey();
+	        			ArrayList<Double> OLDpolar = OLDcoin.get(OLDvalue);
+	        			
+	        			// if radius approx same
+	        			if ((NEWpolar.get(0) > OLDpolar.get(0)-5) && (NEWpolar.get(0) < OLDpolar.get(0)+5)) {
+	        				
+	        				if ((NEWpolar.get(1)-OLDpolar.get(1)) != 0 && (NEWpolar.get(2)-OLDpolar.get(2)) != 0
+	        						&& takeVel > 20) {
+	        					veltaken = true;
+	        					
+	        					double deltaAng = NEWpolar.get(1)-OLDpolar.get(1);
+	        					if (deltaAng< 0) {
+	        						deltaAng = NEWpolar.get(1)+360.0-OLDpolar.get(1);
+	        					}
+	        					velocities.add(deltaAng/(NEWpolar.get(2)-OLDpolar.get(2)));
+	        				}
+	        				
+	        				// if same value
+	        				
+	        				// if not same value
+	        				
+	        				OLDcoin.put(OLDvalue, NEWpolar);
+	        				addme = false;
+	        				break;
+	        			}
+	        		}
+	        		if (addme) {
+	        			coinsToAdd.add(NEWcoin);
+	        		}
+	        	}
+	        	
+	        	if (veltaken) {
+	        		takeVel = 0;
+	        	}
+	        	
+	        	if (velocities.size() > 0) {
+		        	double sum = 0;
+		        	for (double vel : velocities) {
+		        		if (vel < 1.7) {
+		        			sum += vel;
+		        		}
+		        	}
+		        //	currentVelocity = sum/velocities.size();
+	        	}
+	        	
+	        	
+	        	
+	        	// coins left over in NEWcoinsPolar
+	        	// new coin; yet to be detected
+        		// also need for first time round
+	        	for (TreeMap<Double, ArrayList<Double>> ADDcoin : coinsToAdd) {
+	        		coinsPolar.add(ADDcoin);
+	        	}
+	 //       	long time = System.currentTimeMillis();
+	        	*/
 	        	
 	        	IplImage trackedImage = coinFinder.getDrawnCoins();
 	        	
-	        	//IplImage drawnCoins = coinFinder.getDrawnCoins();
 	        	//OpticalFlowTracker flowTracker = new OpticalFlowTracker();
-		    	//IplImage trackedImage = flowTracker.trackMovement(drawnCoins, kr.getColorFrame());
+		    	//trackedImage = flowTracker.trackMovement(trackedImage, kr.getColorFrame());
 		    	
 		    	//con.wipe();
 				//con.addln(coinFinder.getValues().toString());
@@ -520,9 +612,11 @@ public class CoinGUI extends JFrame{
 		    	w.ImagePanelUpdate(currentP, trackedImage, 1);
 		    	
 		    	con.wipe();
-	        	con.addln(coinsPolar.toString());
+	        	con.addln("$"+coinFinder.getTotalValue().toString());
 	        	//con.addln(notesPolar.toString());
-	        	
+	        	//con.addln(coinsPolar.toString());
+	        	con.addln("Velocity measured (rad/s) --> "+currentVelocity.toString());
+	        	//con.addln("Velocity read (rad/s) --> "+turnTable.readSpeed().toString());
 	        	
 		    	//BlobFinder blob = new BlobFinder(mainI);
 		    	//CvScalar min = new CvScalar(130, 0, 50, 0);
