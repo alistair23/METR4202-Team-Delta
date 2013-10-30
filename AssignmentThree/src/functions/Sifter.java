@@ -55,7 +55,7 @@ public class Sifter {
 	    //sigma – The sigma of the Gaussian applied to the input image at the octave #0. If your image is captured with a weak camera with soft lenses, you might want to reduce the number.
 	    
 	//    SIFT sift = new SIFT(5000, 2, 0.05, 1.8, 1.6);
-	    SIFT sift = new SIFT(5000, 2, 0.03, 2.0, 1.6);
+	    SIFT sift = new SIFT(5000, 2, 0.04, 1.5, 1.6);
 	    //SIFT sift = new SIFT();
 	    
 	    sift.detect(baseImage, null, keyPoints);
@@ -95,7 +95,7 @@ public class Sifter {
 	    	keyPoints2.position(0);
 	    	for (int k=0; k < matchCount; k++) {
 	    		DMatch thismatch = matches.position(k);
-	    		if (thismatch.distance() < minDist*2.5 && thismatch.distance() < threshold) {
+	    		if (thismatch.distance() < minDist*3 && thismatch.distance() < threshold) {
 		    		CvPoint2D32f thisPoint = keyPoints2.position(matches.position(k).queryIdx()).pt();
 		    		CvPoint2D32f onBaseImage = keyPoints.position(matches.position(k).trainIdx()).pt();
 		    		goodPoints.add(thisPoint);

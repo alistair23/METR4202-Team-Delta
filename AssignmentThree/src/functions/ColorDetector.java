@@ -27,7 +27,7 @@ public class ColorDetector {
 	
 	// VARY THIS VALUE FOR ANTICIPATED LIGHTING CONDITIONS
 	// WHITE: ~50		HALOGEN: ~30
-	private static int GOLDCUTOFF = 30;
+	private static int GOLDCUTOFF = 25;
 	
 	public ColorDetector(IplImage sourceImage) {
 		this.sourceImage = sourceImage;

@@ -29,9 +29,9 @@ public class ArmControl extends Thread {
 	int Box4 = -70-GLOBALOFFSET;
 	boolean atHome = false;
 	
-	boolean INIT = true;
-	int BOX;
-	int RADIUS;
+	static boolean INIT = true;
+	static int BOX;
+	static int RADIUS;
 
 	public ArmControl(){
 		this.goHome();
@@ -39,18 +39,13 @@ public class ArmControl extends Thread {
 	}
 	public static void main(String[] args) {
 		ArmControl ac;
-	//	(new Thread()).start();
+		
 		ac = new ArmControl();
+		INIT = false;
+		
 		ac.goHome();
-		//ac.get(160);
-		//ac.getCoin(50);
-		//ac.put(4);
-		//ac.get(170);
-		//ac.put(2);
-		//ac.get(170);
-		//ac.put(3);
-		//ac.get(170);
-		//ac.put(4);
+	//	ac.setThread(95, 2);
+	//	ac.run();
 	}
 	
 	public int getBoxNum(double value) {
@@ -109,7 +104,7 @@ public class ArmControl extends Thread {
 			x = 215;
 		}
 		if (x>200) {
-			goTo(x-20, botHeight+25, 0);
+			goTo(x-20, botHeight+25, 0, speed/3);
 			while(da.ds.readMoving()){DynamixelSerial.halt(10);}
 			goTo(x-15, tableHeight+20, 0, speed/3);
 			while(da.ds.readMoving()){DynamixelSerial.halt(10);}
@@ -135,6 +130,13 @@ public class ArmControl extends Thread {
 			while(da.ds.readMoving()){DynamixelSerial.halt(10);}
 			da.setXY(x, tableHeight, speed/2);
 			da.setXY(x, tableHeight, speed/2);
+			while(da.ds.readMoving()){DynamixelSerial.halt(10);}
+		} else if (x>170){
+			da.setXY(x, tableHeight+15, speed/2);
+			da.setXY(x, tableHeight+15, speed/2);
+			while(da.ds.readMoving()){DynamixelSerial.halt(10);}
+			da.setXY(x, tableHeight+3, speed/2);
+			da.setXY(x, tableHeight+3, speed/2);
 			while(da.ds.readMoving()){DynamixelSerial.halt(10);}
 		} else {
 			da.setXY(x, tableHeight+15, speed/2);
