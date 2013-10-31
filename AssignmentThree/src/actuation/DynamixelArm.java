@@ -1,18 +1,19 @@
 package actuation;
 
-import gui.Window;
-
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.IOException;
-
-import javax.swing.JButton;
-import javax.swing.JTextArea;
-
 import communication.DynamixelSerial;
-import communication.Serial;
+
+/**
+ * @author Ben Rose
+ *	
+ * Control of the custom Dynamixel robotic arm.
+ * Interface should be as in example:
+ * 
+ * static ArmControl arm = new ArmControl();
+ * arm.setThread(radius.intValue(), arm.getBoxNum(value));
+ * Thread armThread = new Thread(arm, "armThread");
+ * armThread.start();
+ *
+ */
 
 public class DynamixelArm{
 
@@ -35,117 +36,9 @@ public class DynamixelArm{
 	double direction = 1; //direction = -1 for other side of arm. direction = 1 for turntable side
 	
 	DynamixelSerial ds = new DynamixelSerial(port);
-	/**
-	public static void main(String[] args) {
-		final DynamixelArm da = new DynamixelArm();
-
-		//da.flip(true);
-		//da.ds.read("01", "1E");
-		//da.gotoXY(100, 100, 1000);
-		//da.gotoXY(100, 100, 1000);
-		
-		da.ds.motor(1, 0, 100);
-		da.ds.motor(2, 90, 100);
-		da.ds.motor(3, 90, 100);
-
-		Window w = new Window(new Dimension(400,400));
-		
-		final JButton capc = new JButton("centre");
-		capc.setMinimumSize(new Dimension(200,30));
-		w.add(capc,0,0,3,1,1,1);
-		capc.setBackground(Color.GREEN.darker());
-		
-		final JButton Load = new JButton("go");
-		Load.setMinimumSize(new Dimension(200,30));
-		w.add(Load,0,1,3,1,1,1);
-		Load.setBackground(Color.GREEN.darker());
-		
-		JButton save = new JButton("flip");
-		save.setMinimumSize(new Dimension(200,30));
-		w.add(save,0,2,3,1,1,1);
-		save.setBackground(Color.GREEN.darker());
-		
-		JButton xup = new JButton("X up");
-		xup.setMinimumSize(new Dimension(100,30));
-		w.add(xup,0,3,1,1,1,1);
-		xup.setBackground(Color.RED.darker());
-		
-		JButton xdown = new JButton("X Down");
-		xdown.setMinimumSize(new Dimension(100,30));
-		w.add(xdown,2,3,1,1,1,1);
-		xdown.setBackground(Color.RED.darker());
-		
-		JButton yup = new JButton("Y up");
-		yup.setMinimumSize(new Dimension(100,30));
-		w.add(yup,0,4,1,1,1,1);
-		yup.setBackground(Color.RED.darker());
-		
-		JButton ydown = new JButton("Y Down");
-		ydown.setMinimumSize(new Dimension(100,30));
-		w.add(ydown,2,4,1,1,1,1);
-		ydown.setBackground(Color.RED.darker());
-		
-		final JTextArea x = new JTextArea("150");
-		x.setMinimumSize(new Dimension(200,30));
-		w.add(x,0,5,1,1,1,0);
-
-		final JTextArea y = new JTextArea("150");
-		y.setMinimumSize(new Dimension(200,30));
-		w.add(y,1,5,1,1,1,0);
-		
-		final JTextArea speed = new JTextArea("150");
-		speed.setMinimumSize(new Dimension(200,30));
-		w.add(speed,2,5,1,1,1,0);
-
-		w.revalidate();
-
-		
-		capc.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e){
-            	da.ds.centermotors();
-            }});
-		
-		Load.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e){
-            	da.setXY(Integer.valueOf(x.getText()), Integer.valueOf(y.getText()), Integer.valueOf(speed.getText()));
-            }});
-		
-		save.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e){
-            	if(da.direction > 0){da.flip(true);}else{da.flip(false);}
-            	Load.doClick();
-            }});
-		xup.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e){
-            	x.setText(String.valueOf(Integer.valueOf(x.getText())+1));
-            	da.setXY(da.x, da.y, Integer.valueOf(speed.getText()));
-            	Load.doClick();
-            }});
-		xdown.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e){
-            	x.setText(String.valueOf(Integer.valueOf(x.getText())-1));
-            	da.setXY(da.x, da.y, Integer.valueOf(speed.getText()));
-            	Load.doClick();
-            }});
-		yup.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e){
-            	y.setText(String.valueOf(Integer.valueOf(y.getText())+1));
-            	da.setXY(da.x, da.y, Integer.valueOf(speed.getText()));
-            	Load.doClick();
-           }});
-		ydown.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e){
-            	y.setText(String.valueOf(Integer.valueOf(y.getText())-1));
-            	da.setXY(da.x, da.y, Integer.valueOf(speed.getText()));
-            	Load.doClick();
-            }});
-
-	}**/
 	
 	public DynamixelArm(){
 	}
-	
-
 
 	public void calcxy(double one, double two){
 		a1 = one;
@@ -172,7 +65,6 @@ public class DynamixelArm{
 		this.x = x;
 		this.y = y;
 		double d = Math.sqrt((x*x)+(y*y));	
-		//d= 100;
 		a1 = Math.toRadians(90.0) - Math.acos(((L1*L1)+(d*d)-(L2*L2))/(2*L1*d)) - Math.acos(x/d);
 		a2 = Math.toRadians(180.0) - Math.acos(((L1*L1)+(L2*L2)-(d*d))/(2*L1*L2));
 		a3 = Math.toRadians(180.0) - a1 - a2;
@@ -184,15 +76,10 @@ public class DynamixelArm{
 		a1 = direction*a1;
 		a2 = direction*a2;
 		a3 = direction*(a3+a3off);
-		
-		
 	}
 	
 	public void setAng(double ang1, double ang2, int speed){
 		calcxy(ang1,ang2);
-		//ds.motor(motor1ID, (int)a1, speed);
-		//ds.motor(motor2ID, (int)a2, speed);
-		//ds.motor(motor3ID, (int)a3, speed);
 		ds.motorsync((int)a1, speed, (int)a2, speed, (int)a3, speed);
 	}
 	
@@ -204,14 +91,7 @@ public class DynamixelArm{
 		int speed2 = (int)speedRatio(a2,speed);
 		int speed3 = (int)speedRatio(a3,speed);
 		System.out.println("Speeds: "+speed1+"  "+speed2+"  "+speed3);
-		//ds.motor(motor1ID, (int)a1, speed1);
-		//ds.motor(motor2ID, (int)a2, speed2);
-		//ds.motor(motor3ID, (int)a3, speed3);
 		ds.motorsync((int)a1, speed1, (int)a2, speed2, (int)a3, speed3);
-		//for(int i=0;i<100;i++){
-		//ds.read("01","24");
-		//}
-		//ds.read("01","25");
 	}
 	
 	public void setXY(double x, double y, int speed, double ang){
@@ -223,18 +103,8 @@ public class DynamixelArm{
 		int speed3 = (int)speedRatio(a3,speed);
 		System.out.println("funct 2 Speeds: "+speed1+"  "+speed2+"  "+speed3);
 		System.out.println("funct 2 angles: "+(int)a1+"  "+(int)a2+"  "+(int)a3);
-		
-		//ds.motor(motor1ID, (int)a1, speed1);
-		//ds.motor(motor2ID, (int)a2, speed2);
-		//ds.motor(motor3ID, (int)a3, speed3);
-		//for(int i=0;i<100;i++){
 		ds.motorsync((int)a1, speed1, (int)a2, speed2, (int)a3, speed3);
-		//ds.read("01","24");
-		//}
-		//ds.read("01","25");
 	}
-	
-	
 	
 	public void flip(boolean b){
 		if(b == true ){direction = -1;}
@@ -260,7 +130,6 @@ public class DynamixelArm{
 		double an1 = Math.abs(a1);
 		double an2 = Math.abs(a2);
 		double an3 = Math.abs(a3);
-		
 		
 		if(a == an1){
 			 if ( an1 > an3 && an1 > an2 )
@@ -295,7 +164,4 @@ public class DynamixelArm{
 
 		return speed;
 	}
-
-
-	
 }

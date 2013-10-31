@@ -2,19 +2,27 @@ package functions;
 
 import static com.googlecode.javacv.cpp.opencv_core.*;
 import static com.googlecode.javacv.cpp.opencv_highgui.*;
-import static com.googlecode.javacv.cpp.opencv_imgproc.*;
 import static com.googlecode.javacv.cpp.opencv_features2d.*;
-import static com.googlecode.javacv.cpp.opencv_calib3d.*;
 
-import com.googlecode.javacv.cpp.opencv_calib3d;
 import com.googlecode.javacv.cpp.opencv_core.CvPoint;
 import com.googlecode.javacv.cpp.opencv_core.CvPoint2D32f;
 import com.googlecode.javacv.cpp.opencv_core.CvScalar;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
-import com.googlecode.javacv.cpp.opencv_features2d.*;
 import com.googlecode.javacv.cpp.opencv_nonfree.SIFT;
 
 import java.util.ArrayList;
+
+/**
+ * @author Ben Merange
+ *	
+ *	Provides image feature matching via SIFT.
+ *	Standard use can be seen in this classes main.
+ *
+ *	Tweak class constructor threshold (math distance threshold)
+ *	and SIFT constructor (in sifter.sift function) for
+ *	optimal results.
+ *
+ */
 
 public class Sifter {
 	
@@ -37,7 +45,6 @@ public class Sifter {
 	
 	public void sift(IplImage siftImage) {
 		
-		// INIT EVERYTHING!!!!
 		matches = new DMatch();
 		goodPoints = new ArrayList<CvPoint2D32f>();
 		goodPointsBaseImage = new ArrayList<CvPoint2D32f>();
@@ -48,15 +55,15 @@ public class Sifter {
 	    CvMat descriptorsB = new CvMat(null);
 	    
 	    // SIFT(int nfeatures=0, int nOctaveLayers=3, double contrastThreshold=0.04, double edgeThreshold=10, double sigma=1.6)
+	    
 	    //nfeatures – The number of best features to retain. The features are ranked by their scores (measured in SIFT algorithm as the local contrast)
 	    //nOctaveLayers – The number of layers in each octave. 3 is the value used in D. Lowe paper. The number of octaves is computed automatically from the image resolution.
 	    //contrastThreshold – The contrast threshold used to filter out weak features in semi-uniform (low-contrast) regions. The larger the threshold, the less features are produced by the detector.
 	    //edgeThreshold – The threshold used to filter out edge-like features. Note that the its meaning is different from the contrastThreshold, i.e. the larger the edgeThreshold, the less features are filtered out (more features are retained).
 	    //sigma – The sigma of the Gaussian applied to the input image at the octave #0. If your image is captured with a weak camera with soft lenses, you might want to reduce the number.
 	    
-	//    SIFT sift = new SIFT(5000, 2, 0.05, 1.8, 1.6);
+	    //SIFT sift = new SIFT(5000, 2, 0.05, 1.8, 1.6);
 	    SIFT sift = new SIFT(5000, 2, 0.04, 1.5, 1.6);
-	    //SIFT sift = new SIFT();
 	    
 	    sift.detect(baseImage, null, keyPoints);
 	    sift.detect(siftImage, null, keyPoints2);

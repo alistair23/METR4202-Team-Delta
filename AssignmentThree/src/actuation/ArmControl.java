@@ -4,20 +4,28 @@ import java.awt.Dimension;
 
 import communication.DynamixelSerial;
 
+/**
+ * @author Ben Merange, Ben Rose, Alistair Francis, Bob Zhou and Clinton Walker
+ *	
+ * Control of the custom Dynamixel robotic arm.
+ * Interface should be as in example:
+ * 
+ * static ArmControl arm = new ArmControl();
+ * arm.setThread(radius.intValue(), arm.getBoxNum(value));
+ * Thread armThread = new Thread(arm, "armThread");
+ * armThread.start();
+ *
+ */
+
 public class ArmControl extends Thread {
 	
 	DynamixelArm da = new DynamixelArm();
 		
 	private int Home = 140;
-	
 	int GLOBALOFFSET = -12;
-	
 	int tableHeight = 67;
-
 	int botHeight = 100;
-
 	int xoffset = 235;
-	
 	int speed = 150;
 	
 	int BoxS1 = 85;
@@ -29,7 +37,6 @@ public class ArmControl extends Thread {
 	int Box4 = -70-GLOBALOFFSET;
 	boolean atHome = false;
 	
-	static boolean INIT = true;
 	static int BOX;
 	static int RADIUS;
 
@@ -38,14 +45,9 @@ public class ArmControl extends Thread {
 		da.port = 3;
 	}
 	public static void main(String[] args) {
-		ArmControl ac;
-		
-		ac = new ArmControl();
-		INIT = false;
-		
+		// send the arm to home position
+		ArmControl ac = new ArmControl();
 		ac.goHome();
-	//	ac.setThread(95, 2);
-	//	ac.run();
 	}
 	
 	public int getBoxNum(double value) {
@@ -110,8 +112,6 @@ public class ArmControl extends Thread {
 			while(da.ds.readMoving()){DynamixelSerial.halt(10);}
 			goTo(x-10, tableHeight+15, 0, speed/3);
 			while(da.ds.readMoving()){DynamixelSerial.halt(10);}
-			//goTo(x-5, tableHeight+5, 0);
-			//while(da.ds.readMoving()){DynamixelSerial.halt(10);}
 			da.setXY(x, tableHeight, speed/2);
 			da.setXY(x, tableHeight, speed/2);
 			while(da.ds.readMoving()){DynamixelSerial.halt(10);}
@@ -179,14 +179,6 @@ public class ArmControl extends Thread {
 			goTo(Box4, botHeight-10, 0);
 			goTo(Box4, botHeight+40, 0);
 		}
-			
-		//goTo(num,tableHeight-20);
-		//DynamixelSerial.halt(2000);
-		
-		//while(da.ds.readMoving()){}
-		//da.ds.motor(3, 0);
-		//goTo(num+50,tableHeight);
-		//while(da.ds.readMoving()){}
 		goHome();
 	}
 	
@@ -197,12 +189,6 @@ public class ArmControl extends Thread {
 	
 	@Override
 	public void run() {
-		// TODO Auto-generated method stub
-		
-		if (INIT) {
-			INIT = false;
-			return;
-		}
 		
 		atHome = false;
 		int x = xoffset - RADIUS;

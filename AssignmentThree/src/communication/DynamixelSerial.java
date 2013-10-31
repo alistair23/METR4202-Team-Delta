@@ -1,5 +1,12 @@
 package communication;
 
+/**
+ * @author Ben Rose
+ *	
+ * Serial communication with a Dynamixel servo system.
+ *
+ */
+
 public class DynamixelSerial implements Runnable{
 
 	//Instruction
@@ -258,8 +265,6 @@ public class DynamixelSerial implements Runnable{
 		srl.write("FFFF"+command); //FFFF is the GO command
 
 	}
-	
-	
 
 	
 	 public static byte[] char2byte(char[] buffer) {

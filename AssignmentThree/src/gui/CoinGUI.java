@@ -1,17 +1,17 @@
 package gui;
 
 import static com.googlecode.javacv.cpp.opencv_core.*;
-import static com.googlecode.javacv.cpp.opencv_highgui.CV_LOAD_IMAGE_UNCHANGED;
 import static com.googlecode.javacv.cpp.opencv_highgui.cvLoadImage;
 import static com.googlecode.javacv.cpp.opencv_highgui.cvShowImage;
 import static com.googlecode.javacv.cpp.opencv_highgui.cvWaitKey;
-import static com.googlecode.javacv.cpp.opencv_imgproc.CV_BGR2HSV;
-import static com.googlecode.javacv.cpp.opencv_imgproc.CV_MEDIAN;
-import static com.googlecode.javacv.cpp.opencv_imgproc.cvCvtColor;
 import static com.googlecode.javacv.cpp.opencv_imgproc.cvDilate;
 import static com.googlecode.javacv.cpp.opencv_imgproc.cvErode;
-import static com.googlecode.javacv.cpp.opencv_imgproc.cvSmooth;
-import static com.googlecode.javacv.cpp.opencv_calib3d.cvRodrigues2;
+import com.googlecode.javacv.cpp.opencv_core.CvMat;
+import com.googlecode.javacv.cpp.opencv_core.CvPoint;
+import com.googlecode.javacv.cpp.opencv_core.CvPoint2D32f;
+import com.googlecode.javacv.cpp.opencv_core.CvScalar;
+import com.googlecode.javacv.cpp.opencv_core.CvSize;
+import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -23,13 +23,10 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
 import javax.imageio.ImageIO;
-import javax.print.attribute.standard.Media;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -38,28 +35,35 @@ import javax.swing.JPanel;
 import localisation.AxisLocator;
 import actuation.ArmControl;
 import colorCalibration.BlackBalance;
-import colorCalibration.BlobFinder;
 import colorCalibration.ColorChart;
-
-import com.googlecode.javacv.cpp.opencv_core.CvMat;
-import com.googlecode.javacv.cpp.opencv_core.CvPoint;
-import com.googlecode.javacv.cpp.opencv_core.CvPoint2D32f;
-import com.googlecode.javacv.cpp.opencv_core.CvScalar;
-import com.googlecode.javacv.cpp.opencv_core.CvSize;
-import com.googlecode.javacv.cpp.opencv_core.IplImage;
-
-import communication.TurnTableSerial;
 import cameraCalibration.CameraCalibrator;
 import capture.*;
 import functions.*;
 
 /**
- * @author Ben Merange, Ben Rose, Bob Zhou and Clinton Walker
+ * @author Ben Merange, Ben Rose, Alistair Francis, Bob Zhou and Clinton Walker
+ *	
+ *	The main GUI for operation; the interface with the user for all other classes.
+ *	Intended for use with any webcam and a specificly designed Dynamixel robotic arm.
+ *	
+ *	Identifies Australian currency notes and coins, tracking their movement based off a Kanji marker
+ *	placed in the middle of the rotating turntable. Communicates with a custom Dynamixel robitic arm
+ *	via serial to actuate as tracked coins are reachable. The arm utilizes a vacuum tool tip to move
+ *	coins off the table to their appropriate box (big gold, small gold, big silver, small silver).
+ *	The turntable speed is fully adjustable by the user (as long as it remains constant during
+ *	actuation of the arm).
+ *
+ *	Calibration features from the previous project (see Assignment 2 on this Git) have been included:
+ *	camera calibration (intrinsics and extrinsics) and color calibration via color chart.
+ *	
+ *	Actuation for notes is unimplemented in this version, although it identical to the coin actuation
+ *	code block but iterating instead over notesPolar.
  *
  */
 
 public class CoinGUI extends JFrame{
-
+	
+	// TURN INITIAL NOTE SIFT ON OR OFF
 	static boolean SIFTING = false;
 	
 	//define main images
@@ -90,11 +94,11 @@ public class CoinGUI extends JFrame{
     //capture and image objects
     static CameraReader kr;
      
-    //gui elements
+    // GUI elements
 	static ConsolePanel con = new ConsolePanel();
 	static JPanel samples = new JPanel();
 
-    //tweaking constants
+    // camera calibration constants
  	static int wait = 300;
  	static int numsamples = 20;
  	
@@ -117,9 +121,7 @@ public class CoinGUI extends JFrame{
 	
 	static ArrayList<Double> velHistory = new ArrayList<Double>();
 	
-    public CoinGUI(){
-  
-    }
+    public CoinGUI(){}
     
 	public static void main(String[] args) {
 		
@@ -143,7 +145,7 @@ public class CoinGUI extends JFrame{
 		cc.Samples=numsamples;
 		cc.setup();
 
-		//define all the gui buttons and add them to the GUI
+		//define all the GUI buttons and add them to the GUI
 		
 		final JButton capc = new JButton("Snap Color!");
 		capc.setMinimumSize(new Dimension(200,30));
@@ -206,7 +208,7 @@ public class CoinGUI extends JFrame{
 			camcal.setEnabled(false);
 		}
 		
-		//define button actions
+		// define button actions
 		capc.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e){
             	con.addln("Capturing Images! (Showing Color)");
@@ -233,7 +235,6 @@ public class CoinGUI extends JFrame{
             	fc.showSaveDialog(new JFrame());
             	String path = fc.getSelectedFile().getAbsolutePath();
             	con.addln("Saving Image to: "+path+".png");
-            	
             	File outputfile = new File(path.substring(0, path.length())+".png");
         		try {
         			ImageIO.write(currentI.getBufferedImage(), "png", outputfile);
@@ -243,13 +244,11 @@ public class CoinGUI extends JFrame{
 	    colcal.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e){
         		capc.doClick();
-        		
             	if (BLACK == null) {
             		IplImage blkimg = cvLoadImage("test_images/black.png");
             		BlackBalance blackBal = new BlackBalance(blkimg);
                 	BLACK = blackBal.getHsvValues();
             	}
-            	
         			samples.removeAll();
             		samples.add(w.ImagePanel(currentI, 2));
 	        		ColorChart chart = new ColorChart(currentI, BLACK);
@@ -299,8 +298,6 @@ public class CoinGUI extends JFrame{
 		            		con.addln("Sample Not Added. No Board Found!");
 		            	}
 	            	}
-	            	
-            	
             	}else{
 	            	con.addln("Performing Calibration on "+cc.Samples+" Samples...");
 	             	 cc.calibrate();
@@ -318,7 +315,6 @@ public class CoinGUI extends JFrame{
 	            	cc.SampleAt = 0;
             	}
             	}
-           	
 				con.addln("Performing Calibration on "+cc.Samples+" Samples...");
 				cc.calibrate();
 				con.addln("Error = "+cc.error);
@@ -374,18 +370,18 @@ public class CoinGUI extends JFrame{
 				System.exit(0);
 			}});
 	    
-	    // initialise arm comms
-	    
-	 //   Thread armThread = (new Thread(arm = new ArmControl()));
-	//    Thread armThread = new Thread(arm, "armThread");
-	//    arm.goHome();
-	    
-	    //double height = 375.0;
+	   	// height of camera from tracking plane
 	    double height = 375.0;
+	    // only work if a camera is connected
+	 	// although variable is named 'haveKinect' will work on most webcams
 	    if (haveKinect) {
 		    mainI = kr.getColorFrame();
 		    coinFinder = new CoinFinder(mainI, height);
+		    // pixelSize represents the mm/pixel ratio
 		    pixelSize = coinFinder.getPixelSize();
+		    
+		    // set origin based on kaji marker
+		    // keep updating until the kanji marker is identified
 		    while (originXmm == null || originYmm == null) {
 		    	mainI = kr.getColorFrame();
 			    AxisLocator origin = new AxisLocator(mainI);
@@ -396,9 +392,11 @@ public class CoinGUI extends JFrame{
 			    }
 		    }
 		    
-		    // initial sifting and centering
+		    // run initial sift on notes - run only if sift turned on
 		    if (SIFTING) {
 		    	con.addln("Finding notes...");
+		    	// increase the sift threshold value if no matches, decrease if too many
+		    	// corresponds to the feature match distance
 		    	int SIFTTHRESHOLD = 195;
 		    	File[] files = new File("training_images").listFiles();
 		    	Sifter sifter = new Sifter(mainI, SIFTTHRESHOLD);
@@ -429,14 +427,15 @@ public class CoinGUI extends JFrame{
 					    labels.add(name); locations.add(POINT);
 					    Integer len = xArray.length;
 					    con.addln(len.toString());
+					    
+					    // turn on for sift debugging - will show individual sift matches
 				//	    IplImage debugImage = sifter.drawMatchPoints(kr.getColorFrame().clone());
 				//	    cvShowImage("debug", debugImage);
 				//	    cvWaitKey(0);
 					}
 				}
-				
+				// convert to polar coordinates, store in notesPolar and label on image
 				IplImage pointsDrawn = kr.getColorFrame().clone();
-				// need coin finder for pixel size
 				double time = (System.currentTimeMillis()/1000.0) - initTime;
 				for (int i=0; i < labels.size(); i++) {
 					String label = labels.get(i);
@@ -460,45 +459,58 @@ public class CoinGUI extends JFrame{
 				con.addln("Notes found.");
 		    }
 	    }
-	    //update the main window with the camera feed forever
-	    initTime = System.currentTimeMillis()/1000.0;
-	//    TurnTableSerial turnTable = new TurnTableSerial();
 	    
+	    // set initial cariables and classes
+	    initTime = System.currentTimeMillis()/1000.0;
 	    AxisLocator origin = new AxisLocator(mainI);
 	    double time = (System.currentTimeMillis()/1000.0) - initTime;
 	    double z = 0.0;
 	    boolean init = true;
 	    
+	    // MAIN LOOP - could implement this as functions and call from a new class to neaten things up
+	    // will get around to it one day...
 		while(true){
+			// only work if a camera is connected
+			// although variable is named 'haveKinect' will work on most webcams
 			if(haveKinect){
 				mainI = kr.getColorFrame();
 		    	w.ImagePanelUpdate(mainP, mainI, 1);
 		    	origin.setImage(mainI);
 		    	
+		    	// if cannot find the kanji marker stay in this loop
 		    	while (origin.findAxis()==null) {
+		    		// grab camera image
 		    		mainI = kr.getColorFrame();
+		    		// update left GUI image
 			    	w.ImagePanelUpdate(mainP, mainI, 1);
+			    	// set new image for AxisLocator class
 			    	origin.setImage(mainI);
+			    	
+			    	// COPY COIN POSITION UPDATE AND OUTPUT IMAGE DRAWING INTO HERE
+			    	// TO CONTINUE TO UPDATE THE COIN POSITIONS BASED ON LAST VELOCITY
 		    	}
 		    	
+		    	// first time round skip velocity calculations and just update current values
 		    	if (init == true) {
 		    		currentVelocity = 0.0;
 		    		init = false;
 		    	} else {
+		    		// update angular velocity based on change from past rotation angle and time
 		    		double newvel = -(Math.toRadians(origin.rotsInfo.z)-z)/(System.currentTimeMillis()/1000.0 - initTime-time);
-		    		
+		    		currentVelocity = newvel;
+		    		// if pretty much 0 just set to plain 0
 		    		if (currentVelocity > -0.001 && currentVelocity < 0.001) {
 		    			currentVelocity = 0.0;
 		    		}
-		    		
-		    	//	if (Math.abs(newvel) > Math.abs(currentVelocity)*1.2) {
-		    	//		currentVelocity = (currentVelocity + newvel)/2.0;
-		    	//	} else {
-		    			currentVelocity = newvel;
-		    	//	}
 		    	}
+		    	// update rotation
+		    	z = Math.toRadians(origin.rotsInfo.z);
 		    	
+		    	// UPDATE THE CURRENT TIME OF OPERATION IN SECONDS
 		    	time = (System.currentTimeMillis()/1000.0) - initTime;
+		    	
+		    	// CAN RESET TRACKED COINS AFTER A SPECIFIED TIMEFRAME
+		    	// CURRENTLY RESETS WITH EACH COIN PICKUP
 		    	/**
 		    	// RESET SCENE AFTER SET TIME
 		    	if (time > 10.0) {
@@ -507,12 +519,10 @@ public class CoinGUI extends JFrame{
 		    	}
 		    	con.addln("Time --> "+String.valueOf(time));
 		    	*/
-		    	z = Math.toRadians(origin.rotsInfo.z);
 		    	
-		    	//currentVelocity = turnTable.readSpeed();
-		    	
-		    	//w.ImagePanelUpdate(currentP, findCoins(mainI), 1);
-		    	
+		    	// erode then dilate image prior to coin identification
+		    	// reduces reflections and features to mostly show the coin color
+		    	// has made the identification much more robust to lighting conditions
 		    	cvErode(mainI, mainI, null, 3);
 		    	cvDilate(mainI, mainI, null, 3);
 		  	  	
@@ -520,26 +530,21 @@ public class CoinGUI extends JFrame{
 		    	coinFinder.find();
 	        	coinFinder.determineValues();
 	        	
+	        	// coin data obtained from coinFinder class
 	        	ArrayList<TreeMap<Double, ArrayList<Double>>> coinData = coinFinder.getCoinLocationData();
 	        	
-	        	// radius, angle, time
+	        	// contains:  ArrayList<TreeMap<Value, ArrayList<radius, angle, ID time>>>
 	        	ArrayList<TreeMap<Double, ArrayList<Double>>> NEWcoinsPolar = new ArrayList<TreeMap<Double, ArrayList<Double>>>();
 	        	
-	        	// wrt centre in standard orientation
+	        	// convert all identified coins into standard polar coordinates
 	        	double offsetx = 320.0*pixelSize; double offsety = 240.0*pixelSize;
 	        	for (TreeMap<Double, ArrayList<Double>> coin : coinData) {
 	        		Double value = coin.firstKey();
 	        		ArrayList<Double> pos = coin.get(value);
 	        		double x = pos.get(0)-offsetx; double y = offsety-pos.get(1);
 	        		double diffx = x-originXmm; double diffy = y-originYmm;
-	        		//System.out.println(value+" --> diffx: "+diffx+", diffy: "+diffy);
 	        		Double polarRadius = Math.sqrt(Math.pow(diffx, 2)+Math.pow(diffy, 2));
 	        		Double polarAngleRad = Math.atan2(diffy, diffx);
-	        		//Double polarAngleDeg = Math.toDegrees(polarAngleRad);
-	        		//con.wipe(); 
-	        		//con.addln("Radius: "+polarRadius.toString());
-	        		//con.addln("Angle: "+polarAngleRad.toString());
-	        		
 	        		TreeMap<Double, ArrayList<Double>> newmap = new TreeMap<Double, ArrayList<Double>>();
 	        		ArrayList<Double> polarcoords = new ArrayList<Double>();
 	        		polarcoords.add(polarRadius); polarcoords.add(polarAngleRad); polarcoords.add(time);
@@ -547,7 +552,7 @@ public class CoinGUI extends JFrame{
 	        		NEWcoinsPolar.add(newmap);
 	        	}
 	        	
-	        	// shift all old based on velocity
+	        	// shift all tracked coins based on velocity
 	        	for (TreeMap<Double, ArrayList<Double>> OLDcoin : coinsPolar) {
 	        		Double OLDvalue = OLDcoin.firstKey();
         			ArrayList<Double> OLDpolar = OLDcoin.get(OLDvalue);
@@ -562,12 +567,7 @@ public class CoinGUI extends JFrame{
         			OLDpolar.set(2, time);
 	        	}
 	        	
-	        	TreeMap<Double, Double> hardMapSize = new TreeMap<Double, Double>();
-	        	hardMapSize.put(0.05, 19.4); hardMapSize.put(0.1, 23.6);
-	        	hardMapSize.put(0.2, 28.5); hardMapSize.put(0.5, 31.5);
-	        	hardMapSize.put(1.0, 25.0); hardMapSize.put(2.0, 20.6);
-	        	
-	        	// check new vs old
+	        	// check if newly identified coin is already being tracked, update information if required
 	        	for (TreeMap<Double, ArrayList<Double>> NEWcoin : NEWcoinsPolar) {
 	        		Double NEWvalue = NEWcoin.firstKey();
 	        		ArrayList<Double> NEWpolar = NEWcoin.get(NEWvalue);
@@ -581,73 +581,34 @@ public class CoinGUI extends JFrame{
 	        		for (TreeMap<Double, ArrayList<Double>> OLDcoin : coinsPolar) {
 	        			Double OLDvalue = OLDcoin.firstKey();
 	        			ArrayList<Double> OLDpolar = OLDcoin.get(OLDvalue);
-	        			/**
-	        			// compare angles
-	        			double radiusThreshold = 0.0;
-	        			double angleThreshold = 0.0;
-	        			if (OLDvalue.equals(NEWvalue)) {
-	        				radiusThreshold = hardMapSize.get(NEWvalue)/2.0 + 5.0;
-	        				angleThreshold = Math.PI - 2.0*Math.acos(hardMapSize.get(NEWvalue)/(2.0*NEWpolar.get(0))) + 0.1;
-	        			} else {
-	        				double OLDrad = hardMapSize.get(OLDvalue)/2.0;
-		        			double NEWrad = hardMapSize.get(NEWvalue)/2.0;
-		        			if (OLDrad > NEWrad) {
-		        				radiusThreshold = OLDrad + 5.0;
-		        				angleThreshold = Math.PI - 2.0*Math.acos(OLDrad/(2.0*OLDpolar.get(0))) + 0.1;
-		        			} else {
-		        				radiusThreshold = NEWrad+5.0;
-		        				angleThreshold = Math.PI - 2.0*Math.acos(NEWrad/(2.0*NEWpolar.get(0))) + 0.1;
-		        			}
-	        			}
-	        			*/
-	        			//if ((OLDpolar.get(1) > (NEWpolar.get(1)-angleThreshold)) && (OLDpolar.get(1) < (NEWpolar.get(1)+angleThreshold)) &&
-	        			//		(OLDpolar.get(0) > (NEWpolar.get(0)-radiusThreshold)) && (OLDpolar.get(0) < (NEWpolar.get(0)+radiusThreshold))) {
 	        			
+	        			// if the radius and angle is within a threshold of propagated past identified coin...
 	        			if ((OLDpolar.get(1).compareTo(NEWpolar.get(1)-0.25)>0) && (OLDpolar.get(1).compareTo(NEWpolar.get(1)+0.25)<0) &&
 		        				(OLDpolar.get(0).compareTo(NEWpolar.get(0)-20)>0) && (OLDpolar.get(0).compareTo(NEWpolar.get(0)+20)<0)) {
 	        				
+	        				// if same coin but recognized as a larger value take larger value
+	        				// this prevents misclassification of coins as silver when actually gold
+	        				// (requirements for classification as silver is more broad than gold)
 	        				if (OLDvalue > NEWvalue) {
-	        					//NEWcoin.put(OLDvalue, NEWpolar);
-	        					//OLDcoin = NEWcoin;
-	        					
 	        					ArrayList<Double> newbit = new ArrayList<Double>();
 	        					newbit.add(NEWpolar.get(0)); newbit.add(NEWpolar.get(1)); newbit.add(NEWpolar.get(2));
 	        					TreeMap<Double, ArrayList<Double>> dat = new TreeMap<Double, ArrayList<Double>>();
 	        					dat.put(OLDvalue, newbit);
-	        					
-	        					//System.out.println("coinsPolar "+coinsPolar);
-	        					//System.out.println("OLDvalue "+OLDvalue);
 	        					coinsPolar.set(coinsPolar.indexOf(OLDcoin), dat);
-	        					
-	    //    					if (NEWcoin.firstKey() == 0.5) {
-	    //	        				con.addln("IN THRESH "+NEWcoin.toString());
-	    //	        			}
-	        					//coinsPolar.remove(OLDcoin);
-	        					//coinsPolar.add(dat);
-	        					
-	        					//OLDcoin.put(OLDvalue,NEWpolar);
-	        					//coinsPolar.remove(OLDcoin);
-	        					//coinsPolar.add(NEWcoin);
-	        					
-	        				} else {
-	        					//OLDcoin = NEWcoin;
+	        				}
+	        				// otherwise add the new coin information in old coin place
+	        				// (updates radius, angle and time)
+	        				else {
 	        					coinsPolar.remove(OLDcoin);
 	        					coinsPolar.add(NEWcoin);
-	     //   					if (NEWcoin.firstKey() == 0.5) {
-	    //	        				con.addln("OUTSIDE THRESH "+NEWcoin.toString());
-	    //	        			}
 	        				}
-	        				
 	        				doAdd = false;
 	        				break;
 	        			}
 	        		}
+	        		// if not already in identified coins add as a new coin
 	        		if (doAdd) {
 	        			coinsPolar.add(NEWcoin);
-	    //    			if (NEWcoin.firstKey() == 0.5) {
-	     //   				con.addln("ADD NEW "+NEWcoin.toString());
-	     //   			}
-	        			//System.out.println(NEWcoin);
 	        		}
 	        	}
 	        	
@@ -657,21 +618,18 @@ public class CoinGUI extends JFrame{
         			ArrayList<Double> OLDpolar = OLDcoin.get(OLDvalue);
         			Double angle = OLDpolar.get(1);
         			Double NEWangle = angle-(OLDpolar.get(2)-time)*currentVelocity;
-        			//Double NEWangle = angle;
         			OLDpolar.set(1, NEWangle);
         			OLDpolar.set(2, time);
 	        	}
 	        	
 	        	IplImage trackedImage = coinFinder.getDrawnCoins();
 	        	
+	        	// CAN VISUALISE OPTICAL FLOW IF REQUIRED - UNCOMMENT THESE TWO LINES
 	        	//OpticalFlowTracker flowTracker = new OpticalFlowTracker();
 		    	//trackedImage = flowTracker.trackMovement(trackedImage, kr.getColorFrame());
 		    	
-		    	//con.wipe();
-				//con.addln(coinFinder.getValues().toString());
-				
+	        	// DRAW CIRCLES
 	        	Double TOTALVALUE = 0.0;
-		    	// DRAW CIRCLES
 		    	boolean DRAWCIRCLES = true;
 		    	if (DRAWCIRCLES) {
 			    	for (TreeMap<String, ArrayList<Double>> note : notesPolar) {
@@ -709,32 +667,17 @@ public class CoinGUI extends JFrame{
 		        	}
 		    	}
 		    	
+		    	// update GUI picture on RHS
 		    	w.ImagePanelUpdate(currentP, trackedImage, 1);
 		    	
-	//	    	con.wipe();
-		    	// ONLY VALUE IN CURRENT COIN FINDER CLASS
-	        	//con.addln("$"+coinFinder.getTotalValue().toString());
-	//        	con.addln("Total value --> $"+TOTALVALUE.toString());
+		    	// PRINT INFORMATION
+		    	con.wipe();
+	        	con.addln("Total value --> $"+TOTALVALUE.toString());
 	        	//con.addln(notesPolar.toString());
 	        	//con.addln(coinsPolar.toString());
 	        	//con.addln("Velocity measured (rad/s) --> "+currentVelocity.toString());
 	        	//con.addln("Velocity read (rad/s) --> "+turnTable.readSpeed().toString());
-	        	
-		    	//BlobFinder blob = new BlobFinder(mainI);
-		    	//CvScalar min = new CvScalar(130, 0, 50, 0);
-		    	//CvScalar max = new CvScalar(200, 255, 255, 0);
-		    	//IplImage blobImage = blob.findBlobs(mainI, min, max, 8000);
-		    	
-				/**
-				IplImage imgHSV = cvCreateImage(cvGetSize(mainI), 8, 3);
-				cvCvtColor(mainI, imgHSV, CV_BGR2HSV);
-				IplImage imgThreshold = cvCreateImage(cvGetSize(mainI), 8, 1);
-				cvInRangeS(imgHSV, min, max, imgThreshold);
-				cvReleaseImage(imgHSV);
-				cvSmooth(imgThreshold, imgThreshold, CV_MEDIAN, 1);
-				*/
-		    	
-		    	//w.ImagePanelUpdate(currentP, blobImage, 1);
+
 	        	if (currentVelocity != 0) {
 		        	if (time > (movingCoinTime + 2.0 + 4.0/currentVelocity)) {
 	        			coinsPolar.clear();
@@ -743,101 +686,74 @@ public class CoinGUI extends JFrame{
 	        		}
 	        	}
 	        	
-	        	
+	        	// actuation time prediction requires a good estimate of rotational velocity
+	        	// the last 40 velocities is taken and the average of the median 20 used
 	        	velHistory.add(currentVelocity);
 	        	while (velHistory.size() > 40) {
 	        		velHistory.remove(0);
 	        	}
 	        	
-	        	// actuation time faster as radius increases
-	        	
 	        	if (velHistory.size() == 40) {
-	        		
 	        		ArrayList<Double> ordered = (ArrayList<Double>) velHistory.clone();
 	        		Arrays.sort(ordered.toArray());
-		        	
 		        	// average of the median
-		//        	con.addln("order size: "+ordered.size());
 		        	double sum = 0;
 		        	for (int i=10; i < 30; i++) {
 		        		sum += ordered.get(i);
 		        	}
 		        	double avgVel = sum/20.0;
 		//        	con.addln("Average Velocity measured (rad/s) --> "+avgVel);
-	        	
-		        	for (TreeMap<String, ArrayList<Double>> coin : notesPolar) {
-		        		String value = coin.firstKey();
+		        	
+		        	// ACTUATE ARM IF COIN IS REACHABLE
+		        	for (TreeMap<Double, ArrayList<Double>> coin : coinsPolar) {
+		        		Double value = coin.firstKey();
 		        		ArrayList<Double> polarcoord = coin.get(value);
 		        		Double radius = polarcoord.get(0);
 		        		double angle = polarcoord.get(1);
-		        		// faster -> decrease
-		        		
 		        		double deltaAng = 0.0;
-		  //      		con.addln("Radius to center --> mm"+radius.toString());
-		        		// table radius about 100 mm
-		        		// quadrant left of arm --> top right of screen
 		        		
-		        		// new = Math.PI/2.0 - NUM*(avgVel/CALIBVEL)
-		        		
+		        		// if in the semicircle left of the arm (right side of screen) and moving towards arm
 		        		if ((currentVelocity > 0) && (angle > -Math.PI/2.0) && (angle < Math.PI/2.0)) {
+		        			// calculate the angle corresponding to required actuation time
 		        			if (radius > 10.0 && radius < 20.0) {
-		        				//deltaAng = Math.PI/2.0 - avgVel*5.1;
 		        				deltaAng = Math.PI/2.0 - avgVel*4.8;
-		        	//			deltaAng = Math.PI/2.0 - Math.toRadians(61)*(avgVel/CALIBVEL);
 		        			} else if (radius > 20 && radius < 25) {
-		        				//deltaAng = Math.PI/2.0 - avgVel*5.21;
 		        				deltaAng = Math.PI/2.0 - avgVel*4.91;
-		        	//			deltaAng = Math.PI/2.0 - Math.toRadians(-60)*(avgVel/CALIBVEL);
 		        			} else if(radius > 25 && radius < 30) {
-		        				//deltaAng = Math.PI/2.0 - avgVel*4.28;
 		        				deltaAng = Math.PI/2.0 - avgVel*3.98;
-		        	//			deltaAng = Math.PI/2.0 - Math.toRadians(-10)*(avgVel/CALIBVEL);
 		        			} else if (radius > 30 && radius < 40) {									// 
-		        				//deltaAng = Math.PI/2.0 - avgVel*1.76;
 		        				deltaAng = Math.PI/2.0 - avgVel*1.46;
-		        	//			deltaAng = Math.PI/2.0 - Math.toRadians(20)*(avgVel/CALIBVEL);
 		        			} else if (radius > 40 && radius < 50) {									// GOOD
-		        				//deltaAng = Math.PI/2.0 - avgVel*1.64;
 		        				deltaAng = Math.PI/2.0 - avgVel*1.35;
-		        	//			deltaAng = Math.PI/2.0 - Math.toRadians(61)*(avgVel/CALIBVEL);
 		        			} else if (radius > 50 && radius < 60) {									// GOOD
-		        				//deltaAng = Math.PI/2.0 - avgVel*1.39;
 		        				deltaAng = Math.PI/2.0 - avgVel*0.95;
-		        	//			deltaAng = Math.PI/2.0 - Math.toRadians(61)*(avgVel/CALIBVEL);
 		        			} else if (radius > 60 && radius < 70) {									// GOOD
-		        				//deltaAng = Math.PI/2.0 - avgVel*1.34;
 		        				deltaAng = Math.PI/2.0 - avgVel*0.85;
-		        	//			deltaAng = Math.PI/2.0 - Math.toRadians(61)*(avgVel/CALIBVEL);
 		        			} else if (radius > 70 && radius < 80) {									// GOOD
-		        				//deltaAng = Math.PI/2.0 - avgVel*1.32;
 		        				deltaAng = Math.PI/2.0 - avgVel*0.8;
-		        	//			deltaAng = Math.PI/2.0 - Math.toRadians(65)*(avgVel/CALIBVEL);
 		        			} else if (radius > 80 && radius < 90) {									// GOOD
-		        				//deltaAng = Math.PI/2.0 - avgVel*1.34;
 		        				deltaAng = Math.PI/2.0 - avgVel*1.04;
-		        	//			deltaAng = Math.PI/2.0 - Math.toRadians(59)*(avgVel/CALIBVEL);
 		        			} else if (radius > 90 && radius < 100) {									// GOOD
-		        				//deltaAng = Math.PI/2.0 - avgVel*1.68;
 		        				deltaAng = Math.PI/2.0 - avgVel*1.38;
-		        	//			deltaAng = Math.PI/4.0;// never reach
 		        			}
 		        			
+		        			// if the coin is +- 4 degrees of this angle actuate!
+		        			// (as long as not already actuating)
 		        			Double window = Math.toRadians(4);
 		        			if ((angle > deltaAng-window) && (angle < deltaAng+window)
 		        					&& (!armThread.isAlive())) {
-		        				arm.setThread(radius.intValue(), 3);
-		        				//arm.run();
+		        				// arm is a threaded process to allow the GUI to still update
+		        				arm.setThread(radius.intValue(), arm.getBoxNum(value));
 		        				armThread = new Thread(arm, "armThread");
 		        				armThread.start();
 		        				movingCoinTime = time;
-		        				notesPolar.clear();
 		        				break;
 		        			}
 		        		}
 		        		
-		        		// quadrant right of arm --> top left of screen
+		        		// if in the quadrant right of the arm (top left of screen) and moving towards arm
 		        		else if ((currentVelocity < 0) && (angle > Math.PI/2.0) && (angle < Math.PI)) {
-		   //     			con.addln(currentVelocity.toString());
+		        			// calculate the angle corresponding to required actuation time
 		        			if (radius > 10.0 && radius < 20.0) {
 		        				deltaAng = Math.PI/2.0 - avgVel*4.5;
 		        			} else if (radius > 20 && radius < 25) {
@@ -860,162 +776,23 @@ public class CoinGUI extends JFrame{
 		        				deltaAng = Math.PI/2.0 - avgVel*1.08;
 		        			}
 		        			
+		        			// if the coin is +- 4 degrees of this angle actuate!
+		        			// (as long as not already actuating)
 		        			Double window = Math.toRadians(4);
-		        			
 		        			if ((angle < deltaAng+window) && (angle > deltaAng-window)
 		        					&& (!armThread.isAlive())) {
+		        				// arm is a threaded process to allow the GUI to still update
 		        				con.addln("INSIDE WINDOW");
-		        				arm.setThread(radius.intValue(), 3);
+		        				arm.setThread(radius.intValue(), arm.getBoxNum(value));
 		        				armThread = new Thread(arm, "armThread");
 		        				armThread.start();
 		        				movingCoinTime = time;
-		        				notesPolar.clear();
 		        				break;
 		        			}
 		        		}
-		        		}
-		        	
-	        	
-		        	
-	        	for (TreeMap<Double, ArrayList<Double>> coin : coinsPolar) {
-	        		Double value = coin.firstKey();
-	        		ArrayList<Double> polarcoord = coin.get(value);
-	        		Double radius = polarcoord.get(0);
-	        		double angle = polarcoord.get(1);
-	        		// faster -> decrease
-	        		
-	        		double deltaAng = 0.0;
-	  //      		con.addln("Radius to center --> mm"+radius.toString());
-	        		// table radius about 100 mm
-	        		// quadrant left of arm --> top right of screen
-	        		
-	        		// new = Math.PI/2.0 - NUM*(avgVel/CALIBVEL)
-	        		
-	        		if ((currentVelocity > 0) && (angle > -Math.PI/2.0) && (angle < Math.PI/2.0)) {
-	        			if (radius > 10.0 && radius < 20.0) {
-	        				//deltaAng = Math.PI/2.0 - avgVel*5.1;
-	        				deltaAng = Math.PI/2.0 - avgVel*4.8;
-	        	//			deltaAng = Math.PI/2.0 - Math.toRadians(61)*(avgVel/CALIBVEL);
-	        			} else if (radius > 20 && radius < 25) {
-	        				//deltaAng = Math.PI/2.0 - avgVel*5.21;
-	        				deltaAng = Math.PI/2.0 - avgVel*4.91;
-	        	//			deltaAng = Math.PI/2.0 - Math.toRadians(-60)*(avgVel/CALIBVEL);
-	        			} else if(radius > 25 && radius < 30) {
-	        				//deltaAng = Math.PI/2.0 - avgVel*4.28;
-	        				deltaAng = Math.PI/2.0 - avgVel*3.98;
-	        	//			deltaAng = Math.PI/2.0 - Math.toRadians(-10)*(avgVel/CALIBVEL);
-	        			} else if (radius > 30 && radius < 40) {									// 
-	        				//deltaAng = Math.PI/2.0 - avgVel*1.76;
-	        				deltaAng = Math.PI/2.0 - avgVel*1.46;
-	        	//			deltaAng = Math.PI/2.0 - Math.toRadians(20)*(avgVel/CALIBVEL);
-	        			} else if (radius > 40 && radius < 50) {									// GOOD
-	        				//deltaAng = Math.PI/2.0 - avgVel*1.64;
-	        				deltaAng = Math.PI/2.0 - avgVel*1.35;
-	        	//			deltaAng = Math.PI/2.0 - Math.toRadians(61)*(avgVel/CALIBVEL);
-	        			} else if (radius > 50 && radius < 60) {									// GOOD
-	        				//deltaAng = Math.PI/2.0 - avgVel*1.39;
-	        				deltaAng = Math.PI/2.0 - avgVel*0.95;
-	        	//			deltaAng = Math.PI/2.0 - Math.toRadians(61)*(avgVel/CALIBVEL);
-	        			} else if (radius > 60 && radius < 70) {									// GOOD
-	        				//deltaAng = Math.PI/2.0 - avgVel*1.34;
-	        				deltaAng = Math.PI/2.0 - avgVel*0.85;
-	        	//			deltaAng = Math.PI/2.0 - Math.toRadians(61)*(avgVel/CALIBVEL);
-	        			} else if (radius > 70 && radius < 80) {									// GOOD
-	        				//deltaAng = Math.PI/2.0 - avgVel*1.32;
-	        				deltaAng = Math.PI/2.0 - avgVel*0.8;
-	        	//			deltaAng = Math.PI/2.0 - Math.toRadians(65)*(avgVel/CALIBVEL);
-	        			} else if (radius > 80 && radius < 90) {									// GOOD
-	        				//deltaAng = Math.PI/2.0 - avgVel*1.34;
-	        				deltaAng = Math.PI/2.0 - avgVel*1.04;
-	        	//			deltaAng = Math.PI/2.0 - Math.toRadians(59)*(avgVel/CALIBVEL);
-	        			} else if (radius > 90 && radius < 100) {									// GOOD
-	        				//deltaAng = Math.PI/2.0 - avgVel*1.68;
-	        				deltaAng = Math.PI/2.0 - avgVel*1.38;
-	        	//			deltaAng = Math.PI/4.0;// never reach
-	        			}
-	        			
-	        			Double window = Math.toRadians(4);
-	        			if ((angle > deltaAng-window) && (angle < deltaAng+window)
-	        					&& (!armThread.isAlive())) {
-	        				arm.setThread(radius.intValue(), arm.getBoxNum(value));
-	        				//arm.run();
-	        				armThread = new Thread(arm, "armThread");
-	        				armThread.start();
-	        				movingCoinTime = time;
-	        				break;
-	        			}
-	        		}
-	        		
-	        		// quadrant right of arm --> top left of screen
-	        		else if ((currentVelocity < 0) && (angle > Math.PI/2.0) && (angle < Math.PI)) {
-	   //     			con.addln(currentVelocity.toString());
-	        			if (radius > 10.0 && radius < 20.0) {
-	        				deltaAng = Math.PI/2.0 - avgVel*4.5;
-	        			} else if (radius > 20 && radius < 25) {
-	        				deltaAng = Math.PI/2.0 - avgVel*4.61;
-	        			} else if(radius > 25 && radius < 30) {
-	        				deltaAng = Math.PI/2.0 - avgVel*3.68;
-	        			} else if (radius > 30 && radius < 40) {
-	        				deltaAng = Math.PI/2.0 - avgVel*1.16;
-	        			} else if (radius > 40 && radius < 50) {
-	        				deltaAng = Math.PI/2.0 - avgVel*1.05;
-	        			} else if (radius > 50 && radius < 60) {
-	        				deltaAng = Math.PI/2.0 - avgVel*0.65;
-	        			} else if (radius > 60 && radius < 70) {
-	        				deltaAng = Math.PI/2.0 - avgVel*0.55;
-	        			} else if (radius > 70 && radius < 80) {
-	        				deltaAng = Math.PI/2.0 - avgVel*0.5;
-	        			} else if (radius > 80 && radius < 90) {
-	        				deltaAng = Math.PI/2.0 - avgVel*0.74;
-	        			} else if (radius > 90 && radius < 100) {
-	        				deltaAng = Math.PI/2.0 - avgVel*1.08;
-	        			}
-	        			
-	        			Double window = Math.toRadians(4);
-	        			
-	        			if ((angle < deltaAng+window) && (angle > deltaAng-window)
-	        					&& (!armThread.isAlive())) {
-	        				con.addln("INSIDE WINDOW");
-	        				arm.setThread(radius.intValue(), arm.getBoxNum(value));
-	        				armThread = new Thread(arm, "armThread");
-	        				armThread.start();
-	        				movingCoinTime = time;
-	        				break;
-	        			}
-	        		}
 	        		}
 	        	}
 			}
 		}
-		
-	//	Attempting to implement threading
-		//    videoPanel v = new videoPanel(kr);
-		//	    mainP.removeAll();
-		//	    mainP.add(v);
-		//	   Thread thread = (new Thread(v));
-		//	   System.out.println(thread.getId());
-		//	   thread.start();
-
 	}
-	    
-	    // UNRELIABLE : NOT FULLY IMPLEMENTED
-	    private void visualiseExtrinsics(){
-	    	
-	    	CvMat rotOut = CvMat.create(rotVectors.length(),3);
-	    	CvMat rot = new CvMat();
-	    	rot.put(rotVectors.get(0,0));
-	    	rot.put(rotVectors.get(1,0));
-	    	rot.put(rotVectors.get(2,0));
-	    	cvRodrigues2(rot, rotOut,new CvMat());
-	    }
-	    
-	    private static IplImage drawLine(IplImage trackedImage, Double originXmm, Double originYmm, double radius, double angle) {
-	    	CvPoint ORIGIN = new CvPoint((int)(originXmm/pixelSize)+320,(int)(-originYmm/pixelSize)+240);
-			double xWrtCent = (radius)*Math.cos(angle)/pixelSize;
-			double yWrtCent = (radius)*Math.sin(angle)/pixelSize;
-			double cartX = xWrtCent+ORIGIN.x(); double cartY = -yWrtCent+ORIGIN.y();
-			CvPoint POINT = new CvPoint((int)cartX, (int)cartY);
-			cvLine(trackedImage, ORIGIN, POINT, CvScalar.RED, 1, CV_AA, 0);
-			return trackedImage;
-	    }
 }

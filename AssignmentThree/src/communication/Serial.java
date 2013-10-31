@@ -14,7 +14,14 @@ public class Serial {
 	String readbuffer;
 	
 	public Serial(int p){
+		
 		serialPort = new SerialPort("COM"+p);
+		
+		// exit program if cannot open serial port
+		if (! serialPort.isOpened()) {
+			System.out.println("Cannot open serial port "+p+".");
+			System.exit(0);
+		}
 	}
    
 	 public static void main(String[] args) {
