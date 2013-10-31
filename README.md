@@ -9,3 +9,6 @@ is using MatLab
 
 CandA refers to Clinton Walker and Alistair Francis
 Team Ben refers to Ben Rose and Ben Merange
+
+The final submission for Assignment 3 is also written in Java and is based on the 
+computer vision code from Ben and Ben in Assignment 2
